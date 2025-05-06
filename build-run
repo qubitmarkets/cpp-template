@@ -1,0 +1,142 @@
+#!/bin/bash
+
+#
+# Build script (with run & check support) similar to cargo
+#
+
+cd $(dirname ${BASH_SOURCE})
+
+set -eu
+
+script_name=$(basename $0)
+mode=help
+profile=${profile-debug}
+compiler=${compiler-clang}
+run_args=""
+args=("$@")
+PIPE_COLORPATH=""
+if [[ -e /usr/bin/colorpath ]]; then PIPE_COLORPATH="| /usr/bin/colorpath"; fi
+
+target=${target-}
+
+flags=""
+test_flags=()
+nargs=$(($# - 1))
+for i in $(seq 0 $nargs); do
+    arg="${args[$i]}"
+    if [[ $arg == "-r" ]]; then
+        profile=release
+    elif [[ $arg == "-v" ]]; then
+        flags="$flags $arg"
+    elif [[ ${arg:0:11} == "--compiler=" ]]; then
+        compiler=("${arg:11}")
+    elif [[ ${arg:0:11} == "--gcc" ]]; then
+        compiler=("gcc")
+    elif [[ $arg == "cfg" || $arg == "configure" ]]; then
+        mode=configure
+    elif [[ $arg == "b" || $arg == "build" ]]; then
+        mode=build
+    elif [[ $arg == "r" || $arg == "run" ]]; then
+        mode=run
+    elif [[ $arg == "c" || $arg == "check" ]]; then
+        mode=check
+    elif [[ $arg == "t" || $arg == "test" ]]; then
+        mode=test
+    elif [[ ${arg:0:10} == "--sanitize" ]]; then
+        profile=${profile}.sanitize
+    elif [[ $arg == "--" ]]; then
+        shift $i
+        shift 1
+        run_args="$@"
+        break
+    else
+        # Unknown arg
+        if [[ "$mode" == "test" ]]; then
+            if [[ ${arg:0:1} != "-" ]]; then
+                test_flags+=("-R")
+            fi
+            test_flags+=("$arg")
+        elif [[ $target == "" ]]; then
+            target="$arg"
+        else
+            echo "Unknown arg $arg"
+        fi
+    fi
+done
+
+# Create build dir
+cmake_build_dir="target/${profile}.${compiler}"
+ln -nfs $cmake_build_dir build
+
+# Write active config
+(
+    echo "profile=$profile"
+    echo "compiler=$compiler"
+    echo "cmake_build_dir=$cmake_build_dir"
+) >./.active_cfg.sh
+
+rv=0
+# Configure
+if [[ ! -e $cmake_build_dir || $mode == "configure" ]]; then
+    cmake --preset $profile.$compiler
+    rv=$(($rv || $?))
+fi
+
+# Help
+function help {
+    echo "$script_name cfg | configure"
+    echo "$script_name b | build [target]"
+    echo "$script_name r | run"
+    echo "$script_name c | check"
+    echo "$script_name t | test"
+}
+
+# Sub-comamnds
+if [[ $mode == "help" ]]; then
+    help
+    exit 1
+fi
+
+if [[ $target != "" ]]; then
+    flags="$flags -t $target"
+fi
+
+# build
+if [[ $mode == "build" || $mode == "run" || $mode == "test" ]]; then
+    bash -c "cmake --build ${cmake_build_dir} ${flags} $PIPE_COLORPATH; exit \${PIPESTATUS[0]}"
+    rv=$(($rv || $?))
+fi
+
+if [[ $mode == "build" ]]; then
+    if [[ $target == "" ]]; then
+        echo "Built all targets:"
+        ninja -C build -t targets all | grep CXX_EXECUTABLE_LINKER_ | grep -v '\.cmake' | cut -d: -f1 | sed "s,^,  ./$cmake_build_dir}/,"
+    else
+        echo "  Built ${cmake_build_dir}/$target"
+    fi
+    rv=$(($rv || $?))
+fi
+
+# Check
+if [[ $mode == "check" ]]; then
+    find src -type f | xargs clang-format -i
+    find src -type f | xargs clang-tidy -format-style=file -header-filter=. -p ${cmake_build_dir}
+    rv=$(($rv || $?))
+fi
+
+# Run
+if [[ $mode == "run" ]]; then
+    exec $cmake_build_dir/$target "${run_args}"
+    rv=$(($rv || $?))
+fi
+
+# Test
+if [[ $mode == "test" ]]; then
+    if [[ "${test_flags[@]}" != "" ]]; then
+        echo "Running with test flags ${test_flags[@]}"
+    fi
+    bash -c "(cd $cmake_build_dir; ctest ${test_flags[*]} --output-on-failure) $PIPE_COLORPATH; exit \${PIPESTATUS[0]}"
+    rv=$(($rv || $?))
+fi
+
+exit $rv

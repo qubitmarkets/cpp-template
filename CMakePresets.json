@@ -1,0 +1,110 @@
+{
+    "version": 8,
+    "configurePresets": [
+        {
+            "name": "debug.gcc",
+            "displayName": "gcc13 Debug",
+            "description": "Using compilers: C = /usr/bin/gcc, CXX = /usr/bin/g++",
+            "binaryDir": "${sourceDir}/target/${presetName}",
+            "generator": "Ninja",
+            "cacheVariables": {
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/target/debug.gcc",
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+                "CMAKE_C_COMPILER": "/usr/bin/gcc",
+                "CMAKE_CXX_COMPILER": "/usr/bin/g++",
+                "CMAKE_CXX_FLAGS": "-include ${sourceDir}/qbuild/pch.h",
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        },
+        {
+            "name": "release.gcc",
+            "displayName": "gcc13 Release",
+            "description": "Using compilers: C = /usr/bin/gcc, CXX = /usr/bin/g++",
+            "binaryDir": "${sourceDir}/target/${presetName}",
+            "generator": "Ninja",
+            "cacheVariables": {
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/target/release.gcc",
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+                "CMAKE_C_COMPILER": "/usr/bin/gcc",
+                "CMAKE_CXX_COMPILER": "/usr/bin/g++",
+                "CMAKE_CXX_FLAGS": "-include ${sourceDir}/qbuild/pch.h -O3",
+                "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+            }
+        },
+        {
+            "name": "debug.clang",
+            "displayName": "Clang 19 Debug",
+            "description": "Using compilers: C = /usr/bin/clang-19, CXX = /usr/bin/clang++-19",
+            "binaryDir": "${sourceDir}/target/${presetName}",
+            "generator": "Ninja",
+            "cacheVariables": {
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/target/debug.clang",
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+                "CMAKE_C_COMPILER": "/usr/bin/clang-19",
+                "CMAKE_CXX_COMPILER": "/usr/bin/clang++-19",
+                "CMAKE_CXX_FLAGS": "-include ${sourceDir}/qbuild/pch.h",
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        },
+        {
+            "name": "release.clang",
+            "displayName": "Clang 19 Release",
+            "description": "Using compilers: C = /usr/bin/clang-19, CXX = /usr/bin/clang++-19",
+            "binaryDir": "${sourceDir}/target/${presetName}",
+            "generator": "Ninja",
+            "cacheVariables": {
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/target/release.clang",
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+                "CMAKE_C_COMPILER": "/usr/bin/clang-19",
+                "CMAKE_CXX_COMPILER": "/usr/bin/clang++-19",
+                "CMAKE_CXX_FLAGS": "-include ${sourceDir}/qbuild/pch.h -O3",
+                "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+            }
+        },
+        {
+            "name": "clang-tidy",
+            "displayName": "Clang Ticy 19",
+            "description": "Using clang-tidy-19",
+            "binaryDir": "${sourceDir}/target/${presetName}",
+            "generator": "Ninja",
+            "cacheVariables": {
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/target/debug.clang",
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+                "CMAKE_C_COMPILER": "/usr/bin/clang-19",
+                "CMAKE_CXX_COMPILER": "/usr/bin/clang++-19",
+                "CMAKE_CXX_FLAGS": "-include ${sourceDir}/qbuild/pch.h",
+                "CMAKE_BUILD_TYPE": "Debug",
+                "CMAKE_CXX_CLANG_TIDY": "/usr/bin/clang-tidy;-style=file;"
+            }
+        },
+        {
+            "name": "debug.test.clang",
+            "inherits": "debug.clang",
+            "displayName": "Clang 19 Test",
+            "cacheVariables": {}
+        },
+        {
+            "name": "debug.sanitize.clang",
+            "inherits": "debug.clang",
+            "displayName": "Clang 19 Debug Sanitize",
+            "binaryDir": "${sourceDir}/target/${presetName}",
+            "cacheVariables": {
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/target/debug.sanitize.clang",
+                "CMAKE_CXX_FLAGS": "-include ${sourceDir}/qbuild/pch.h -fsanitize=address",
+                "CMAKE_LINK_FLAGS": "-fsanitize=address"
+            }
+        },
+        {
+            "name": "release.sanitize.clang",
+            "inherits": "release.clang",
+            "displayName": "Clang 19 Release Sanitize",
+            "binaryDir": "${sourceDir}/target/${presetName}",
+            "cacheVariables": {
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/target/debug.sanitize.clang",
+                "CMAKE_CXX_FLAGS": "-include ${sourceDir}/qbuild/pch.h -fsanitize=address -O3",
+                "CMAKE_LINK_FLAGS": "-fsanitize=address"
+            }
+        }
+    ],
+    "buildPresets": []
+}

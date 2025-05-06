@@ -1,0 +1,9 @@
+#!/bin/bash
+
+dir=$(find-root build-run)
+if [[ $? == 0 ]]; then
+    "$dir/build-run" "$@"
+else
+    # Default to cargo if can't find build-run
+    cargo "$@"
+fi

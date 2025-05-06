@@ -1,0 +1,23 @@
+#!/bin/bash
+# tmux-signal pid [signal] - send USR1 signal to running processes in pids session
+# bind ^T run-shell -b "tmux-signal #{pane_pid} #{pane_id}"
+
+pane_pid=$1
+find_pane_id=$2
+
+[ "$#" -lt 1 ] && exit 1
+sid=$(cut -d' ' -f6 "/proc/$1/stat")
+[ $sid == 0 ] && exit 1
+ps -ho state,pid --sid "$sid" |
+    while read state pid; do
+        exe=$(readlink "/proc/$pid/exe")
+        if strings "$exe" | grep -F -q "__qbuild_SIG_HANDLER_VERSION__"; then
+            # This is a qbuild process
+            kill -sUSR1 "$pid"
+        fi
+        if [[ "$exe" == "/usr/bin/ssh" ]]; then
+            ssh_cmdline=$(cat /proc/$pid/cmdline | tr '\0' ' ')
+            ssh_cmdline="$ssh_cmdline signal-all-bash $find_pane_id"
+            eval "$ssh_cmdline"
+        fi
+    done

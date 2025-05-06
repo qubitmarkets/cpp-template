@@ -1,0 +1,16 @@
+#!/bin/bash
+
+# Sends USR1 signal to all children of bash processes owned by the current user with TMUX_PANE=$1
+find_pane_id=$1
+sids=$(ps -f -A | grep "$USER.*pts/.*-bash$" | awk -F' ' '{print $2}')
+for bash_sid in $sids; do
+    if [[ $find_pane_id != "" && $(cat /proc/$bash_sid/environ | tr '\0' '\n' | grep "^TMUX_PANE=$find_pane_id") == "" ]]; then
+        continue
+    fi
+    ps -ho pid --sid=$bash_sid | while read p; do
+        if [[ "$p" == "$bash_sid" ]]; then
+            continue
+        fi
+        kill -sUSR1 $p
+    done
+done

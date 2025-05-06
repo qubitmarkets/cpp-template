@@ -1,0 +1,9 @@
+#!/bin/bash
+
+PATH=$PATH:$(dirname ${BASH_SOURCE})
+top=$(find-root .active_cfg.sh)
+
+cd $top
+
+source $top/.active_cfg.sh
+ninja -C $cmake_build_dir "$@"

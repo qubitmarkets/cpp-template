@@ -1,0 +1,12 @@
+include/
+abseil-cpp/
+lib/
+bin/
+share/
+libbacktrace/
+catch2/
+gcc/
+cmake-*/
+*.gz
+*.bz2
+f-stack/

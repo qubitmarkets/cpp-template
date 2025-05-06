@@ -1,0 +1,30 @@
+#!/bin/bash
+
+if [[ $# -lt 1 ]]; then
+    echo "$0 [-e] <file to find>"
+    exit 1
+fi
+mode=print_dir
+if [[ $1 == "-e" ]]; then
+    mode=exec
+    shift 1
+fi
+file="$1"
+shift 1
+
+p=$PWD
+while [[ $p != "/" ]]; do
+    if [[ -e "$p/$file" ]]; then
+        break
+    fi
+    p=$(dirname $p)
+done
+if [[ $p == "/" ]]; then
+    exit 1
+fi
+
+if [[ $mode == "print_dir" ]]; then
+    echo $p
+    elif [[ $mode == "exec" ]]; then
+    exec "$p/$file" "$@"
+fi

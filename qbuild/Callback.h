@@ -1,0 +1,147 @@
+#pragma once
+
+/// Fast Callback
+/// Callback with 8 bytes of storage
+///
+/// Lifetimes:
+/// - Callback has a lifetime L1
+/// - The item it's calling to has a lifetime L2
+/// - If L2 < L1, then calling the CB will segfault.
+
+#include "qbuild/compiler.h"
+#include <concepts>
+#include <cstddef>
+#include <type_traits>
+#include <utility>  // std::forward
+
+// Placeholder Tag struct for initializing Callback to be callable with no side-effects
+struct Noop_t {};
+static const constexpr Noop_t Noop;
+
+struct CallbackStorage {
+    CallbackStorage() = default;
+    CallbackStorage(void* func_) : func(func_) {}
+
+    bool operator==(const CallbackStorage& other) const { return func == other.func && data == other.data; }
+
+    // Accessors
+    bool is_empty() const { return !func; }
+    explicit operator bool() const { return !func; }
+
+    void reset() {
+        func = nullptr;
+        data = nullptr;
+    }
+
+    void* func{nullptr};
+    void* data{};
+};
+
+// 8 bytes for function pointer, 8 bytes for storage/this pointer.
+// If it's <=16 bytes, it'll be passed in registers
+template <typename Result, typename... Args>
+class Callback;
+
+template <typename Functor, typename FuncSig>
+concept IsCallback = same_as<decay_t<Functor>, Callback<FuncSig>>;
+
+template <typename Result, typename... Args>
+struct Callback<Result(Args...)> : CallbackStorage {
+    using FuncSig = Result(Args...);
+    using InvokeSig = Result(void*, Args...);
+
+    template <typename Functor>
+    struct LambdaHelper {
+        static_assert(std::is_invocable_v<Functor, Args...>);
+
+        static Result call(void* data, Args... args) { return (*reinterpret_cast<Functor*>(&data))(static_cast<Args&&>(args)...); }
+    };
+
+    Callback() noexcept = default;
+    Callback(const Callback&) noexcept = default;
+    Callback(Callback&&) noexcept = default;
+    Callback& operator=(const Callback&) noexcept = default;
+
+    // initialize with noop
+    explicit Callback(Noop_t) noexcept : CallbackStorage() { set_noop(); }
+
+    // ---------------------
+    // C-Functions
+    //
+    template <typename... _Args>
+    Result stub_func(void*, _Args... args) {
+        return (*reinterpret_cast<Result (*)(_Args...)>(func))(args...);
+    }
+
+    template <typename _Result, typename... _Args>
+    Callback(_Result (*f)(_Args...)) {
+        func = (void*)f;
+    }
+
+    // --------------------
+    // Lambda Capture
+    //
+    template <typename Functor>
+        requires(!IsCallback<Functor, FuncSig> && std::is_invocable_v<Functor, Args...> && std::is_trivially_destructible_v<Functor>)
+    Callback(Functor&& f) {
+        static_assert(sizeof(f) <= 8, "Lambda capture too large");
+        func = (void*)&LambdaHelper<decay_t<Functor>>::call;
+        data = *(void**)&f;
+    }
+
+    // --------------------
+    // Member Function
+    //
+    template <typename _T, typename T, typename MemFn>
+        requires(is_member_function_pointer_v<MemFn T::*> && is_base_of_v<T, _T>)
+    Callback(_T* t, MemFn T::* memfn) noexcept {
+        auto raw = (u64*)&memfn;
+        auto p1 = raw[0];
+        if (p1 < 4096) {
+            // Virtual member function. Devirtualize.
+            auto vtable = *(u64**)t;
+            auto fptr = vtable[p1 - 1];
+            func = (void*)fptr;
+        } else {
+            // Non-virtual member function
+            func = (void*)p1;
+        }
+        data = t;
+    }
+
+    // Call
+    template <typename... _Args>
+        requires(... && std::is_convertible_v<_Args, Args>)
+    ALWAYS_INLINE Result call(Args&&... args) const {  //
+        return (*reinterpret_cast<InvokeSig*>(func))(data, static_cast<Args>(args)...);
+    }
+    template <typename... _Args>
+        requires(... && std::is_convertible_v<_Args, Args>)
+    ALWAYS_INLINE Result operator()(_Args&&... args) const {
+        return (*reinterpret_cast<InvokeSig*>(func))(data, static_cast<Args>(args)...);
+    }
+
+    // Accessors
+    bool is_empty() const { return !func; }
+    explicit operator bool() const { return func; }
+
+    // Comparison
+    bool operator==(const Callback& other) const { return func == other.func && data == other.data; }
+
+    // Modifies
+    void set_noop() { func = (void*)&noop; }
+    static Result noop(void*, Args&&...) { return Result(); }
+};
+static_assert(sizeof(Callback<void()>) == 16, "Must be 16 bytes to fit in 2 registers");
+
+template <typename _TClass, typename TClass, typename MemFn>
+    requires(is_member_function_pointer_v<MemFn TClass::*> && is_base_of_v<TClass, _TClass>)
+Callback<MemFn> makeCallback(_TClass* t, MemFn TClass::* memfn) {
+    return Callback<MemFn>(t, memfn);
+}
+
+template <typename Lambda, typename Result, typename... Args>
+    requires(is_invocable_v<Lambda, Args...> && is_same_v<decltype(declval<Lambda>()(declval<Args>()...)), Result>)
+Callback<Result(Args...)> makeCallback(Lambda&& f) {
+    return Callback<Result(Args...)>(std::forward<Lambda>(f));
+}
