@@ -1,0 +1,8 @@
+.vscode/
+.active_cfg.sh
+Testing/
+build
+target/
+.cache/
+.gdb_history
+TODO.md
