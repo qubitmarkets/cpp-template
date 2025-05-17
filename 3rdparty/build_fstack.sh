@@ -5,7 +5,7 @@ source ./toolchain.sh
 
 cd $(dirname ${BASH_SOURCE})
 if [[ ! -e f-stack ]]; then
-    git clone git@github.com:F-STack/f-stack.git
+    git clone git@github.com:qubitmarkets/f-stack.git
 fi
 cd f-stack
 
@@ -44,7 +44,6 @@ sudo ninja -C build install
 cd $FF_PATH/..
 
 # Build f-stack
-(cd $FF_PATH && patch -p1) <fstack.warnings.patch
 cd $FF_PATH/lib
 make CFLAGS="-Wno-dangling-pointer"
 sudo make install
