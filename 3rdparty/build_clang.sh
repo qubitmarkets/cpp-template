@@ -1,7 +1,13 @@
 #!/bin/bash
 
-CLANG_VER=${CLANG_VER-19}
+CLANG_VER=${CLANG_VER-$1}
 CLANG_MAJOR_VER=${CLANG_VER%%.*}
+
+if [[ -z $CLANG_VER ]]; then
+    echo "Usage: $0 <clang-major-version>"
+    echo "Example: $0 20"
+    exit 1
+fi
 
 # Install clang
 if [[ -e /usr/bin/clang++-$CLANG_VER ]]; then exit 0; fi

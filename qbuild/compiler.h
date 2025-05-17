@@ -2,9 +2,13 @@
 
 #define NOINLINE __attribute__((noinline))
 #define COLD __attribute__((cold))
-#define COLD_FUNC(code)                                                   \
-    {                                                                     \
-        [&]() __attribute__((cold)) __attribute__((noinline)) { code }(); \
+#define COLD_LAMBDA(code)                                                  \
+    [[unlikely]] {                                                         \
+        [&]() __attribute__((cold)) __attribute__((noinline)) { code; }(); \
+    }
+#define IF_COLD(cond, code) \
+    if unlikely (cond) {    \
+        COLD_LAMBDA(code)   \
     }
 #define INLINE __attribute__((inline))
 #define ALWAYS_INLINE __attribute__((always_inline)) inline

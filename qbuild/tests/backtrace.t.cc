@@ -12,7 +12,6 @@ void foo2() {
 void foo() { foo2(); }
 
 int main(int argc, char **argv) {
-  CaptureBacktrace::init(argv[0]);
   SigHandler::install();
 
   foo();

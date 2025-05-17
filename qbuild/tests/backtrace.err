@@ -7,7 +7,7 @@ Location: [0;35mbacktrace.t.cc[m:[0;35m9[m
    2: [0;32mfoo()[m
       at [0;34m/home/username/qbm/core/tests/[0;31mbacktrace.t.cc[m:12[m
    3: [0;32mmain[m
-      at [0;34m/home/username/qbm/core/tests/[0;31mbacktrace.t.cc[m:18[m
+      at [0;34m/home/username/qbm/core/tests/[0;31mbacktrace.t.cc[m:17[m
 
 Location: [0;35mbacktrace.t.cc[m:[0;35m9[m
 
@@ -18,7 +18,7 @@ Location: [0;35mbacktrace.t.cc[m:[0;35m9[m
    2: [0;32mfoo()[m
       at [0;34m/home/username/qbm/core/tests/[0;31mbacktrace.t.cc[m:12[m
    3: [0;32mmain[m
-      at [0;34m/home/username/qbm/core/tests/[0;31mbacktrace.t.cc[m:18[m
+      at [0;34m/home/username/qbm/core/tests/[0;31mbacktrace.t.cc[m:17[m
 
 
 Caught signal: 2 SIGINT, exiting...

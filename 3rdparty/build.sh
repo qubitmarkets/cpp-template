@@ -5,7 +5,7 @@ set -eu
 cd $(dirname ${BASH_SOURCE})
 
 GCC_MAJOR_VER=14
-CLANG_MAJOR_VER=19
+CLANG_MAJOR_VER=20
 
 GCC_VER=$(gcc --version | head -1 | cut -d' ' -f3 | cut -d. -f1)
 if [[ $GCC_VER -lt ${GCC_MAJOR_VER} ]]; then
@@ -14,7 +14,7 @@ if [[ $GCC_VER -lt ${GCC_MAJOR_VER} ]]; then
 fi
 if [[ $(clang++-$CLANG_MAJOR_VER --version | head -1 | grep -c "version $CLANG_MAJOR_VER\.") -eq 0 ]]; then
     echo "Build Clang"
-    ./build_clang.sh
+    ./build_clang.sh $CLANG_MAJOR_VER
 fi
 if [[ ! -e lib/libbacktrace.a ]]; then
     ./build_libbacktrace.sh

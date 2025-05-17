@@ -7,8 +7,11 @@
 ///
 
 struct SigHandlerCallbacks {
+    typedef void (*on_exit_process_t)(int sig);
+
     // Called just before the process terminates
-    void (*on_exit_process)(int sig) = [](int) {};
+    vector<on_exit_process_t> on_exit_process;
+
     // Called when a signal is received
     // e.g. logger_flush();
     void (*on_start_sighandler)(int sig) = [](int) {};

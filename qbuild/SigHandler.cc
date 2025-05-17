@@ -77,7 +77,9 @@ extern "C" void sig_handler(int sig, siginfo_t* siginfo, void* context) {
     if (sig == SIGINT || sig == SIGHUP) {
         // Terminate the process
         eprintf("\nCaught signal: %d %s, exiting...\n", sig, get_signame(sig));
-        g_sig_handler_callbacks.on_exit_process(sig);
+        for (auto& cb : g_sig_handler_callbacks.on_exit_process) {
+            cb(sig);
+        }
         ::exit(128 + sig);
     }
     if (sig != SIGUSR1) {
