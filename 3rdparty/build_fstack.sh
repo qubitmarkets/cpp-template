@@ -20,10 +20,8 @@ if ! which pyenv >/dev/null; then
 
     pyenv virtualenv venv
 fi
-export PYENV_ROOT="$HOME/.pyenv"
-[[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
-eval "$(pyenv init --path)"
-pyenv activate venv
+export PYENV_ROOT="${PYENV_ROOT-$HOME/.pyenv}"
+source $PYENV_ROOT/versions/venv/bin/activate
 
 if [[ -e /usr/bin/apt ]]; then
     sudo apt-get install -y linux-headers-generic build-essential pkg-config libnuma-dev libssl-dev openssl meson ninja-build libpcap-dev python3-pip
