@@ -2,9 +2,15 @@
 
 #define NOINLINE __attribute__((noinline))
 #define COLD __attribute__((cold))
+#define COLD_FUNC(code)                                                   \
+    {                                                                     \
+        [&]() __attribute__((cold)) __attribute__((noinline)) { code }(); \
+    }
 #define INLINE __attribute__((inline))
 #define ALWAYS_INLINE __attribute__((always_inline)) inline
 #define WEAK __attribute__((weak))
+#define _STRINGIFY(x) #x
+#define STRINGIFY(x) _STRINGIFY(x)
 
 // Same as kernel definition
 #define likely(x) (__builtin_expect(!!(x), 1))

@@ -83,12 +83,21 @@ CATCH_TEST_CASE("Callback init") {
 }
 
 CATCH_TEST_CASE("Callback noop") {
-    Callback<int(int)> cb;
-    cb.set_noop();
-    CATCH_CHECK(!cb.is_empty());
-    CATCH_CHECK(!!cb);
-    CATCH_CHECK((bool)cb);
-    CATCH_CHECK(cb(1) == 0);
+    {
+        Callback<int(int)> cb;
+        cb.set_noop();
+        CATCH_CHECK(!cb.is_empty());
+        CATCH_CHECK(!!cb);
+        CATCH_CHECK((bool)cb);
+        CATCH_CHECK(cb(1) == 0);
+    }
+    {
+        Callback<int(int)> cb{Noop};
+        CATCH_CHECK(!cb.is_empty());
+        CATCH_CHECK(!!cb);
+        CATCH_CHECK((bool)cb);
+        CATCH_CHECK(cb(1) == 0);
+    }
 }
 
 // Structures for testing member function pointers
@@ -281,6 +290,7 @@ CATCH_TEST_CASE("Callback perf test") {
     auto iters = 10'000'000;
     u32 x = 0;
 
+    // Run an std::function and a Callback labmda to compare performance
     // std::function
     std::function<void(u32 & x, int)> add_stdfunc = [&](u32& x, int i) {
         for (int j = 0; j < i % 10; ++i)
@@ -320,4 +330,28 @@ CATCH_TEST_CASE("Callback perf test") {
     CATCH_CHECK(x == 3903231744);
     CATCH_CHECK(cb_dur <= 200'000'000);  // 200ms
     CATCH_CHECK(cb_dur + 1'000'000 <= std_function_dur);
+
+    // Member function callback
+    struct MyStuct {
+        void add(int i) {
+            for (int j = 0; j < i % 10; ++i)
+                x += i;
+        }
+        u32 x = 0;
+    };
+    MyStuct my_struct;
+    auto run_cbmemfn = [&](int iters) {
+        my_struct.x = 0;
+        for (int i = 0; i < iters; ++i) {
+            my_struct.add(i);
+        }
+    };
+    run_cbmemfn(warmup_iters);
+    start = get_now();
+    run_cbmemfn(iters);
+    auto cb_memfn_dur = get_now() - start;
+    CATCH_CHECK(my_struct.x == 3903231744);
+    CATCH_CHECK(cb_memfn_dur <= 200'000'000);  // 200ms
+    CATCH_CHECK(cb_memfn_dur + 1'000'000 <= std_function_dur);
+    CATCH_CHECK(cb_memfn_dur + 1'000'000 <= cb_dur);
 }

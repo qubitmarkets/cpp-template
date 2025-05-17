@@ -10,7 +10,7 @@ struct SigHandlerCallbacks {
     // Called just before the process terminates
     void (*on_exit_process)(int sig) = [](int) {};
     // Called when a signal is received
-    // e.g. Logger::inst().flush();
+    // e.g. logger_flush();
     void (*on_start_sighandler)(int sig) = [](int) {};
     // Called when the signal handler is exited
     void (*on_exit_sighandler)(int sig) = [](int) {};
