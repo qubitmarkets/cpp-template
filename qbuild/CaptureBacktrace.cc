@@ -1,6 +1,6 @@
 #include "qbuild/CaptureBacktrace.h"
-#include "qbuild/compiler.h"
 #include "qbuild/ansi_colors.h"
+#include "qbuild/compiler.h"
 #include <backtrace.h>  // libbacktrace
 #include <cxxabi.h>     // abi
 #include <libgen.h>     // dirname, basename
@@ -125,6 +125,9 @@ void CaptureBacktrace::print() const {
         backtrace_pcinfo(__bt_state, stack[i], &PrintBacktrace::on_bt_frame, &PrintBacktrace::on_bt_error, &p);
     }
     eprintf("\n");
+    if (p.frame_idx == 1) {
+        eprintf("CaptureBacktrace: no stack trace available\n");
+    }
 }
 
 const char* get_executable() {
@@ -141,7 +144,7 @@ NOINLINE
 void CaptureBacktrace::capture(int skip_frames) const {
     if unlikely (__bt_state == nullptr) {
         auto cmd = get_executable();
-        backtrace_init(cmd);
+        CaptureBacktrace::init(cmd);
     }
     backtrace_simple((backtrace_state*)__bt_state, skip_frames, &CaptureBacktrace::on_bt_frame, &CaptureBacktrace::on_bt_error,
                      (void*)this);

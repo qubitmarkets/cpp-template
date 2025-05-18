@@ -2,13 +2,21 @@
 
 #define NOINLINE __attribute__((noinline))
 #define COLD __attribute__((cold))
-#define COLD_LAMBDA(code)                                                  \
-    [[unlikely]] {                                                         \
-        [&]() __attribute__((cold)) __attribute__((noinline)) { code; }(); \
+#define COLD_START() \
+    {                \
+        [[unlikely]][&]() __attribute__((cold)) __attribute__((noinline)) {
+#define COLD_END() \
+    }              \
+    ();            \
     }
-#define IF_COLD(cond, code) \
-    if unlikely (cond) {    \
-        COLD_LAMBDA(code)   \
+#define COLD_LAMBDA(code) \
+    COLD_START() code;    \
+    COLD_END()
+
+#define IF_COLD(cond, code)    \
+    if unlikely (cond) {       \
+        COLD_LAMBDA_START()    \
+        code COLD_LAMBDA_END() \
     }
 #define INLINE __attribute__((inline))
 #define ALWAYS_INLINE __attribute__((always_inline)) inline
