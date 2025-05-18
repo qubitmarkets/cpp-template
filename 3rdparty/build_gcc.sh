@@ -29,5 +29,6 @@ cd build
     --enable-languages=c,c++ \
     --disable-multilib \
     --program-suffix "-$GCC_MAJOR_VER"
-make
+make -j4 || make
+read -p "Press key to install"
 sudo make install
