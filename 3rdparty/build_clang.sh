@@ -14,7 +14,7 @@ if [[ -e /usr/bin/clang++-$CLANG_VER ]]; then exit 0; fi
 
 if [[ -e /usr/bin/apt ]]; then
     sudo apt-get install -y libstdc++-12-dev
+    wget -q0- https://apt.llvm.org/llvm.sh | sudo bash -s $CLANG_VER
 else
-    sudo dnf install -y libstdc++-12-devel
+# Currently unsupported
 fi
-wget -q0- https://apt.llvm.org/llvm.sh | sudo bash -s $CLANG_VER

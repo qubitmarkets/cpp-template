@@ -46,7 +46,7 @@ cd $FF_PATH/..
 
 # Build f-stack
 cd $FF_PATH/lib
-make CFLAGS="-Wno-dangling-pointer"
+make -j4 || make
 sudo make install
 
 echo

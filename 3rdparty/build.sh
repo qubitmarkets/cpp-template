@@ -5,7 +5,7 @@ set -eu
 cd $(dirname ${BASH_SOURCE})
 
 GCC_MAJOR_VER=14
-CLANG_MAJOR_VER=20
+CLANG_MAJOR_VER=19
 
 GCC_VER=$(gcc --version | head -1 | cut -d' ' -f3 | cut -d. -f1)
 if [[ $GCC_VER -lt ${GCC_MAJOR_VER} ]]; then
