@@ -2,6 +2,7 @@
 .active_cfg.sh
 Testing/
 build
+builds/
 target/
 .cache/
 .gdb_history

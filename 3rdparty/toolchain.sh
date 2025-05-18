@@ -2,7 +2,7 @@
 
 export compiler=${compiler-gcc}
 GCC_MAJOR_VER=${GCC_MAJOR_VER-14}
-CLANG_MAJOR_VER=${CLANG_MAJOR_VER-20}
+CLANG_MAJOR_VER=${CLANG_MAJOR_VER-19}
 
 if [[ $compiler == gcc ]]; then
     SYS_GCC_VER=$(gcc --version | cut -d' ' -f3)

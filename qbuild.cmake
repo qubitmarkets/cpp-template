@@ -30,7 +30,7 @@ set(qbuild_src
 add_library(qbuild ${qbuild_src})
 target_link_directories(qbuild PUBLIC "3rdparty/lib")
 target_link_libraries(qbuild -lbacktrace)
-target_precompile_headers(qbuild PUBLIC qbuild/pch.h)
+#target_precompile_headers(qbuild PUBLIC qbuild/pch.h)
 set_target_properties(qbuild
     PROPERTIES
     CXX_STANDARD 23

@@ -17,7 +17,7 @@ for arg in $@; do
     fi
 done
 
-if [[ ! -d "$dest" ]]; then
+if [[ ! -d "${dest-}" ]]; then
     echo "cpp-template : Installs C++ development tooling to a destination dir"
     echo "Updating: Safe to run multiple times.  Will check & stop if you update/edit the cpp-template files in the template dir"
     echo "Usage : $0 <destination dir>"

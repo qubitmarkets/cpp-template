@@ -11,7 +11,7 @@ set -eu
 script_name=$(basename $0)
 mode=help
 profile=${profile-debug}
-compiler=${compiler-clang}
+compiler=${compiler-clang19}
 run_args=""
 args=("$@")
 PIPE_COLORPATH=""
@@ -65,7 +65,7 @@ for i in $(seq 0 $nargs); do
 done
 
 # Create build dir
-cmake_build_dir="target/${profile}.${compiler}"
+cmake_build_dir="builds/${profile}.${compiler}"
 ln -nfs $cmake_build_dir build
 
 # Write active config
