@@ -55,11 +55,11 @@ add_test(NAME backtrace.t  COMMAND
     $<TARGET_FILE:backtrace.t>)
 
 
-add_executable(qbuild.t 
+add_executable(callback.t 
     qbuild/tests/_run_catch_tests.t.cc
     qbuild/tests/Callback.t.cc
 )
-target_link_libraries(qbuild.t PRIVATE qbuild)
-target_link_libraries(qbuild.t PRIVATE Catch2::Catch2)
-catch_discover_tests(qbuild.t)
+target_link_libraries(callback.t PRIVATE qbuild)
+target_link_libraries(callback.t PRIVATE Catch2::Catch2)
+catch_discover_tests(callback.t)
 
