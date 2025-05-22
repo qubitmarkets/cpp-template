@@ -1,3 +1,4 @@
+// Copyright (c) 2025 Qubit Markets Pte. Ltd.
 #pragma once
 
 /// Fast Callback
@@ -9,6 +10,7 @@
 /// - If L2 < L1, then calling the CB will segfault.
 
 #include "qbuild/compiler.h"
+#include "qbuild/ctypes.h"
 #include <concepts>
 #include <type_traits>
 #include <utility>  // std::forward
@@ -42,7 +44,7 @@ template <typename Result, typename... Args>
 class Callback;
 
 template <typename Functor, typename FuncSig>
-concept IsCallback = same_as<decay_t<Functor>, Callback<FuncSig>>;
+concept IsCallback = std::same_as<std::decay_t<Functor>, Callback<FuncSig>>;
 
 template <typename Result, typename... Args>
 struct Callback<Result(Args...)> : CallbackStorage {
@@ -84,7 +86,7 @@ struct Callback<Result(Args...)> : CallbackStorage {
         requires(!IsCallback<Functor, FuncSig> && std::is_invocable_v<Functor, Args...> && std::is_trivially_destructible_v<Functor>)
     Callback(Functor&& f) {
         static_assert(sizeof(f) <= 8, "Lambda capture too large");
-        func = (void*)&LambdaHelper<decay_t<Functor>>::call;
+        func = (void*)&LambdaHelper<std::decay_t<Functor>>::call;
         data = *(void**)&f;
     }
 
@@ -92,7 +94,7 @@ struct Callback<Result(Args...)> : CallbackStorage {
     // Member Function
     //
     template <typename _T, typename T, typename MemFn>
-        requires(is_member_function_pointer_v<MemFn T::*> && is_base_of_v<T, _T>)
+        requires(std::is_member_function_pointer_v<MemFn T::*> && std::is_base_of_v<T, _T>)
     Callback(_T* t, MemFn T::* memfn) noexcept {
         auto raw = (u64*)&memfn;
         auto p1 = raw[0];
@@ -133,14 +135,16 @@ struct Callback<Result(Args...)> : CallbackStorage {
 };
 static_assert(sizeof(Callback<void()>) == 16, "Must be 16 bytes to fit in 2 registers");
 
+// Makes a callback to a member function
+// If the member function is virtual, it will be devirtualized
 template <typename _TClass, typename TClass, typename MemFn>
-    requires(is_member_function_pointer_v<MemFn TClass::*> && is_base_of_v<TClass, _TClass>)
+    requires(std::is_member_function_pointer_v<MemFn TClass::*> && std::is_base_of_v<TClass, _TClass>)
 Callback<MemFn> makeCallback(_TClass* t, MemFn TClass::* memfn) {
     return Callback<MemFn>(t, memfn);
 }
 
 template <typename Lambda, typename Result, typename... Args>
-    requires(is_invocable_v<Lambda, Args...> && is_same_v<decltype(declval<Lambda>()(declval<Args>()...)), Result>)
+    requires(std::is_invocable_v<Lambda, Args...> && std::is_same_v<decltype(declval<Lambda>()(declval<Args>()...)), Result>)
 Callback<Result(Args...)> makeCallback(Lambda&& f) {
     return Callback<Result(Args...)>(std::forward<Lambda>(f));
 }

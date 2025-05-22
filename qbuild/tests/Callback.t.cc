@@ -1,5 +1,7 @@
+// Copyright (c) 2025 Qubit Markets Pte. Ltd.
 #include "qbuild/SigHandler.h"
 #include "qbuild/compiler.h"
+#include <sched.h>
 #include <stdarg.h>
 #include <chrono>
 #include <cstdio>
@@ -277,21 +279,30 @@ void add_v_cfunc(u32& x, int i) {
         x += i;
 }
 
-ALWAYS_INLINE u64 get_now() {
+ALWAYS_INLINE i64 get_now() {
     timespec tp;
     ::clock_gettime(CLOCK_MONOTONIC, &tp);
-    u64 nanos = tp.tv_sec * 1'000'000'000 + tp.tv_nsec;
+    i64 nanos = tp.tv_sec * 1'000'000'000 + tp.tv_nsec;
     return nanos;
 }
 
-CATCH_TEST_CASE("Callback perf test") {
+// This test needs to be run on a single core, on a bare-metal server
+CATCH_TEST_CASE("Callback perf test", "[.][perf]") {
+    // Set CPU affinity to core 1
+    cpu_set_t cpuset;
+    CPU_ZERO(&cpuset);
+    CPU_SET(1, &cpuset);
+    int rv = sched_setaffinity(0, sizeof(cpu_set_t), &cpuset);
+    CATCH_REQUIRE(rv == 0);
+
     auto warmup_iters = 1'000'000;
     // On my laptop, Callback completes in 34ms, std::function in 122ms
     auto iters = 10'000'000;
     u32 x = 0;
 
-    // Run an std::function and a Callback labmda to compare performance
-    // std::function
+    // Run an std::function and a Callback to compare performance
+    // ----------------------------------------
+    // std::function to a lambda
     std::function<void(u32 & x, int)> add_stdfunc = [&](u32& x, int i) {
         for (int j = 0; j < i % 10; ++i)
             x += i;
@@ -310,9 +321,11 @@ CATCH_TEST_CASE("Callback perf test") {
     run_stdfunc(iters);
     auto std_function_dur = get_now() - start;
     CATCH_CHECK(x == 3903231744);
+    CATCH_CHECK(std_function_dur > 20'000'000);    // 20ms
     CATCH_CHECK(std_function_dur <= 300'000'000);  // 300ms
 
-    // Lambda callback
+    // ----------------------------------------
+    // Callback to a lambda
     Callback<void(u32 & x, int)> add_lambdacb = [&](u32& x, int i) {
         for (int j = 0; j < i % 10; ++i)
             x += i;
@@ -326,32 +339,60 @@ CATCH_TEST_CASE("Callback perf test") {
     run_cblambda(warmup_iters);
     start = get_now();
     run_cblambda(iters);
-    auto cb_dur = get_now() - start;
+    auto cb_lambda_dur = get_now() - start;
     CATCH_CHECK(x == 3903231744);
-    CATCH_CHECK(cb_dur <= 200'000'000);  // 200ms
-    CATCH_CHECK(cb_dur + 1'000'000 <= std_function_dur);
+    CATCH_CHECK(cb_lambda_dur <= 200'000'000);  // 200ms
+    // Callback is much faster than std::function
+    CATCH_CHECK(std_function_dur - cb_lambda_dur >= 1'000'000);
 
-    // Member function callback
+    // ----------------------------------------
+    // Member function
     struct MyStuct {
-        void add(int i) {
+        virtual void add(int i) {
             for (int j = 0; j < i % 10; ++i)
                 x += i;
         }
         u32 x = 0;
     };
+    auto memfn_ptr = &MyStuct::add;
     MyStuct my_struct;
-    auto run_cbmemfn = [&](int iters) {
+    auto run_memfn = [&](int iters) {
         my_struct.x = 0;
         for (int i = 0; i < iters; ++i) {
-            my_struct.add(i);
+            (my_struct.*memfn_ptr)(i);
         }
     };
-    run_cbmemfn(warmup_iters);
+    run_memfn(warmup_iters);
     start = get_now();
-    run_cbmemfn(iters);
-    auto cb_memfn_dur = get_now() - start;
+    run_memfn(iters);
+    auto memfn_dur = get_now() - start;
+
     CATCH_CHECK(my_struct.x == 3903231744);
-    CATCH_CHECK(cb_memfn_dur <= 200'000'000);  // 200ms
-    CATCH_CHECK(cb_memfn_dur + 1'000'000 <= std_function_dur);
-    CATCH_CHECK(cb_memfn_dur + 1'000'000 <= cb_dur);
+    CATCH_CHECK(memfn_dur <= 200'000'000);  // 200ms
+    CATCH_CHECK(memfn_dur >= 20'000'000);   // 20ms
+    // Calling via a member function pointer is faster than std::function
+    CATCH_CHECK(std_function_dur - memfn_dur >= 1'000);
+    // Calling via a member function pointer is slower than the Callback to a lambda
+    // CATCH_CHECK(memfn_dur - cb_lambda_dur >= 100'000);
+
+    // ----------------------------------------
+    // Callback to a member function
+    my_struct.x = 0;
+    auto add_memfn_cb = makeCallback(&my_struct, &MyStuct::add);
+    auto run_memfn_cb = [&](int iters) {
+        for (int i = 0; i < iters; ++i) {
+            add_memfn_cb(i);
+        }
+    };
+    run_memfn_cb(warmup_iters);
+    start = get_now();
+    run_memfn_cb(iters);
+    auto memfn_cb_dur = get_now() - start;
+    CATCH_CHECK(x == 3903231744);
+    CATCH_CHECK(memfn_cb_dur >= 10'000'000);   // 10ms
+    CATCH_CHECK(memfn_cb_dur <= 200'000'000);  // 200ms
+    // Callback to member function is much faster than std::function
+    CATCH_CHECK(std_function_dur - memfn_cb_dur >= 100'000);
+    // Callback to member function is faster than the direct virtual call
+    CATCH_CHECK(memfn_dur - memfn_cb_dur >= 100'000);
 }
