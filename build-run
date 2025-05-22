@@ -110,7 +110,7 @@ fi
 if [[ $mode == "build" ]]; then
     if [[ $target == "" ]]; then
         echo "Built all targets:"
-        ninja -C build -t targets all | grep CXX_EXECUTABLE_LINKER_ | grep -v '\.cmake' | cut -d: -f1 | sed "s,^,  ./$cmake_build_dir}/,"
+        ninja -C build -t targets all | grep CXX_EXECUTABLE_LINKER_ | grep -v '\.cmake' | cut -d: -f1 | sed "s,^,  ./${cmake_build_dir}/,"
     else
         echo "  Built ${cmake_build_dir}/$target"
     fi
