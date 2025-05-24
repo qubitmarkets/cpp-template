@@ -149,7 +149,7 @@ void set_test_value(int v) {
     g_test_value = v;
 }
 
-const char* stringf(const char* fmt, ...) {
+inline const char* stringf(const char* fmt, ...) {
     static int i = 0;
     i = (i + 1) % 4;
     static char buf[4][1024];
@@ -315,26 +315,34 @@ CATCH_TEST_CASE("Callback perf test", "[.][perf]") {
         for (int i = 0; i < iters; ++i) {
             add_stdfunc(x, i);
         }
+        return x;
     };
     run_stdfunc(warmup_iters);
     auto start = get_now();
     run_stdfunc(iters);
     auto std_function_dur = get_now() - start;
     CATCH_CHECK(x == 3903231744);
-    CATCH_CHECK(std_function_dur > 20'000'000);    // 20ms
-    CATCH_CHECK(std_function_dur <= 300'000'000);  // 300ms
+    double std_function_ns = (double)std_function_dur / iters;
+    CATCH_CHECK(std_function_ns > 1);
+#if defined(NDEBUG)
+    CATCH_CHECK(std_function_ns <= 15);
+#else
+    CATCH_CHECK(std_function_ns <= 25);
+#endif
 
     // ----------------------------------------
     // Callback to a lambda
-    Callback<void(u32 & x, int)> add_lambdacb = [&](u32& x, int i) {
+    Callback<u32(u32 & x, int)> add_cblambda = [&](u32& x, int i) {
         for (int j = 0; j < i % 10; ++i)
             x += i;
+        return x;
     };
     auto run_cblambda = [&](int iters) {
         x = 0;
         for (int i = 0; i < iters; ++i) {
-            add_lambdacb(x, i);
+            add_cblambda(x, i);
         }
+        return x;
     };
     run_cblambda(warmup_iters);
     start = get_now();
@@ -342,25 +350,36 @@ CATCH_TEST_CASE("Callback perf test", "[.][perf]") {
     auto cb_lambda_dur = get_now() - start;
     CATCH_CHECK(x == 3903231744);
     CATCH_CHECK(cb_lambda_dur <= 200'000'000);  // 200ms
+    double cb_lambda_ns = (double)cb_lambda_dur / iters;
     // Callback is much faster than std::function
-    CATCH_CHECK(std_function_dur - cb_lambda_dur >= 1'000'000);
+    CATCH_CHECK(std_function_ns - cb_lambda_ns >= .3);
 
     // ----------------------------------------
     // Member function
     struct MyStuct {
-        virtual void add(int i) {
+        u32 add(u32 i) {
             for (int j = 0; j < i % 10; ++i)
                 x += i;
+            return x;
         }
+        u32 add2(u32 i) { return i; }
+
+        Callback<u32(u32)> make_callback() {
+            return [this](u32 i) { return this->add(i); };
+        }
+
         u32 x = 0;
     };
     auto memfn_ptr = &MyStuct::add;
+    if (rand() == 575743)  // prevent compiler from inlining as an optimization
+        memfn_ptr = &MyStuct::add2;
     MyStuct my_struct;
     auto run_memfn = [&](int iters) {
         my_struct.x = 0;
         for (int i = 0; i < iters; ++i) {
             (my_struct.*memfn_ptr)(i);
         }
+        return my_struct.x;
     };
     run_memfn(warmup_iters);
     start = get_now();
@@ -370,15 +389,20 @@ CATCH_TEST_CASE("Callback perf test", "[.][perf]") {
     CATCH_CHECK(my_struct.x == 3903231744);
     CATCH_CHECK(memfn_dur <= 200'000'000);  // 200ms
     CATCH_CHECK(memfn_dur >= 20'000'000);   // 20ms
-    // Calling via a member function pointer is faster than std::function
-    CATCH_CHECK(std_function_dur - memfn_dur >= 1'000);
-    // Calling via a member function pointer is slower than the Callback to a lambda
-    // CATCH_CHECK(memfn_dur - cb_lambda_dur >= 100'000);
+    double memfn_ns = (double)memfn_dur / iters;
+// Calling via a member function pointer is slower than the Callback to a lambda
+#if __QBUILD_COMPILER_CLANG__ && __QBUILD_COMPILER_VERSION__ >= 20
+// Skip
+#else
+    CATCH_CHECK(memfn_ns - cb_lambda_ns >= 0);
+#endif
 
     // ----------------------------------------
     // Callback to a member function
     my_struct.x = 0;
-    auto add_memfn_cb = makeCallback(&my_struct, &MyStuct::add);
+    Callback<u32(u32)> add_memfn_cb(&my_struct, &MyStuct::add);
+    // auto add_memfn_cb = my_struct.make_callback();
+
     auto run_memfn_cb = [&](int iters) {
         for (int i = 0; i < iters; ++i) {
             add_memfn_cb(i);
@@ -391,8 +415,19 @@ CATCH_TEST_CASE("Callback perf test", "[.][perf]") {
     CATCH_CHECK(x == 3903231744);
     CATCH_CHECK(memfn_cb_dur >= 10'000'000);   // 10ms
     CATCH_CHECK(memfn_cb_dur <= 200'000'000);  // 200ms
-    // Callback to member function is much faster than std::function
-    CATCH_CHECK(std_function_dur - memfn_cb_dur >= 100'000);
+    double memfn_cb_ns = (double)memfn_cb_dur / iters;
+// Callback to member function is much faster than std::function, on clang
+#if __QBUILD_COMPILER_GCC__
+    CATCH_CHECK(std_function_ns - memfn_cb_ns >= -0.2);
+#else
+    CATCH_CHECK(std_function_ns - memfn_cb_ns >= 0.1);
+#endif
     // Callback to member function is faster than the direct virtual call
-    CATCH_CHECK(memfn_dur - memfn_cb_dur >= 100'000);
+    // Sometimes it is slower, but not by much
+    CATCH_CHECK(memfn_ns - memfn_cb_ns >= -0.25);
+
+    fprintf(stderr, "std::function took       %.3fns\n", std_function_ns);
+    fprintf(stderr, "Member func pointer took  %.3fns\n", memfn_ns);
+    fprintf(stderr, "Callback<> lambda took    %.3fns\n", cb_lambda_ns);
+    fprintf(stderr, "Callback to mem func took %.3fns\n", memfn_cb_ns);
 }

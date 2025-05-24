@@ -12,12 +12,13 @@
 #include "qbuild/compiler.h"
 #include "qbuild/ctypes.h"
 #include <concepts>
+#include <cstdlib>
 #include <type_traits>
 #include <utility>  // std::forward
 
 // Placeholder Tag struct for initializing Callback to be callable with no side-effects
-struct Noop_t {};
-static const constexpr Noop_t Noop;
+struct __Tag_Noop {};
+static const constexpr __Tag_Noop Noop;
 
 struct CallbackStorage {
     CallbackStorage() = default;
@@ -58,13 +59,13 @@ struct Callback<Result(Args...)> : CallbackStorage {
         static Result call(void* data, Args... args) { return (*reinterpret_cast<Functor*>(&data))(static_cast<Args&&>(args)...); }
     };
 
-    Callback() noexcept = default;
+    Callback() noexcept {}
     Callback(const Callback&) noexcept = default;
     Callback(Callback&&) noexcept = default;
     Callback& operator=(const Callback&) noexcept = default;
 
     // initialize with noop
-    explicit Callback(Noop_t) noexcept : CallbackStorage() { set_noop(); }
+    Callback(__Tag_Noop) noexcept : CallbackStorage() { set_noop(); }
 
     // ---------------------
     // C-Functions
@@ -119,6 +120,11 @@ struct Callback<Result(Args...)> : CallbackStorage {
     template <typename... _Args>
         requires(... && std::is_convertible_v<_Args, Args>)
     ALWAYS_INLINE Result operator()(_Args&&... args) const {
+#if !defined(NDEBUG)
+        if (!func) {
+            ::abort();
+        }
+#endif
         return (*reinterpret_cast<InvokeSig*>(func))(data, static_cast<Args>(args)...);
     }
 
@@ -144,7 +150,7 @@ Callback<MemFn> makeCallback(_TClass* t, MemFn TClass::* memfn) {
 }
 
 template <typename Lambda, typename Result, typename... Args>
-    requires(std::is_invocable_v<Lambda, Args...> && std::is_same_v<decltype(declval<Lambda>()(declval<Args>()...)), Result>)
+    requires(std::is_invocable_v<Lambda, Args...> && std::is_same_v<decltype(std::declval<Lambda>()(std::declval<Args>()...)), Result>)
 Callback<Result(Args...)> makeCallback(Lambda&& f) {
     return Callback<Result(Args...)>(std::forward<Lambda>(f));
 }
