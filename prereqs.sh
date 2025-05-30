@@ -6,7 +6,7 @@ source ./etc/utils.sh
 check_sudo
 
 if [[ -e /usr/bin/dnf ]]; then
-    run sudo dnf install -y ninja-build openssl-devel
+    run sudo dnf install -y ninja-build openssl-devel libtool
 else
     run sudo apt install -y ninja-build libssl-dev
 fi

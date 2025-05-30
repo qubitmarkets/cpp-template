@@ -10,3 +10,4 @@ cmake-*/
 *.gz
 *.bz2
 f-stack/
+wslay/
