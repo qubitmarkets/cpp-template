@@ -50,3 +50,17 @@
 #else
     #error "Unsupported compiler"
 #endif
+
+// Build Profile (can only be one)
+#if defined(NDEBUG)
+    #define BUILD_PROFILE_DEBUG 0
+    #define BUILD_PROFILE_RELEASE 1
+#else
+    #define BUILD_PROFILE_DEBUG 1
+    #define BUILD_PROFILE_RELEASE 0
+#endif
+
+// Build configuration.  Any or none.
+#ifndef BUILD_CFG_TESTING
+  #define BUILD_CFG_TESTING 0
+#endif
