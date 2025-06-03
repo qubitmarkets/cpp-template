@@ -7,12 +7,13 @@ source ./utils.sh
 
 check_sudo
 
-run sudo cp -f ./tmux-signal /usr/bin
-run sudo cp -f ./signal-all-bash /usr/bin
-run sudo cp -f ./find-root /usr/bin
-run sudo cp -f ./ninja-root-build /usr/bin
-run sudo cp -f ./build-run /usr/bin
-run sudo cp -f ./colorpath /usr/bin
+echo "Install dev tools"
+sudo cp -f ./tmux-signal /usr/bin
+sudo cp -f ./signal-all-bash /usr/bin
+sudo cp -f ./find-root /usr/bin
+sudo cp -f ./ninja-root-build /usr/bin
+sudo cp -f ./build-run /usr/bin
+sudo cp -f ./colorpath /usr/bin
 
 if ! grep -q "bind.*tmux-signal" ~/.tmux.conf; then
     echo 'bind -T root C-t run-shell -b "tmux-signal #{pane_pid}' >>~/.tmux.conf

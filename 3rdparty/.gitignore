@@ -11,3 +11,4 @@ cmake-*/
 *.bz2
 f-stack/
 wslay/
+llvm-project/
