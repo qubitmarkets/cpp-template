@@ -77,7 +77,8 @@ ln -nfs $cmake_build_dir build
 
 rv=0
 # Configure
-if [[ ! -e $cmake_build_dir || $mode == "configure" ]]; then
+if [[ ! -e $cmake_build_dir || $mode == "configure" || ! -e $cmake_build_dir/build.ninja ]]; then
+    echo "+ cmake --preset $profile.$compiler"
     cmake --preset $profile.$compiler
     rv=$(($rv || $?))
 fi

@@ -27,7 +27,7 @@
                 "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
                 "CMAKE_C_COMPILER": "/usr/bin/gcc",
                 "CMAKE_CXX_COMPILER": "/usr/bin/g++",
-                "CMAKE_CXX_FLAGS": "-include ${sourceDir}/qbuild/qbuild.h -O3",
+                "CMAKE_CXX_FLAGS": "-include ${sourceDir}/qbuild/qbuild.h",
                 "CMAKE_BUILD_TYPE": "RelWithDebInfo"
             }
         },
@@ -57,7 +57,7 @@
                 "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
                 "CMAKE_C_COMPILER": "/opt/infra.1/bin/gcc-14",
                 "CMAKE_CXX_COMPILER": "/opt/infra.1/bin/g++-14",
-                "CMAKE_CXX_FLAGS": "-include ${sourceDir}/qbuild/qbuild.h -O3",
+                "CMAKE_CXX_FLAGS": "-include ${sourceDir}/qbuild/qbuild.h",
                 "CMAKE_BUILD_TYPE": "RelWithDebInfo"
             }
         },
@@ -87,7 +87,7 @@
                 "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
                 "CMAKE_C_COMPILER": "/usr/bin/clang-19",
                 "CMAKE_CXX_COMPILER": "/usr/bin/clang++-19",
-                "CMAKE_CXX_FLAGS": "-include ${sourceDir}/qbuild/qbuild.h -O3",
+                "CMAKE_CXX_FLAGS": "-include ${sourceDir}/qbuild/qbuild.h",
                 "CMAKE_BUILD_TYPE": "RelWithDebInfo"
             }
         },
@@ -125,7 +125,7 @@
             "binaryDir": "${sourceDir}/builds/${presetName}",
             "cacheVariables": {
                 "CMAKE_INSTALL_PREFIX": "${sourceDir}/builds/debug.sanitize.clang19",
-                "CMAKE_CXX_FLAGS": "-include ${sourceDir}/qbuild/qbuild.h -fsanitize=address -O3",
+                "CMAKE_CXX_FLAGS": "-include ${sourceDir}/qbuild/qbuild.h -fsanitize=address",
                 "CMAKE_LINK_FLAGS": "-fsanitize=address"
             }
         },
@@ -155,7 +155,7 @@
                 "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
                 "CMAKE_C_COMPILER": "/usr/bin/clang-20",
                 "CMAKE_CXX_COMPILER": "/usr/bin/clang++-20",
-                "CMAKE_CXX_FLAGS": "-include ${sourceDir}/qbuild/qbuild.h -O3",
+                "CMAKE_CXX_FLAGS": "-include ${sourceDir}/qbuild/qbuild.h",
                 "CMAKE_BUILD_TYPE": "RelWithDebInfo"
             }
         },
@@ -193,7 +193,7 @@
             "binaryDir": "${sourceDir}/builds/${presetName}",
             "cacheVariables": {
                 "CMAKE_INSTALL_PREFIX": "${sourceDir}/builds/debug.sanitize.clang20",
-                "CMAKE_CXX_FLAGS": "-include ${sourceDir}/qbuild/qbuild.h -fsanitize=address -O3",
+                "CMAKE_CXX_FLAGS": "-include ${sourceDir}/qbuild/qbuild.h -fsanitize=address",
                 "CMAKE_LINK_FLAGS": "-fsanitize=address"
             }
         },
