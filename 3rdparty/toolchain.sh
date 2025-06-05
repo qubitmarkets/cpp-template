@@ -1,37 +1,50 @@
 #/bin/bash
 
-export compiler=${compiler-gcc}
-GCC_MAJOR_VER=${GCC_MAJOR_VER-14}
-CLANG_MAJOR_VER=${CLANG_MAJOR_VER-19}
+export INFRA_ROOT=/opt/infra.1
+export install_root=${install_root-$(readlink -f $(dirname ${BASH_SOURCE}))}
+export compiler=${compiler-gcc15}
+export profile=release${dot_profile_extras-}
+export build_dir=builds/$profile.$compiler
+export install_dir=$install_root/install/$profile.$compiler
 
-if [[ $compiler == gcc ]]; then
-    SYS_GCC_VER=$(gcc --version | cut -d' ' -f3)
-    if [[ ${SYS_GCC_VER/.*/} -ge $GCC_MAJOR_VER ]]; then
+cat ../CMakePresets.json | sed 's,-include ${sourceDir}/qbuild/qbuild.h,,' >CMakePresets.json
+
+if [[ $profile =~ "sanitize" ]]; then
+    export CFLAGS_EXTRA="-fsanitize=address -fno-omit-frame-pointer"
+    export LDFLAGS_EXTRA="-fsanitize=address"
+else
+    unset CFLAGS_EXTRA
+    unset LDFLAGS_EXTRA
+fi
+
+if [[ ${compiler:0:3} == gcc ]]; then
+    GCC_MAJOR_VER=${compiler:3:2}
+    if [[ $GCC_MAJOR_VER == "" ]]; then
         export CC=gcc
         export CXX=g++
         unset AR
         unset NM
     else
-        export INFRA_ROOT=/opt/infra.1
         export CC=$INFRA_ROOT/bin/gcc-$GCC_MAJOR_VER
         export CXX=$INFRA_ROOT/bin/g++-$GCC_MAJOR_VER
         export AR=$INFRA_ROOT/bin/gcc-ar-$GCC_MAJOR_VER
         export NM=$INFRA_ROOT/bin/gcc-nm-$GCC_MAJOR_VER
-        export LDFLAGS="${LDFLAGS-} -Wl,-rpath=$INFRA_ROOT/lib64"
+        export CFLAGS="${CFLAGS_EXTRA-}"
+        export LDFLAGS="-Wl,-rpath=$INFRA_ROOT/lib64 -L$INFRA_ROOT/lib64 ${LDFLAGS_EXTRA-}"
     fi
-elif [[ $compiler == clang ]]; then
-    SYS_CLANG_VER=$(clang++ --version | head -1 | cut -d' ' -f3)
-    if [[ ${SYS_CLANG_VER/.*/} -ge $CLANG_MAJOR_VER ]]; then
+elif [[ ${compiler:0:5} == clang ]]; then
+    CLANG_MAJOR_VER=${CLANG_MAJOR_VER:5:2}
+    if [[ $CLANG_MAJOR_VER == "" ]]; then
         export CC=clang
         export CXX=clang++
         unset AR
         unset NM
     else
-        export INFRA_ROOT=/opt/infra.1
         export CC=$INFRA_ROOT/bin/clang-$CLANG_MAJOR_VER
         export CXX=$INFRA_ROOT/bin/clang++-$CLANG_MAJOR_VER
         export AR=$INFRA_ROOT/bin/llvm-ar-$CLANG_MAJOR_VER
         export NM=$INFRA_ROOT/bin/llvm-nm-$CLANG_MAJOR_VER
-        export LDFLAGS="${LDFLAGS-} -Wl,-rpath=$INFRA_ROOT/lib64"
+        export CFLAGS="${CFLAGS_EXTRA-} -fuse-ld=lld"
+        export LDFLAGS="-Wl,-rpath=$INFRA_ROOT/lib64 -L$INFRA_ROOT/lib64 ${LDFLAGS_EXTRA-}"
     fi
 fi

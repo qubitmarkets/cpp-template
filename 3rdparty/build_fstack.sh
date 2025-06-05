@@ -38,7 +38,9 @@ mflags=""
 if [[ -d build ]]; then
     mflags="--reconfigure"
 fi
-meson -Denable_kmods=true -Ddisable_libs=flow_classify -Ddisable_drivers=net/ice $mflags build
+# Meson build options : https://mesonbuild.com/Builtin-options.html
+# TODO: Try -Db_lto=true
+meson -Denable_kmods=true -Ddisable_libs=flow_classify -Ddisable_drivers=net/ice $mflags --buildtype release -Db_ndebug=if-release build
 ninja -C build
 sudo ninja -C build install
 

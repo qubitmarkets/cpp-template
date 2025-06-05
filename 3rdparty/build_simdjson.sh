@@ -1,23 +1,21 @@
 #!/bin/bash
 
 set -eu
-source ./toolchain.sh
-
 cd $(dirname $0)
-
-DESTDIR=$(readlink -f .)
+source ./toolchain.sh
 
 if [[ ! -e simdjson ]]; then
     git clone --depth=1 git@github.com:simdjson/simdjson.git
 fi
 cd simdjson
-rm -rf build || true
-mkdir -p build
+ln -nfs ../CMakePresets.json CMakePresets.json
+rm -rf $build_dir || true
+mkdir -p $build_dir
 
 set -x
-cmake -B build . -DSIMDJSON_EXCEPTIONS=OFF -G Ninja \
-    -DSIMDJSON_BUILD_STATIC_LIB=ON -DBUILD_SHARED_LIBS=ON -DSIMDJSON_AVX512_ALLOWED=0 -DSIMDJSON_ENABLE_THREADS=0 -DSIMDJSON_SKIPUTF8VALIDATION=1 \
-    -DCMAKE_CXX_COMPILER=$CXX -DCMAKE_C_COMPILER=$CC \
-    -DCMAKE_INSTALL_PREFIX=$DESTDIR -DCMAKE_INSTALL_LIBDIR=lib -DCMAKE_BUILD_TYPE=Release
-ninja -v -C build
-ninja -C build install
+cmake -B $build_dir -S . \
+    -G Ninja --preset $profile.$compiler -DCMAKE_INSTALL_PREFIX=$install_dir -DCMAKE_INSTALL_LIBDIR=lib \
+    -DSIMDJSON_EXCEPTIONS=OFF -DSIMDJSON_BUILD_STATIC_LIB=ON -DBUILD_SHARED_LIBS=ON -DSIMDJSON_AVX512_ALLOWED=0 -DSIMDJSON_ENABLE_THREADS=0 -DSIMDJSON_SKIPUTF8VALIDATION=1
+
+ninja -v -C $build_dir
+ninja -C $build_dir install

@@ -5,9 +5,11 @@ source ./etc/utils.sh
 
 check_sudo
 
+cp etc/git-hooks/pre-commit .git/hooks/
+
 if [[ -e /usr/bin/dnf ]]; then
     run sudo dnf install -y ninja-build openssl-devel libtool
-else
+elif [[ -e /usr/bin/apt ]]; then
     run sudo apt install -y ninja-build libssl-dev
 fi
 

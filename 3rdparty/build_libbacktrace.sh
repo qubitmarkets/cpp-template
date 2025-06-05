@@ -1,19 +1,20 @@
 #!/bin/bash
 
-set -euxo pipefail
+set -euo pipefail
 
 cd $(dirname ${BASH_SOURCE})
 source ../etc/utils.sh
-
-install_dir=$PWD
+source ./toolchain.sh
 
 if [[ ! -d libbacktrace ]]; then
     run git clone https://github.com/ianlancetaylor/libbacktrace.git
 fi
 run cd libbacktrace
-run mkdir -p build
-run cd build
-run ../configure
+src_dir=$PWD
+
+run mkdir -p $build_dir
+run cd $build_dir
+run $src_dir/configure
 run make
 run make install prefix= DESTDIR=$install_dir
 

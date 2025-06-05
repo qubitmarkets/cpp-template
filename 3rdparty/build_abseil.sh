@@ -1,21 +1,27 @@
 #!/bin/bash
 
-set -euxo pipefail
+set -eux
 
 cd $(dirname ${BASH_SOURCE})
 source ../etc/utils.sh
 source ./toolchain.sh
 
-install_dir=$PWD
+ver=lts_2025_05_12
 
 run rm -rf catch2
 if [[ -d abseil-cpp ]]; then
-    run git -C abseil-cpp pull origin lts_2025_01_27
+    # run git -C abseil-cpp pull origin $ver
+    true
 else
-    run git clone https://github.com/abseil/abseil-cpp.git abseil-cpp -b lts_2025_01_27
+    run git clone https://github.com/abseil/abseil-cpp.git abseil-cpp -b $ver
 fi
 run cd abseil-cpp
-run cmake -S . -B build -G Ninja -DCMAKE_INSTALL_PREFIX=$install_dir -DCMAKE_INSTALL_LIBDIR=lib -DABSL_BUILD_TESTING=ON -DABSL_USE_GOOGLETEST_HEAD=ON -DCMAKE_CXX_STANDARD=23
-run cmake --build build --target all
-run ctest
-run cmake --install build --prefix $install_dir
+ln -nfs ../CMakePresets.json CMakePresets.json
+mkdir -p $build_dir
+
+run cmake -S . -B $build_dir \
+    -G Ninja --preset $profile.$compiler -DCMAKE_INSTALL_PREFIX=$install_dir -DCMAKE_INSTALL_LIBDIR=lib \
+    -DABSL_BUILD_TESTING=ON -DABSL_USE_GOOGLETEST_HEAD=ON -DCMAKE_CXX_STANDARD=23
+
+ninja -v -C $build_dir
+ninja -v -C $build_dir install

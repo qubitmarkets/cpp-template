@@ -1,5 +1,5 @@
 {
-    "version": 8,
+    "version": 10,
     "configurePresets": [
         {
             "name": "debug.gcc",
@@ -32,63 +32,110 @@
             }
         },
         {
-            "name": "debug.gcc14",
-            "displayName": "gcc14 Debug",
-            "description": "Using compilers: C = /usr/bin/gcc, CXX = /opt/infra.1/bin/g++-14",
+            "$comment": [
+                "------------------------------------",
+                "COMPILERS",
+                "------------------------------------"
+            ],
+            "name": "clang20",
+            "hidden": true,
+            "description": "Using compilers: C = /usr/bin/clang-20, CXX = /usr/bin/clang++-20",
             "binaryDir": "${sourceDir}/builds/${presetName}",
             "generator": "Ninja",
             "cacheVariables": {
-                "CMAKE_INSTALL_PREFIX": "${sourceDir}/builds/debug.gcc14",
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/builds/${presetName}",
                 "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
-                "CMAKE_C_COMPILER": "/opt/infra.1/bin/gcc-14",
-                "CMAKE_CXX_COMPILER": "/opt/infra.1/bin/g++-14",
-                "CMAKE_CXX_FLAGS": "-include ${sourceDir}/qbuild/qbuild.h",
-                "CMAKE_BUILD_TYPE": "Debug"
+                "CMAKE_C_COMPILER": "/usr/bin/clang-20",
+                "CMAKE_CXX_COMPILER": "/usr/bin/clang++-20",
+                "CMAKE_CXX_FLAGS": "-include ${sourceDir}/qbuild/qbuild.h"
             }
         },
         {
-            "name": "release.gcc14",
-            "displayName": "gcc14 Release",
-            "description": "Using compilers: C = /usr/bin/gcc, CXX = /opt/infra.1/bin/g++-14",
-            "binaryDir": "${sourceDir}/builds/${presetName}",
-            "generator": "Ninja",
-            "cacheVariables": {
-                "CMAKE_INSTALL_PREFIX": "${sourceDir}/builds/release.gcc14",
-                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
-                "CMAKE_C_COMPILER": "/opt/infra.1/bin/gcc-14",
-                "CMAKE_CXX_COMPILER": "/opt/infra.1/bin/g++-14",
-                "CMAKE_CXX_FLAGS": "-include ${sourceDir}/qbuild/qbuild.h",
-                "CMAKE_BUILD_TYPE": "RelWithDebInfo"
-            }
-        },
-        {
-            "name": "debug.clang19",
-            "displayName": "Clang 19 Debug",
+            "name": "clang19",
+            "hidden": true,
             "description": "Using compilers: C = /usr/bin/clang-19, CXX = /usr/bin/clang++-19",
             "binaryDir": "${sourceDir}/builds/${presetName}",
             "generator": "Ninja",
             "cacheVariables": {
-                "CMAKE_INSTALL_PREFIX": "${sourceDir}/builds/debug.clang19",
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/builds/${presetName}",
                 "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
                 "CMAKE_C_COMPILER": "/usr/bin/clang-19",
                 "CMAKE_CXX_COMPILER": "/usr/bin/clang++-19",
-                "CMAKE_CXX_FLAGS": "-include ${sourceDir}/qbuild/qbuild.h",
-                "CMAKE_BUILD_TYPE": "Debug"
+                "CMAKE_CXX_FLAGS": "-include ${sourceDir}/qbuild/qbuild.h"
             }
         },
         {
-            "name": "release.clang19",
-            "displayName": "Clang 19 Release",
-            "description": "Using compilers: C = /usr/bin/clang-19, CXX = /usr/bin/clang++-19",
+            "name": "gcc14",
+            "hidden": true,
+            "description": "Using compilers: C = /opt/infra.1/bin/gcc-14, CXX = /opt/infra.1/bin/g++-14",
             "binaryDir": "${sourceDir}/builds/${presetName}",
             "generator": "Ninja",
             "cacheVariables": {
-                "CMAKE_INSTALL_PREFIX": "${sourceDir}/builds/release.clang19",
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/builds/${presetName}",
                 "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
-                "CMAKE_C_COMPILER": "/usr/bin/clang-19",
-                "CMAKE_CXX_COMPILER": "/usr/bin/clang++-19",
-                "CMAKE_CXX_FLAGS": "-include ${sourceDir}/qbuild/qbuild.h",
-                "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+                "CMAKE_C_COMPILER": "/opt/infra.1/bin/gcc-14",
+                "CMAKE_CXX_COMPILER": "/opt/infra.1/bin/g++-14",
+                "CMAKE_CXX_FLAGS": "-include ${sourceDir}/qbuild/qbuild.h"
+            }
+        },
+        {
+            "name": "gcc15",
+            "hidden": true,
+            "description": "Using compilers: C = /opt/infra.1/bin/gcc-15, CXX = /opt/infra.1/bin/g++-15",
+            "binaryDir": "${sourceDir}/builds/${presetName}",
+            "generator": "Ninja",
+            "cacheVariables": {
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/builds/${presetName}",
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+                "CMAKE_C_COMPILER": "/opt/infra.1/bin/gcc-15",
+                "CMAKE_CXX_COMPILER": "/opt/infra.1/bin/g++-15",
+                "CMAKE_CXX_FLAGS": "-include ${sourceDir}/qbuild/qbuild.h"
+            }
+        },
+        {
+            "name": "gcc",
+            "hidden": true,
+            "binaryDir": "${sourceDir}/builds/${presetName}",
+            "generator": "Ninja",
+            "cacheVariables": {
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/builds/${presetName}",
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+                "CMAKE_C_COMPILER": "/usr/bin/gcc",
+                "CMAKE_CXX_COMPILER": "/usr/bin/g++",
+                "CMAKE_CXX_FLAGS": "-include ${sourceDir}/qbuild/qbuild.h"
+            }
+        },
+        {
+            "$comment": [
+                "------------------------------------",
+                "SANITIZERS",
+                "------------------------------------"
+            ],
+            "name": "sanitize",
+            "hidden": true,
+            "binaryDir": "${sourceDir}/builds/${presetName}",
+            "generator": "Ninja",
+            "cacheVariables": {
+                "CMAKE_CXX_FLAGS": "-include ${sourceDir}/qbuild/qbuild.h -fsanitize=address -DBUILD_SANITIZE",
+                "CMAKE_LINK_FLAGS": "-fsanitize=address"
+            }
+        },
+        {
+            "$comment": [
+                "------------------------------------",
+                "LINTERS",
+                "------------------------------------"
+            ],
+            "name": "clang-tidy",
+            "inherits": "clang20",
+            "displayName": "Clang Tidy 20",
+            "description": "Using clang-tidy-20",
+            "binaryDir": "${sourceDir}/builds/${presetName}",
+            "generator": "Ninja",
+            "cacheVariables": {
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/builds/debug.clang20",
+                "CMAKE_BUILD_TYPE": "Debug",
+                "CMAKE_CXX_CLANG_TIDY": "/usr/bin/clang-tidy;-style=file;"
             }
         },
         {
@@ -108,100 +155,158 @@
             }
         },
         {
-            "name": "debug.sanitize.clang19",
-            "inherits": "debug.clang19",
-            "displayName": "Clang 19 Debug Sanitize",
-            "binaryDir": "${sourceDir}/builds/${presetName}",
-            "cacheVariables": {
-                "CMAKE_INSTALL_PREFIX": "${sourceDir}/builds/debug.sanitize.clang19",
-                "CMAKE_CXX_FLAGS": "-include ${sourceDir}/qbuild/qbuild.h -fsanitize=address",
-                "CMAKE_LINK_FLAGS": "-fsanitize=address"
-            }
-        },
-        {
-            "name": "release.sanitize.clang19",
-            "inherits": "release.clang19",
-            "displayName": "Clang 19 Release Sanitize",
-            "binaryDir": "${sourceDir}/builds/${presetName}",
-            "cacheVariables": {
-                "CMAKE_INSTALL_PREFIX": "${sourceDir}/builds/debug.sanitize.clang19",
-                "CMAKE_CXX_FLAGS": "-include ${sourceDir}/qbuild/qbuild.h -fsanitize=address",
-                "CMAKE_LINK_FLAGS": "-fsanitize=address"
-            }
-        },
-        {
+            "$comment": [
+                "------------------------------------",
+                "PROFILES",
+                "------------------------------------"
+            ],
             "name": "debug.clang20",
+            "inherits": "clang20",
             "displayName": "Clang 20 Debug",
-            "description": "Using compilers: C = /usr/bin/clang-20, CXX = /usr/bin/clang++-20",
-            "binaryDir": "${sourceDir}/builds/${presetName}",
             "generator": "Ninja",
             "cacheVariables": {
-                "CMAKE_INSTALL_PREFIX": "${sourceDir}/builds/debug.clang20",
-                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
-                "CMAKE_C_COMPILER": "/usr/bin/clang-20",
-                "CMAKE_CXX_COMPILER": "/usr/bin/clang++-20",
-                "CMAKE_CXX_FLAGS": "-include ${sourceDir}/qbuild/qbuild.h",
                 "CMAKE_BUILD_TYPE": "Debug"
             }
         },
         {
             "name": "release.clang20",
+            "inherits": "clang20",
             "displayName": "Clang 20 Release",
-            "description": "Using compilers: C = /usr/bin/clang-20, CXX = /usr/bin/clang++-20",
             "binaryDir": "${sourceDir}/builds/${presetName}",
             "generator": "Ninja",
             "cacheVariables": {
-                "CMAKE_INSTALL_PREFIX": "${sourceDir}/builds/release.clang20",
-                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
-                "CMAKE_C_COMPILER": "/usr/bin/clang-20",
-                "CMAKE_CXX_COMPILER": "/usr/bin/clang++-20",
-                "CMAKE_CXX_FLAGS": "-include ${sourceDir}/qbuild/qbuild.h",
                 "CMAKE_BUILD_TYPE": "RelWithDebInfo"
             }
         },
         {
-            "name": "clang-tidy",
-            "displayName": "Clang Tidy 20",
-            "description": "Using clang-tidy-20",
-            "binaryDir": "${sourceDir}/builds/${presetName}",
-            "generator": "Ninja",
-            "cacheVariables": {
-                "CMAKE_INSTALL_PREFIX": "${sourceDir}/builds/debug.clang20",
-                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
-                "CMAKE_C_COMPILER": "/usr/bin/clang-20",
-                "CMAKE_CXX_COMPILER": "/usr/bin/clang++-20",
-                "CMAKE_CXX_FLAGS": "-include ${sourceDir}/qbuild/qbuild.h",
-                "CMAKE_BUILD_TYPE": "Debug",
-                "CMAKE_CXX_CLANG_TIDY": "/usr/bin/clang-tidy;-style=file;"
-            }
-        },
-        {
             "name": "debug.sanitize.clang20",
-            "inherits": "debug.clang20",
-            "displayName": "Clang 20 Debug Sanitize",
-            "binaryDir": "${sourceDir}/builds/${presetName}",
-            "cacheVariables": {
-                "CMAKE_INSTALL_PREFIX": "${sourceDir}/builds/debug.sanitize.clang20",
-                "CMAKE_CXX_FLAGS": "-include ${sourceDir}/qbuild/qbuild.h -fsanitize=address",
-                "CMAKE_LINK_FLAGS": "-fsanitize=address"
-            }
+            "inherits": [
+                "sanitize",
+                "debug.clang20"
+            ],
+            "displayName": "Clang 20 Debug Sanitize"
         },
         {
             "name": "release.sanitize.clang20",
-            "inherits": "release.clang20",
-            "displayName": "Clang 20 Release Sanitize",
-            "binaryDir": "${sourceDir}/builds/${presetName}",
+            "inherits": [
+                "sanitize",
+                "release.clang20"
+            ],
+            "displayName": "Clang 20 Release Sanitize"
+        },
+        {
+            "$comment": [
+                "                clang19 profiles"
+            ],
+            "name": "debug.clang19",
+            "inherits": "clang19",
+            "displayName": "Clang 19 Debug",
+            "generator": "Ninja",
             "cacheVariables": {
-                "CMAKE_INSTALL_PREFIX": "${sourceDir}/builds/debug.sanitize.clang20",
-                "CMAKE_CXX_FLAGS": "-include ${sourceDir}/qbuild/qbuild.h -fsanitize=address",
-                "CMAKE_LINK_FLAGS": "-fsanitize=address"
+                "CMAKE_BUILD_TYPE": "Debug"
             }
         },
         {
-            "name": "debug.test.clang20",
-            "inherits": "debug.clang20",
-            "displayName": "Clang 20 Test",
-            "cacheVariables": {}
+            "name": "release.clang19",
+            "inherits": "clang19",
+            "displayName": "Clang 19 Release",
+            "binaryDir": "${sourceDir}/builds/${presetName}",
+            "generator": "Ninja",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+            }
+        },
+        {
+            "name": "debug.sanitize.clang19",
+            "inherits": [
+                "sanitize",
+                "debug.clang19"
+            ],
+            "displayName": "Clang 19 Debug Sanitize"
+        },
+        {
+            "name": "release.sanitize.clang19",
+            "inherits": [
+                "sanitize",
+                "release.clang19"
+            ],
+            "displayName": "Clang 19 Release Sanitize"
+        },
+        {
+            "$comment": [
+                "                gcc14 profiles"
+            ],
+            "name": "debug.gcc14",
+            "inherits": "gcc14",
+            "displayName": "GCC 14 Debug",
+            "generator": "Ninja",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        },
+        {
+            "name": "release.gcc14",
+            "inherits": "gcc14",
+            "displayName": "GCC 14 Release",
+            "binaryDir": "${sourceDir}/builds/${presetName}",
+            "generator": "Ninja",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+            }
+        },
+        {
+            "name": "debug.sanitize.gcc14",
+            "inherits": [
+                "sanitize",
+                "debug.gcc14"
+            ],
+            "displayName": "GCC 14 Debug Sanitize"
+        },
+        {
+            "name": "release.sanitize.gcc14",
+            "inherits": [
+                "sanitize",
+                "release.gcc14"
+            ],
+            "displayName": "GCC 14 Release Sanitize"
+        },
+        {
+            "$comment": [
+                "                gcc15 profiles"
+            ],
+            "name": "debug.gcc15",
+            "inherits": "gcc15",
+            "displayName": "GCC 15 Debug",
+            "generator": "Ninja",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        },
+        {
+            "name": "release.gcc15",
+            "inherits": "gcc15",
+            "displayName": "GCC 15 Release",
+            "binaryDir": "${sourceDir}/builds/${presetName}",
+            "generator": "Ninja",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+            }
+        },
+        {
+            "name": "debug.sanitize.gcc15",
+            "inherits": [
+                "sanitize",
+                "debug.gcc15"
+            ],
+            "displayName": "GCC 15 Debug Sanitize"
+        },
+        {
+            "name": "release.sanitize.gcc15",
+            "inherits": [
+                "sanitize",
+                "release.gcc15"
+            ],
+            "displayName": "GCC 15 Release Sanitize"
         }
     ],
     "buildPresets": []

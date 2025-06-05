@@ -1,21 +1,22 @@
 #!/bin/bash
 
-source ./toolchain.sh
-
 cd $(dirname $BASHSOURCE[0])
-install_dir=$PWD
+source ./toolchain.sh
 
 if [[ ! -d wslay ]]; then
     git clone https://github.com/tatsuhiro-t/wslay.git
 fi
 cd wslay
+src_dir=$PWD
 
 set -e
 
-autoreconf -i
+mkdir -p $build_dir
+autoreconf
 automake
 autoconf
-./configure --prefix=$install_dir
+cd $build_dir
+$src_dir/configure --prefix=$install_dir
 make install
 
 if [[ $? -ne 0 ]]; then

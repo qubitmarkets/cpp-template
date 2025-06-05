@@ -4,8 +4,9 @@ set -eux
 
 # Installs gcc to /opt/infra.1/bin
 
-# Creates g++-14
-GCC_MAJOR_VER=${GCC_MAJOR_VER-14}
+# Creates g++-15
+GCC_VER=15.1.0
+GCC_MAJOR_VER=15
 DESTDIR=${DESTDIR-/opt/infra.1}
 
 cd $(dirname ${BASH_SOURCE})
@@ -18,10 +19,13 @@ fi
 
 if [[ ! -d gcc ]]; then
     #git clone --depth=1 git://gcc.gnu.org/git/gcc.git
-    git clone --depth=1 -b releases/gcc-${GCC_MAJOR_VER} git@github.com:gcc-mirror/gcc.git
+    git clone --depth=1 -b releases/gcc-${GCC_VER} git@github.com:gcc-mirror/gcc.git
 fi
 cd gcc
-git checkout releases/gcc-$GCC_MAJOR_VER
+#git fetch origin --tags
+git checkout releases/gcc-$GCC_VER ||
+    (git fetch origin releases/gcc-$GCC_VER --tags && git checkout releases/gcc-$GCC_VER)
+
 ./contrib/download_prerequisites
 mkdir -p build
 cd build
@@ -29,6 +33,6 @@ cd build
     --enable-languages=c,c++ \
     --disable-multilib \
     --program-suffix "-$GCC_MAJOR_VER"
-make -j4 || make
+make
 read -p "Press key to install"
 sudo make install
