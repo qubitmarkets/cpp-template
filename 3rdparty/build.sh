@@ -35,3 +35,9 @@ fi
 if [[ ! -e f-stack/lib ]]; then
     ./build_fstack.sh
 fi
+if [[ ! -e lib/libwslay.a ]]; then
+    ./build_wslay.sh
+fi
+if [[ ! -e lib/libsimdjson_static.a ]]; then
+    ./build_simdjson.sh
+fi

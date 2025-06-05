@@ -12,3 +12,4 @@ cmake-*/
 f-stack/
 wslay/
 llvm-project/
+simdjson
