@@ -88,7 +88,8 @@ struct Callback<Result(Args...)> : CallbackStorage {
     Callback(Functor&& f) {
         static_assert(sizeof(f) <= 8, "Lambda capture too large");
         func = (void*)&LambdaHelper<std::decay_t<Functor>>::call;
-        data = *(void**)&f;
+        data = 0;
+        memcpy(&data, &f, sizeof(Functor));
     }
 
     // --------------------
