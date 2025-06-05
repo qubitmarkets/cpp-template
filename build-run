@@ -20,7 +20,7 @@ if [[ -e /usr/bin/colorpath ]]; then PIPE_COLORPATH="| /usr/bin/colorpath"; fi
 target=${target-}
 
 flags=""
-test_flags=()
+test_flags=""
 nargs=$(($# - 1))
 for i in $(seq 0 $nargs); do
     arg="${args[$i]}"
@@ -53,9 +53,9 @@ for i in $(seq 0 $nargs); do
         # Unknown arg
         if [[ "$mode" == "test" ]]; then
             if [[ ${arg:0:1} != "-" ]]; then
-                test_flags+=("-R")
+                test_flags="-R"
             fi
-            test_flags+=("$arg")
+            test_flags="$test_flags $arg"
         elif [[ $target == "" ]]; then
             target="$arg"
         else
@@ -133,10 +133,10 @@ fi
 
 # Test
 if [[ $mode == "test" ]]; then
-    if [[ "${test_flags[@]}" != "" ]]; then
-        echo "Running with test flags ${test_flags[@]}"
+    if [[ "${test_flags}" != "" ]]; then
+        echo "Running with test flags ${test_flags}"
     fi
-    bash -c "(cd $cmake_build_dir; ctest ${test_flags[*]} --output-on-failure) $PIPE_COLORPATH; exit \${PIPESTATUS[0]}"
+    bash -c "(cd $cmake_build_dir; ctest ${test_flags} --output-on-failure) $PIPE_COLORPATH; exit \${PIPESTATUS[0]}"
     rv=$(($rv || $?))
 fi
 
