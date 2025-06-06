@@ -6,6 +6,10 @@ cd $(dirname ${BASH_SOURCE})
 source ../etc/utils.sh
 source ./toolchain.sh
 
+echo "-------------------------"
+echo "Building libbacktrace"
+echo "-------------------------"
+
 if [[ ! -d libbacktrace ]]; then
     run git clone https://github.com/ianlancetaylor/libbacktrace.git
 fi

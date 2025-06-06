@@ -4,6 +4,10 @@ set -eu
 cd $(dirname $0)
 source ./toolchain.sh
 
+echo "-------------------------"
+echo "Building simdjson"
+echo "-------------------------"
+
 if [[ ! -e simdjson ]]; then
     git clone --depth=1 git@github.com:simdjson/simdjson.git
 fi

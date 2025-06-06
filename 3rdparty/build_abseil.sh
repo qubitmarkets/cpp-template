@@ -6,6 +6,10 @@ cd $(dirname ${BASH_SOURCE})
 source ../etc/utils.sh
 source ./toolchain.sh
 
+echo "-------------------------"
+echo "Building abseil"
+echo "-------------------------"
+
 ver=lts_2025_05_12
 
 run rm -rf catch2

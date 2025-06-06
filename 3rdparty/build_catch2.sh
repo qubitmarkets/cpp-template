@@ -6,6 +6,10 @@ cd $(dirname ${BASH_SOURCE})
 source ../etc/utils.sh
 source ./toolchain.sh
 
+echo "-------------------------"
+echo "Building catch2"
+echo "-------------------------"
+
 if [[ ! -e catch2 ]]; then
     run git clone --depth 10 https://github.com/catchorg/Catch2.git catch2
 fi
