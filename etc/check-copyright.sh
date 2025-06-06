@@ -18,16 +18,16 @@ for arg in $@; do
 done
 
 if [[ $git_staged_only == 1 ]]; then
-  files=$(git status --porcelain | /bin/grep '^[AM]' | cut -c4- | grep '\.h$|\.cc$')
+  files=($(git status --porcelain | /bin/grep '^[AM]' | cut -c4- | grep '\.h$|\.cc$'))
 else
-  files=$(find qbuild/ qcore/ -name '*.h' -o -name '*.cc')
+  files=($(find qbuild/ qcore/ -name '*.h' -o -name '*.cc'))
 fi
 
-if [[ "$files" == "" ]]; then
+if [[ "${#files[@]}" == 0 ]]; then
   exit
 fi
 
-for f in "$files"; do
+for f in "${files[@]}"; do
   if ! head -1 $f | grep -q -E '^// Copyright \(c\) 2025 Qubit Markets Pte\. Ltd\.$'; then
     missing+=("$f")
   fi
