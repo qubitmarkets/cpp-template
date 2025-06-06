@@ -1,24 +1,24 @@
-Location: [0;35mbacktrace.t.cc[m:[0;35m10[m
+Location: [0;35mbacktrace.t.cc[m:[0;35m11[m
 
   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ BACKTRACE ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
                                [0;36m ⋮ 1 frames hidden ⋮[m
    1: [91mfoo2()[m
-      at [0;34m/home/username/qbm/core/tests/[0;31mbacktrace.t.cc[m:10[m
+      at [0;34m/home/username/qbm/core/tests/[0;31mbacktrace.t.cc[m:11[m
    2: [0;32mfoo()[m
-      at [0;34m/home/username/qbm/core/tests/[0;31mbacktrace.t.cc[m:13[m
+      at [0;34m/home/username/qbm/core/tests/[0;31mbacktrace.t.cc[m:15[m
    3: [0;32mmain[m
-      at [0;34m/home/username/qbm/core/tests/[0;31mbacktrace.t.cc[m:18[m
+      at [0;34m/home/username/qbm/core/tests/[0;31mbacktrace.t.cc[m:21[m
 
-Location: [0;35mbacktrace.t.cc[m:[0;35m10[m
+Location: [0;35mbacktrace.t.cc[m:[0;35m11[m
 
   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ BACKTRACE ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
                                [0;36m ⋮ 1 frames hidden ⋮[m
    1: [91mfoo2()[m
-      at [0;34m/home/username/qbm/core/tests/[0;31mbacktrace.t.cc[m:10[m
+      at [0;34m/home/username/qbm/core/tests/[0;31mbacktrace.t.cc[m:11[m
    2: [0;32mfoo()[m
-      at [0;34m/home/username/qbm/core/tests/[0;31mbacktrace.t.cc[m:13[m
+      at [0;34m/home/username/qbm/core/tests/[0;31mbacktrace.t.cc[m:15[m
    3: [0;32mmain[m
-      at [0;34m/home/username/qbm/core/tests/[0;31mbacktrace.t.cc[m:18[m
+      at [0;34m/home/username/qbm/core/tests/[0;31mbacktrace.t.cc[m:21[m
 
 
 Caught signal: 2 SIGINT, exiting...

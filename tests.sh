@@ -2,6 +2,19 @@
 
 cd $(dirname ${BASH_SOURCE})
 
+set -eu
+
+for compiler in gcc15 clang20; do
+  for profile_base in debug release; do
+    for dot_extra in "" ".sanitize"; do
+      export compiler
+      export profile=${profile_base}${dot_extra}
+      echo "Testing $profile.$compiler"
+      ./build-run test --cfg
+    done
+  done
+done
+
 ./build-run test
 if [[ -e ./build/utils.t ]]; then
     echo "Run external tests"

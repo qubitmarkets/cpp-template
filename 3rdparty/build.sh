@@ -14,7 +14,7 @@ export CFLAGS_ORIG="${CFLAGS-}"
 export LDFLAGS_ORIG="${LDFLAGS-}"
 
 export profile=release
-export compiler=gcc14
+export compiler=gcc${GCC_MAJOR_VER}
 export install_root=$PWD
 source ./toolchain.sh
 

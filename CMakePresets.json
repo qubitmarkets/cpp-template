@@ -60,7 +60,7 @@
             "cacheVariables": {
                 "THIRD_PARTY_DIR": "${sourceDir}/3rdparty/install/release.sanitize.clang20",
                 "CMAKE_CXX_FLAGS": "-include ${sourceDir}/qbuild/qbuild.h -fsanitize=address -DBUILD_SANITIZE",
-                "CMAKE_LINK_FLAGS": "-fsanitize=address"
+                "CMAKE_EXE_LINKER_FLAGS": "-fsanitize=address"
             }
         },
         {
@@ -70,6 +70,7 @@
             "binaryDir": "${sourceDir}/builds/${presetName}",
             "generator": "Ninja",
             "cacheVariables": {
+                "THIRD_PARTY_DIR": "${sourceDir}/3rdparty/install/release.clang19",
                 "CMAKE_INSTALL_PREFIX": "${sourceDir}/builds/${presetName}",
                 "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
                 "CMAKE_C_COMPILER": "/usr/bin/clang-19",
@@ -84,7 +85,7 @@
             "cacheVariables": {
                 "THIRD_PARTY_DIR": "${sourceDir}/3rdparty/install/release.sanitize.clang19",
                 "CMAKE_CXX_FLAGS": "-include ${sourceDir}/qbuild/qbuild.h -fsanitize=address -DBUILD_SANITIZE",
-                "CMAKE_LINK_FLAGS": "-fsanitize=address"
+                "CMAKE_EXE_LINKER_FLAGS": "-fsanitize=address"
             }
         },
         {
@@ -94,11 +95,13 @@
             "binaryDir": "${sourceDir}/builds/${presetName}",
             "generator": "Ninja",
             "cacheVariables": {
+                "THIRD_PARTY_DIR": "${sourceDir}/3rdparty/install/release.gcc14",
                 "CMAKE_INSTALL_PREFIX": "${sourceDir}/builds/${presetName}",
                 "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
                 "CMAKE_C_COMPILER": "/opt/infra.1/bin/gcc-14",
                 "CMAKE_CXX_COMPILER": "/opt/infra.1/bin/g++-14",
-                "CMAKE_CXX_FLAGS": "-include ${sourceDir}/qbuild/qbuild.h"
+                "CMAKE_CXX_FLAGS": "-include ${sourceDir}/qbuild/qbuild.h",
+                "CMAKE_EXE_LINKER_FLAGS": "-Wl,-rpath=/opt/infra.1/lib64"
             }
         },
         {
@@ -108,7 +111,7 @@
             "cacheVariables": {
                 "THIRD_PARTY_DIR": "${sourceDir}/3rdparty/install/release.sanitize.gcc14",
                 "CMAKE_CXX_FLAGS": "-include ${sourceDir}/qbuild/qbuild.h -fsanitize=address -DBUILD_SANITIZE",
-                "CMAKE_LINK_FLAGS": "-fsanitize=address"
+                "CMAKE_EXE_LINKER_FLAGS": "-Wl,-rpath=/opt/infra.1/lib64 -fsanitize=address"
             }
         },
         {
@@ -118,11 +121,13 @@
             "binaryDir": "${sourceDir}/builds/${presetName}",
             "generator": "Ninja",
             "cacheVariables": {
+                "THIRD_PARTY_DIR": "${sourceDir}/3rdparty/install/release.gcc15",
                 "CMAKE_INSTALL_PREFIX": "${sourceDir}/builds/${presetName}",
                 "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
                 "CMAKE_C_COMPILER": "/opt/infra.1/bin/gcc-15",
                 "CMAKE_CXX_COMPILER": "/opt/infra.1/bin/g++-15",
-                "CMAKE_CXX_FLAGS": "-include ${sourceDir}/qbuild/qbuild.h"
+                "CMAKE_CXX_FLAGS": "-include ${sourceDir}/qbuild/qbuild.h",
+                "CMAKE_EXE_LINKER_FLAGS": "-Wl,-rpath=/opt/infra.1/lib64"
             }
         },
         {
@@ -132,7 +137,7 @@
             "cacheVariables": {
                 "THIRD_PARTY_DIR": "${sourceDir}/3rdparty/install/release.sanitize.gcc15",
                 "CMAKE_CXX_FLAGS": "-include ${sourceDir}/qbuild/qbuild.h -fsanitize=address -DBUILD_SANITIZE",
-                "CMAKE_LINK_FLAGS": "-fsanitize=address"
+                "CMAKE_EXE_LINKER_FLAGS": "-Wl,-rpath=/opt/infra.1/lib64 -fsanitize=address"
             }
         },
         {
@@ -141,6 +146,7 @@
             "binaryDir": "${sourceDir}/builds/${presetName}",
             "generator": "Ninja",
             "cacheVariables": {
+                "THIRD_PARTY_DIR": "${sourceDir}/3rdparty/install/release.gcc15",
                 "CMAKE_INSTALL_PREFIX": "${sourceDir}/builds/${presetName}",
                 "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
                 "CMAKE_C_COMPILER": "/usr/bin/gcc",
@@ -160,7 +166,7 @@
             "generator": "Ninja",
             "cacheVariables": {
                 "CMAKE_CXX_FLAGS": "-include ${sourceDir}/qbuild/qbuild.h -fsanitize=address -DBUILD_SANITIZE",
-                "CMAKE_LINK_FLAGS": "-fsanitize=address"
+                "CMAKE_EXE_LINKER_FLAGS": "-fsanitize=address"
             }
         },
         {
@@ -176,6 +182,7 @@
             "binaryDir": "${sourceDir}/builds/${presetName}",
             "generator": "Ninja",
             "cacheVariables": {
+                "THIRD_PARTY_DIR": "${sourceDir}/3rdparty/install/release.clang20",
                 "CMAKE_INSTALL_PREFIX": "${sourceDir}/builds/debug.clang20",
                 "CMAKE_BUILD_TYPE": "Debug",
                 "CMAKE_CXX_CLANG_TIDY": "/usr/bin/clang-tidy;-style=file;"
@@ -188,6 +195,7 @@
             "binaryDir": "${sourceDir}/builds/${presetName}",
             "generator": "Ninja",
             "cacheVariables": {
+                "THIRD_PARTY_DIR": "${sourceDir}/3rdparty/install/release.clang19",
                 "CMAKE_INSTALL_PREFIX": "${sourceDir}/builds/debug.clang19",
                 "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
                 "CMAKE_C_COMPILER": "/usr/bin/clang-19",
@@ -247,9 +255,7 @@
             "name": "debug.clang19",
             "inherits": "clang19",
             "displayName": "Clang 19 Debug",
-            "generator": "Ninja",
             "cacheVariables": {
-                "THIRD_PARTY_DIR": "${sourceDir}/3rdparty/install/release.clang19",
                 "CMAKE_BUILD_TYPE": "Debug"
             }
         },
@@ -257,33 +263,24 @@
             "name": "release.clang19",
             "inherits": "clang19",
             "displayName": "Clang 19 Release",
-            "binaryDir": "${sourceDir}/builds/${presetName}",
-            "generator": "Ninja",
             "cacheVariables": {
-                "THIRD_PARTY_DIR": "${sourceDir}/3rdparty/install/release.clang19",
                 "CMAKE_BUILD_TYPE": "RelWithDebInfo"
             }
         },
         {
             "name": "debug.sanitize.clang19",
-            "inherits": [
-                "sanitize",
-                "debug.clang19"
-            ],
+            "inherits": "sanitize.clang19",
             "displayName": "Clang 19 Debug Sanitize",
             "cacheVariables": {
-                "THIRD_PARTY_DIR": "${sourceDir}/3rdparty/install/release.sanitize.clang19"
+                "CMAKE_BUILD_TYPE": "Debug"
             }
         },
         {
             "name": "release.sanitize.clang19",
-            "inherits": [
-                "sanitize",
-                "release.clang19"
-            ],
+            "inherits": "sanitize.clang19",
             "displayName": "Clang 19 Release Sanitize",
             "cacheVariables": {
-                "THIRD_PARTY_DIR": "${sourceDir}/3rdparty/install/release.sanitize.clang19"
+                "CMAKE_BUILD_TYPE": "RelWithDebInfo"
             }
         },
         {
@@ -295,9 +292,7 @@
             "name": "debug.gcc14",
             "inherits": "gcc14",
             "displayName": "GCC 14 Debug",
-            "generator": "Ninja",
             "cacheVariables": {
-                "THIRD_PARTY_DIR": "${sourceDir}/3rdparty/install/release.gcc14",
                 "CMAKE_BUILD_TYPE": "Debug"
             }
         },
@@ -305,28 +300,25 @@
             "name": "release.gcc14",
             "inherits": "gcc14",
             "displayName": "GCC 14 Release",
-            "binaryDir": "${sourceDir}/builds/${presetName}",
-            "generator": "Ninja",
             "cacheVariables": {
-                "THIRD_PARTY_DIR": "${sourceDir}/3rdparty/install/release.gcc14",
                 "CMAKE_BUILD_TYPE": "RelWithDebInfo"
             }
         },
         {
             "name": "debug.sanitize.gcc14",
-            "inherits": [
-                "sanitize",
-                "debug.gcc14"
-            ],
-            "displayName": "GCC 14 Debug Sanitize"
+            "inherits": "sanitize.gcc14",
+            "displayName": "GCC 14 Debug Sanitize",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
         },
         {
             "name": "release.sanitize.gcc14",
-            "inherits": [
-                "sanitize",
-                "release.gcc14"
-            ],
-            "displayName": "GCC 14 Release Sanitize"
+            "inherits": "sanitize.gcc14",
+            "displayName": "GCC 14 Release Sanitize",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+            }
         },
         {
             "$comment": [
@@ -337,9 +329,7 @@
             "name": "debug.gcc15",
             "inherits": "gcc15",
             "displayName": "GCC 15 Debug",
-            "generator": "Ninja",
             "cacheVariables": {
-                "THIRD_PARTY_DIR": "${sourceDir}/3rdparty/install/release.gcc15",
                 "CMAKE_BUILD_TYPE": "Debug"
             }
         },
@@ -347,34 +337,24 @@
             "name": "release.gcc15",
             "inherits": "gcc15",
             "displayName": "GCC 15 Release",
-            "binaryDir": "${sourceDir}/builds/${presetName}",
             "generator": "Ninja",
             "cacheVariables": {
-                "THIRD_PARTY_DIR": "${sourceDir}/3rdparty/install/release.gcc15",
                 "CMAKE_BUILD_TYPE": "RelWithDebInfo"
             }
         },
         {
             "name": "debug.sanitize.gcc15",
-            "inherits": [
-                "sanitize",
-                "debug.gcc15"
-            ],
+            "inherits": "sanitize.gcc15",
             "displayName": "GCC 15 Debug Sanitize",
             "cacheVariables": {
-                "THIRD_PARTY_DIR": "${sourceDir}/3rdparty/install/release.sanitize.gcc15",
-                "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+                "CMAKE_BUILD_TYPE": "Debug"
             }
         },
         {
             "name": "release.sanitize.gcc15",
-            "inherits": [
-                "sanitize",
-                "release.gcc15"
-            ],
+            "inherits": "sanitize.gcc15",
             "displayName": "GCC 15 Release Sanitize",
             "cacheVariables": {
-                "THIRD_PARTY_DIR": "${sourceDir}/3rdparty/install/release.sanitize.gcc15",
                 "CMAKE_BUILD_TYPE": "RelWithDebInfo"
             }
         }

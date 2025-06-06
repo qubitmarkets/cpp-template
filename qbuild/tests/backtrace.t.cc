@@ -5,18 +5,21 @@
 #include <execinfo.h>
 
 void unhandled_exception_handler();
+volatile int g_val = 0;
 
-void foo2() {
-  while (true) {
-  };
+__attribute__((noinline)) __attribute__((disable_tail_calls)) void foo2() {
+    while (g_val == 0) {
+    };
 }
-void foo() { foo2(); }
+__attribute__((noinline)) __attribute__((disable_tail_calls)) __attribute__((optimize("no-optimize-sibling-calls"))) void foo() {
+    foo2();
+}
 
-int main(int argc, char **argv) {
-  SigHandler::install();
+int main(int argc, char** argv) {
+    SigHandler::install();
 
-  foo();
+    foo();
 
-  printf("Done\n");
-  return 0;
+    printf("Done\n");
+    return 0;
 }

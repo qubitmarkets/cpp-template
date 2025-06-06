@@ -10,8 +10,7 @@ find_package(Catch2 3 REQUIRED PATHS ${THIRD_PARTY_DIR}/lib/cmake)
 execute_process(COMMAND "/usr/bin/ln" "-nfs" "${CMAKE_CURRENT_BINARY_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}/build")
 
 # 3rd party reqs
-include(3rdparty/libbacktrace.cmake)
-find_package(Catch2 3 REQUIRED)
+include(${THIRD_PARTY_DIR}/lib/cmake/libbacktrace.cmake)
 include(CTest)
 include(Catch)
 find_package(OpenSSL REQUIRED)
@@ -47,6 +46,7 @@ set_target_properties(qbuild
 # Tests
 #
 add_executable(backtrace.t qbuild/tests/backtrace.t.cc)
+target_compile_options(backtrace.t PRIVATE -Wno-error=attribute-warning -Wno-unknown-attributes -Wno-attributes)
 target_link_libraries(backtrace.t PRIVATE qbuild)
 
 enable_testing()

@@ -19,6 +19,7 @@ if [[ -e /usr/bin/colorpath ]]; then PIPE_COLORPATH="| /usr/bin/colorpath"; fi
 
 target=${target-}
 
+do_configure=0
 flags=""
 test_flags=""
 nargs=$(($# - 1))
@@ -32,8 +33,11 @@ for i in $(seq 0 $nargs); do
         compiler=("${arg:11}")
     elif [[ ${arg:0:11} == "--gcc" ]]; then
         compiler=("gcc")
+    elif [[ $arg == "--cfg" || $arg == "--configure" ]]; then
+        do_configure=1
     elif [[ $arg == "cfg" || $arg == "configure" ]]; then
         mode=configure
+        do_configure=1
     elif [[ $arg == "b" || $arg == "build" ]]; then
         mode=build
     elif [[ $arg == "r" || $arg == "run" ]]; then
@@ -77,9 +81,9 @@ ln -nfs $cmake_build_dir build
 
 rv=0
 # Configure
-if [[ ! -e $cmake_build_dir || $mode == "configure" || ! -e $cmake_build_dir/build.ninja ]]; then
+if [[ ! -e $cmake_build_dir || $do_configure == 1 || ! -e $cmake_build_dir/build.ninja ]]; then
     echo "+ cmake --preset $profile.$compiler"
-    cmake --preset $profile.$compiler
+    cmake --preset $profile.$compiler --no-warn-unused-cli
     rv=$(($rv || $?))
 fi
 
@@ -90,6 +94,11 @@ function help {
     echo "$script_name r | run"
     echo "$script_name c | check"
     echo "$script_name t | test"
+    echo "Options:"
+    echo "  \$compile    Set the compiler with env var. Current=$compiler"
+    echo "  \$profile    Set the build profile with env var. Current=$profile"
+    echo "  --cfg        Run the configure step first"
+    echo "  --sanitize   Build/Run with address sanitizer"
 }
 
 # Sub-comamnds
