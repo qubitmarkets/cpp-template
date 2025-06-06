@@ -9,6 +9,10 @@ export PATH=$PATH:$INFRA_ROOT/bin
 export CLANG_MAJOR_VER=20
 export GCC_MAJOR_VER=15
 
+# Save these as we reset them in toolchain.sh
+export CFLAGS_ORIG="${CFLAGS-}"
+export LDFLAGS_ORIG="${LDFLAGS-}"
+
 export profile=release
 export compiler=gcc14
 export install_root=$PWD
@@ -37,7 +41,7 @@ if [[ ! -e f-stack/lib ]]; then
     ./build_fstack.sh
 fi
 
-for compiler in gcc15 clang20; do
+for compiler in gcc${GCC_MAJOR_VER} clang${CLANG_MAJOR_VER}; do
     for dot_profile_extras in "" ".sanitize"; do
         export compiler
         export dot_profile_extras
@@ -45,9 +49,14 @@ for compiler in gcc15 clang20; do
         export build_dir=builds/$profile.$compiler
         export install_dir=$install_root/$profile.$compiler
         source ./toolchain.sh
+        echo "---------------------------"
         echo "compiler=$compiler"
         echo "profile=$profile"
         echo "install_dir=$install_dir"
+        echo "CFLAGS=${CFLAGS-}"
+        echo "LDFLAGS=${LDFLAGS-}"
+        echo "---------------------------"
+        #read -p "press enter"
 
         if [[ ! -e $install_dir/lib/libbacktrace.a ]]; then
             ./build_libbacktrace.sh
@@ -64,5 +73,8 @@ for compiler in gcc15 clang20; do
         if [[ ! -e $install_dir/lib/libsimdjson_static.a ]]; then
             ./build_simdjson.sh
         fi
+        echo "---------------------------"
+        echo "Install done: $install_dir"
+        echo "---------------------------"
     done
 done

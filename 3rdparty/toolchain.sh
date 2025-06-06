@@ -9,12 +9,11 @@ export install_dir=$install_root/install/$profile.$compiler
 
 cat ../CMakePresets.json | sed 's,-include ${sourceDir}/qbuild/qbuild.h,,' >CMakePresets.json
 
+unset CFLAGS
+unset LDFLAGS
 if [[ $profile =~ "sanitize" ]]; then
-    export CFLAGS_EXTRA="-fsanitize=address -fno-omit-frame-pointer"
-    export LDFLAGS_EXTRA="-fsanitize=address"
-else
-    unset CFLAGS_EXTRA
-    unset LDFLAGS_EXTRA
+    export CFLAGS="-fsanitize=address -fno-omit-frame-pointer"
+    export LDFLAGS="-fsanitize=address"
 fi
 
 if [[ ${compiler:0:3} == gcc ]]; then
@@ -29,8 +28,8 @@ if [[ ${compiler:0:3} == gcc ]]; then
         export CXX=$INFRA_ROOT/bin/g++-$GCC_MAJOR_VER
         export AR=$INFRA_ROOT/bin/gcc-ar-$GCC_MAJOR_VER
         export NM=$INFRA_ROOT/bin/gcc-nm-$GCC_MAJOR_VER
-        export CFLAGS="${CFLAGS_EXTRA-}"
-        export LDFLAGS="-Wl,-rpath=$INFRA_ROOT/lib64 -L$INFRA_ROOT/lib64 ${LDFLAGS_EXTRA-}"
+        export CFLAGS="${CFLAGS-}"
+        export LDFLAGS="-Wl,-rpath=$INFRA_ROOT/lib64 -L$INFRA_ROOT/lib64 ${LDFLAGS-}"
     fi
 elif [[ ${compiler:0:5} == clang ]]; then
     CLANG_MAJOR_VER=${CLANG_MAJOR_VER:5:2}
@@ -44,7 +43,7 @@ elif [[ ${compiler:0:5} == clang ]]; then
         export CXX=$INFRA_ROOT/bin/clang++-$CLANG_MAJOR_VER
         export AR=$INFRA_ROOT/bin/llvm-ar-$CLANG_MAJOR_VER
         export NM=$INFRA_ROOT/bin/llvm-nm-$CLANG_MAJOR_VER
-        export CFLAGS="${CFLAGS_EXTRA-} -fuse-ld=lld"
-        export LDFLAGS="-Wl,-rpath=$INFRA_ROOT/lib64 -L$INFRA_ROOT/lib64 ${LDFLAGS_EXTRA-}"
+        export CFLAGS="${CFLAGS-} -fuse-ld=lld"
+        export LDFLAGS="-Wl,-rpath=$INFRA_ROOT/lib64 -L$INFRA_ROOT/lib64 ${LDFLAGS-}"
     fi
 fi

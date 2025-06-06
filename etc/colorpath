@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [[ ! -t 1 ]]; then
+if [[ ${COLORPATH-} != "2" && ! -t 1 || "${COLORPATH-}" == "0" ]]; then
     # Not a tty
     exec cat
 fi

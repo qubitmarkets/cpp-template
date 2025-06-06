@@ -4,7 +4,7 @@ project(qbuild
     VERSION 1.0
     DESCRIPTION "qbuild"
     LANGUAGES CXX)
-find_package(Catch2 3 REQUIRED PATHS 3rdparty/install/${presetName}/lib/cmake)
+find_package(Catch2 3 REQUIRED PATHS ${THIRD_PARTY_DIR}/lib/cmake)
 
 # Setup Build environment
 execute_process(COMMAND "/usr/bin/ln" "-nfs" "${CMAKE_CURRENT_BINARY_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}/build")
@@ -16,7 +16,7 @@ include(CTest)
 include(Catch)
 find_package(OpenSSL REQUIRED)
 
-include_directories("3rdparty/install/${presetName}/include")
+include_directories("${THIRD_PARTY_DIR}/include")
 include_directories(".")
 #set(CMAKE_CXX_CLANG_TIDY "clang-tidy;-checks=bugprone-*,clang-analyzer-*,performance-*")
 #set(CMAKE_CXX_CLANG_TIDY "clang-tidy")
@@ -28,7 +28,7 @@ set(qbuild_src
 )
 
 add_library(qbuild ${qbuild_src})
-target_link_directories(qbuild PUBLIC "3rdparty/install/${presetName}/lib")
+target_link_directories(qbuild PUBLIC "${THIRD_PARTY_DIR}/lib")
 target_link_libraries(qbuild -lbacktrace)
 #target_precompile_headers(qbuild PUBLIC qbuild/pch.h)
 set_target_properties(qbuild

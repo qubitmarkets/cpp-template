@@ -22,4 +22,7 @@ run $src_dir/configure
 run make
 run make install prefix= DESTDIR=$install_dir
 
+mkdir -p $install_dir/lib/cmake
+cp $src_dir/../libbacktrace.cmake $install_dir/lib/cmake/
+
 echo -e "\n\nlibbacktrace installed to $install_dir/lib"

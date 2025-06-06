@@ -9,6 +9,7 @@
             "generator": "Ninja",
             "cacheVariables": {
                 "CMAKE_INSTALL_PREFIX": "${sourceDir}/builds/debug.gcc",
+                "THIRD_PARTY_DIR": "${sourceDir}/3rdparty/install/release.gcc15",
                 "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
                 "CMAKE_C_COMPILER": "/usr/bin/gcc",
                 "CMAKE_CXX_COMPILER": "/usr/bin/g++",
@@ -24,6 +25,7 @@
             "generator": "Ninja",
             "cacheVariables": {
                 "CMAKE_INSTALL_PREFIX": "${sourceDir}/builds/release.gcc",
+                "THIRD_PARTY_DIR": "${sourceDir}/3rdparty/install/release.gcc15",
                 "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
                 "CMAKE_C_COMPILER": "/usr/bin/gcc",
                 "CMAKE_CXX_COMPILER": "/usr/bin/g++",
@@ -43,11 +45,22 @@
             "binaryDir": "${sourceDir}/builds/${presetName}",
             "generator": "Ninja",
             "cacheVariables": {
+                "THIRD_PARTY_DIR": "${sourceDir}/3rdparty/install/release.clang20",
                 "CMAKE_INSTALL_PREFIX": "${sourceDir}/builds/${presetName}",
                 "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
                 "CMAKE_C_COMPILER": "/usr/bin/clang-20",
                 "CMAKE_CXX_COMPILER": "/usr/bin/clang++-20",
                 "CMAKE_CXX_FLAGS": "-include ${sourceDir}/qbuild/qbuild.h"
+            }
+        },
+        {
+            "name": "sanitize.clang20",
+            "hidden": true,
+            "inherits": "clang20",
+            "cacheVariables": {
+                "THIRD_PARTY_DIR": "${sourceDir}/3rdparty/install/release.sanitize.clang20",
+                "CMAKE_CXX_FLAGS": "-include ${sourceDir}/qbuild/qbuild.h -fsanitize=address -DBUILD_SANITIZE",
+                "CMAKE_LINK_FLAGS": "-fsanitize=address"
             }
         },
         {
@@ -65,6 +78,16 @@
             }
         },
         {
+            "name": "sanitize.clang19",
+            "hidden": true,
+            "inherits": "clang19",
+            "cacheVariables": {
+                "THIRD_PARTY_DIR": "${sourceDir}/3rdparty/install/release.sanitize.clang19",
+                "CMAKE_CXX_FLAGS": "-include ${sourceDir}/qbuild/qbuild.h -fsanitize=address -DBUILD_SANITIZE",
+                "CMAKE_LINK_FLAGS": "-fsanitize=address"
+            }
+        },
+        {
             "name": "gcc14",
             "hidden": true,
             "description": "Using compilers: C = /opt/infra.1/bin/gcc-14, CXX = /opt/infra.1/bin/g++-14",
@@ -79,6 +102,16 @@
             }
         },
         {
+            "name": "sanitize.gcc14",
+            "hidden": true,
+            "inherits": "gcc14",
+            "cacheVariables": {
+                "THIRD_PARTY_DIR": "${sourceDir}/3rdparty/install/release.sanitize.gcc14",
+                "CMAKE_CXX_FLAGS": "-include ${sourceDir}/qbuild/qbuild.h -fsanitize=address -DBUILD_SANITIZE",
+                "CMAKE_LINK_FLAGS": "-fsanitize=address"
+            }
+        },
+        {
             "name": "gcc15",
             "hidden": true,
             "description": "Using compilers: C = /opt/infra.1/bin/gcc-15, CXX = /opt/infra.1/bin/g++-15",
@@ -90,6 +123,16 @@
                 "CMAKE_C_COMPILER": "/opt/infra.1/bin/gcc-15",
                 "CMAKE_CXX_COMPILER": "/opt/infra.1/bin/g++-15",
                 "CMAKE_CXX_FLAGS": "-include ${sourceDir}/qbuild/qbuild.h"
+            }
+        },
+        {
+            "name": "sanitize.gcc15",
+            "hidden": true,
+            "inherits": "gcc15",
+            "cacheVariables": {
+                "THIRD_PARTY_DIR": "${sourceDir}/3rdparty/install/release.sanitize.gcc15",
+                "CMAKE_CXX_FLAGS": "-include ${sourceDir}/qbuild/qbuild.h -fsanitize=address -DBUILD_SANITIZE",
+                "CMAKE_LINK_FLAGS": "-fsanitize=address"
             }
         },
         {
@@ -158,12 +201,15 @@
             "$comment": [
                 "------------------------------------",
                 "PROFILES",
-                "------------------------------------"
+                "------------------------------------",
+                "",
+                "----------------------------------------",
+                "clang20 profiles",
+                "----------------------------------------"
             ],
             "name": "debug.clang20",
             "inherits": "clang20",
             "displayName": "Clang 20 Debug",
-            "generator": "Ninja",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Debug"
             }
@@ -172,37 +218,38 @@
             "name": "release.clang20",
             "inherits": "clang20",
             "displayName": "Clang 20 Release",
-            "binaryDir": "${sourceDir}/builds/${presetName}",
-            "generator": "Ninja",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "RelWithDebInfo"
             }
         },
         {
             "name": "debug.sanitize.clang20",
-            "inherits": [
-                "sanitize",
-                "debug.clang20"
-            ],
-            "displayName": "Clang 20 Debug Sanitize"
+            "inherits": "sanitize.clang20",
+            "displayName": "Clang 20 Debug Sanitize",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
         },
         {
             "name": "release.sanitize.clang20",
-            "inherits": [
-                "sanitize",
-                "release.clang20"
-            ],
-            "displayName": "Clang 20 Release Sanitize"
+            "inherits": "sanitize.clang20",
+            "displayName": "Clang 20 Release Sanitize",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+            }
         },
         {
             "$comment": [
-                "                clang19 profiles"
+                "----------------------------------------",
+                "clang19 profiles",
+                "----------------------------------------"
             ],
             "name": "debug.clang19",
             "inherits": "clang19",
             "displayName": "Clang 19 Debug",
             "generator": "Ninja",
             "cacheVariables": {
+                "THIRD_PARTY_DIR": "${sourceDir}/3rdparty/install/release.clang19",
                 "CMAKE_BUILD_TYPE": "Debug"
             }
         },
@@ -213,6 +260,7 @@
             "binaryDir": "${sourceDir}/builds/${presetName}",
             "generator": "Ninja",
             "cacheVariables": {
+                "THIRD_PARTY_DIR": "${sourceDir}/3rdparty/install/release.clang19",
                 "CMAKE_BUILD_TYPE": "RelWithDebInfo"
             }
         },
@@ -222,7 +270,10 @@
                 "sanitize",
                 "debug.clang19"
             ],
-            "displayName": "Clang 19 Debug Sanitize"
+            "displayName": "Clang 19 Debug Sanitize",
+            "cacheVariables": {
+                "THIRD_PARTY_DIR": "${sourceDir}/3rdparty/install/release.sanitize.clang19"
+            }
         },
         {
             "name": "release.sanitize.clang19",
@@ -230,17 +281,23 @@
                 "sanitize",
                 "release.clang19"
             ],
-            "displayName": "Clang 19 Release Sanitize"
+            "displayName": "Clang 19 Release Sanitize",
+            "cacheVariables": {
+                "THIRD_PARTY_DIR": "${sourceDir}/3rdparty/install/release.sanitize.clang19"
+            }
         },
         {
             "$comment": [
-                "                gcc14 profiles"
+                "----------------------------------------",
+                "gcc14 profiles",
+                "----------------------------------------"
             ],
             "name": "debug.gcc14",
             "inherits": "gcc14",
             "displayName": "GCC 14 Debug",
             "generator": "Ninja",
             "cacheVariables": {
+                "THIRD_PARTY_DIR": "${sourceDir}/3rdparty/install/release.gcc14",
                 "CMAKE_BUILD_TYPE": "Debug"
             }
         },
@@ -251,6 +308,7 @@
             "binaryDir": "${sourceDir}/builds/${presetName}",
             "generator": "Ninja",
             "cacheVariables": {
+                "THIRD_PARTY_DIR": "${sourceDir}/3rdparty/install/release.gcc14",
                 "CMAKE_BUILD_TYPE": "RelWithDebInfo"
             }
         },
@@ -272,13 +330,16 @@
         },
         {
             "$comment": [
-                "                gcc15 profiles"
+                "----------------------------------------",
+                "gcc15 profiles",
+                "----------------------------------------"
             ],
             "name": "debug.gcc15",
             "inherits": "gcc15",
             "displayName": "GCC 15 Debug",
             "generator": "Ninja",
             "cacheVariables": {
+                "THIRD_PARTY_DIR": "${sourceDir}/3rdparty/install/release.gcc15",
                 "CMAKE_BUILD_TYPE": "Debug"
             }
         },
@@ -289,6 +350,7 @@
             "binaryDir": "${sourceDir}/builds/${presetName}",
             "generator": "Ninja",
             "cacheVariables": {
+                "THIRD_PARTY_DIR": "${sourceDir}/3rdparty/install/release.gcc15",
                 "CMAKE_BUILD_TYPE": "RelWithDebInfo"
             }
         },
@@ -298,7 +360,11 @@
                 "sanitize",
                 "debug.gcc15"
             ],
-            "displayName": "GCC 15 Debug Sanitize"
+            "displayName": "GCC 15 Debug Sanitize",
+            "cacheVariables": {
+                "THIRD_PARTY_DIR": "${sourceDir}/3rdparty/install/release.sanitize.gcc15",
+                "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+            }
         },
         {
             "name": "release.sanitize.gcc15",
@@ -306,7 +372,11 @@
                 "sanitize",
                 "release.gcc15"
             ],
-            "displayName": "GCC 15 Release Sanitize"
+            "displayName": "GCC 15 Release Sanitize",
+            "cacheVariables": {
+                "THIRD_PARTY_DIR": "${sourceDir}/3rdparty/install/release.sanitize.gcc15",
+                "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+            }
         }
     ],
     "buildPresets": []

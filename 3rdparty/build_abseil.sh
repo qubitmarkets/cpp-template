@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -eux
+set -eu
 
 cd $(dirname ${BASH_SOURCE})
 source ../etc/utils.sh

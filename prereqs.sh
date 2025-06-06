@@ -5,14 +5,18 @@ source ./etc/utils.sh
 
 check_sudo
 
+echo "Installing git hooks"
 cp etc/git-hooks/pre-commit .git/hooks/
 
+echo "Installing dev packages"
 if [[ -e /usr/bin/dnf ]]; then
     run sudo dnf install -y ninja-build openssl-devel libtool
 elif [[ -e /usr/bin/apt ]]; then
     run sudo apt install -y ninja-build libssl-dev
 fi
 
-# Install clang & cmake from source
-run 3rdparty/build.sh
+echo "Install useful dev scripts"
 run etc/install.sh
+
+echo "Install clang & cmake from source, 3rdparty libs"
+run 3rdparty/build.sh
