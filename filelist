@@ -8,12 +8,3 @@ LICENSE
 prereqs.sh
 tests.sh
 tidy.sh
-etc/build-run
-etc/check-includes.sh
-etc/colorpath
-etc/find-root
-etc/install.sh
-etc/ninja-root-build
-etc/signal-all-bash
-etc/tmux-signal
-etc/utils.sh

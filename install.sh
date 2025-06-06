@@ -4,11 +4,14 @@ set -u
 
 force=0
 quiet=0
+copy=0
 diff_flag="-q"
 for arg in $@; do
     if [[ ${arg:0:1} == '-' ]]; then
         if [[ $arg == "-f" ]]; then
             force=1
+        elif [[ $arg == "-c" ]]; then
+            copy=1
         elif [[ $arg == "-v" ]]; then
             diff_flag=""
         fi
@@ -44,10 +47,14 @@ if [[ $force == 0 && $count -gt 0 ]]; then
     exit 1
 fi
 
-# links
+# links to dirs
 for f in 3rdparty qbuild etc; do
-    echo "ln -nfs $src/$f $dest/$f"
-    ln -nfs $src/$f $dest/$f
+    if [[ $copy == 0 ]]; then
+      echo "ln -nfs $src/$f $dest/$f"
+      ln -nfs $src/$f $dest/$f
+    else
+      rsync -a $src/$f/ $dest/$f/
+    fi
 done
 
 # copy files
