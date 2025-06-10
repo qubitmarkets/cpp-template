@@ -11,7 +11,7 @@ set -eu
 script_name=$(basename $0)
 mode=help
 profile=${profile-debug}
-compiler=${compiler-clang19}
+compiler=${compiler-clang20}
 run_args=""
 args=("$@")
 PIPE_COLORPATH=""

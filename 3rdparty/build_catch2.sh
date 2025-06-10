@@ -16,6 +16,7 @@ fi
 run cd catch2
 ln -nfs ../CMakePresets.json CMakePresets.json
 run cmake -S . -B $build_dir \
+    -DCMAKE_CXX_STANDARD=23 \
     -G Ninja --preset $profile.$compiler -DCMAKE_INSTALL_PREFIX=$install_dir -DCMAKE_INSTALL_LIBDIR=lib
 
 run ninja -v -C $build_dir
