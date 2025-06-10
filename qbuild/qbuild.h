@@ -8,24 +8,6 @@
 #include <stdint.h>
 #include <string.h>  // strerror
 
-/*
-#include <unistd.h>
-#include <algorithm>
-#include <compare>
-#include <concepts>
-#include <cstdarg>
-#include <cstddef>
-#include <cstdio>
-#include <cstring>
-#include <ctime>
-#include <deque>
-#include <format>
-#include <functional>  // IWYU pragma: keep
-#include <stdexcept>
-#include <string>
-#include <type_traits>
-*/
-#include <unordered_map>
-#include <vector>
+namespace std {}
 
 using namespace std;

@@ -18,26 +18,29 @@ export compiler=gcc${GCC_MAJOR_VER}
 export install_root=$PWD
 source ./toolchain.sh
 
+# Force rebuild of a library by calling ./build.sh <library_name>
+target="${1-}"
+
 # Build the build tools
-if [[ ! -e $INFRA_ROOT/bin/cmake ]]; then
+if [[ ! -e $INFRA_ROOT/bin/cmake || $target == "cmake" ]]; then
     ./build_cmake.sh
 fi
 
 # Build the compilers
 GCC_VER=$(gcc --version | head -1 | cut -d' ' -f3 | cut -d. -f1)
-if [[ $GCC_VER -lt ${GCC_MAJOR_VER} ]]; then
+if [[ $GCC_VER -lt ${GCC_MAJOR_VER} || $target == "gcc" ]]; then
     GCC_VER=$(/opt/infra.1/bin/gcc-${GCC_MAJOR_VER} --version | head -1 | cut -d' ' -f3 | cut -d. -f1)
     if [[ $GCC_VER -lt ${GCC_MAJOR_VER} ]]; then
         echo "Build GCC"
         ./build_gcc.sh
     fi
 fi
-if [[ $(clang++-$CLANG_MAJOR_VER --version | head -1 | grep -c "version $CLANG_MAJOR_VER\.") -eq 0 ]]; then
+if [[ $(clang++-$CLANG_MAJOR_VER --version | head -1 | grep -c "version $CLANG_MAJOR_VER\.") -eq 0 || $target == "clang" ]]; then
     echo "Build Clang"
     ./build_clang.sh $CLANG_MAJOR_VER
 fi
 
-if [[ ! -e f-stack/lib ]]; then
+if [[ ! -e f-stack/lib || $target == "fstack" ]]; then
     ./build_fstack.sh
 fi
 
@@ -58,19 +61,19 @@ for compiler in gcc${GCC_MAJOR_VER} clang${CLANG_MAJOR_VER}; do
         echo "---------------------------"
         #read -p "press enter"
 
-        if [[ ! -e $install_dir/lib/libbacktrace.a ]]; then
+        if [[ ! -e $install_dir/lib/libbacktrace.a || $target == "libbacktrace" ]]; then
             ./build_libbacktrace.sh
         fi
-        if [[ ! -e $install_dir/lib/libCatch2.a ]]; then
+        if [[ ! -e $install_dir/lib/libCatch2.a || $target == "catch2" ]]; then
             ./build_catch2.sh
         fi
-        if [[ ! -e $install_dir/lib/libabsl_base.a ]]; then
+        if [[ ! -e $install_dir/lib/libabsl_base.a || $target == "abseil" ]]; then
             ./build_abseil.sh
         fi
-        if [[ ! -e $install_dir/lib/libwslay.a ]]; then
+        if [[ ! -e $install_dir/lib/libwslay.a || $target == "wslay" ]]; then
             ./build_wslay.sh
         fi
-        if [[ ! -e $install_dir/lib/libsimdjson_static.a ]]; then
+        if [[ ! -e $install_dir/lib/libsimdjson_static.a || $target == "simdjson" ]]; then
             ./build_simdjson.sh
         fi
         echo "---------------------------"
