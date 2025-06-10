@@ -1,6 +1,9 @@
 // Copyright (c) 2025 Qubit Markets Pte. Ltd.
 #pragma once
 
+#include "Callback.h"
+#include <vector>
+
 /// Signal Handler for Linux
 ///
 /// Note: SIGUSR1 is used to provide information (eg. current stack trace) of what the running process is doing
@@ -8,10 +11,8 @@
 ///
 
 struct SigHandlerCallbacks {
-    typedef void (*on_exit_process_t)(int sig);
-
     // Called just before the process terminates
-    vector<on_exit_process_t> on_exit_process;
+    std::vector<Callback<void(int)>> on_exit_process;
 
     // Called when a signal is received
     // e.g. logger_flush();
