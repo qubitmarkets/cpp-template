@@ -21,11 +21,6 @@ source ./toolchain.sh
 # Force rebuild of a library by calling ./build.sh <library_name>
 target="${1-}"
 
-# Build the build tools
-if [[ ! -e $INFRA_ROOT/bin/cmake || $target == "cmake" ]]; then
-    ./build_cmake.sh
-fi
-
 # Build the compilers
 GCC_VER=$(gcc --version | head -1 | cut -d' ' -f3 | cut -d. -f1)
 if [[ $GCC_VER -lt ${GCC_MAJOR_VER} || $target == "gcc" ]]; then
@@ -35,6 +30,11 @@ if [[ $GCC_VER -lt ${GCC_MAJOR_VER} || $target == "gcc" ]]; then
         ./build_gcc.sh
     fi
 fi
+# Build cmake (requires g++-15)
+if [[ ! -e $INFRA_ROOT/bin/cmake || $target == "cmake" ]]; then
+    ./build_cmake.sh
+fi
+
 if [[ $(clang++-$CLANG_MAJOR_VER --version | head -1 | grep -c "version $CLANG_MAJOR_VER\.") -eq 0 || $target == "clang" ]]; then
     echo "Build Clang"
     ./build_clang.sh $CLANG_MAJOR_VER
