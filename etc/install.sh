@@ -2,6 +2,7 @@
 
 set -eu
 cd $(dirname ${BASH_SOURCE})
+etc_dir="${PWD//$HOME/'~'}"
 
 source ./utils.sh
 
@@ -24,13 +25,13 @@ fi
 # Install pretty-printer hooks
 has_header=0
 for f in absl_pretty_printers.py libstdcxx_pretty_printers.py; do
-  if ! grep -q "source $PWD/gdb/$f" ~/.gdbinit; then
+  if ! grep -q "source $etc_dir/gdb/$f" ~/.gdbinit; then
     if [[ $has_header == 0 ]]; then
       echo -e "\n# Pretty printer hooks" >> ~/.gdbinit
       has_header=1
     fi
-    echo "add-auto-load-safe-path $PWD/gdb/$f" >> ~/.gdbinit
-    echo -e "source $PWD/gdb/$f\n" >> ~/.gdbinit
+    echo "add-auto-load-safe-path $etc_dir/gdb/$f" >> ~/.gdbinit
+    echo -e "source $etc_dir/gdb/$f\n" >> ~/.gdbinit
   fi
 done
 
