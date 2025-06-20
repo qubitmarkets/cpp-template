@@ -11,8 +11,8 @@
 
 #include "qbuild/compiler.h"
 #include "qbuild/ctypes.h"
+#include <stdlib.h>  // ::abort
 #include <concepts>
-#include <cstdlib>
 #include <type_traits>
 #include <utility>  // std::forward
 

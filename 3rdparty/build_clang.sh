@@ -44,6 +44,8 @@ else
         sudo ln -nfs $INFRA_ROOT/bin/clang-${CLANG_MAJOR_VER} /usr/bin/clang-${CLANG_MAJOR_VER}
         sudo ln -nfs $INFRA_ROOT/bin/clang++-${CLANG_MAJOR_VER} /usr/bin/clang++-${CLANG_MAJOR_VER}
     fi
+    cmake --build $PWD --target clangd
+    cmake --build $PWD --target check-clangd
 
     touch /tmp/empty.c
     $INFRA_ROOT/bin/clang-$CLANG_MAJOR_VER /tmp/empty.c -fsyntax-only

@@ -56,8 +56,8 @@ for i in $(seq 0 $nargs); do
     else
         # Unknown arg
         if [[ "$mode" == "test" ]]; then
-            if [[ ${arg:0:1} != "-" ]]; then
-                test_flags="-R"
+            if [[ ${arg:0:1} == "-" ]]; then
+                echo "Unsupported test flag $arg"
             fi
             test_flags="$test_flags $arg"
         elif [[ $target == "" ]]; then
@@ -145,6 +145,7 @@ fi
 # Test
 if [[ $mode == "test" ]]; then
     if [[ "${test_flags}" != "" ]]; then
+        test_flags="-R ${test_flags}"
         echo "Running with test flags ${test_flags}"
     fi
     bash -c "(cd $cmake_build_dir; ctest ${test_flags} --output-on-failure) $PIPE_COLORPATH; exit \${PIPESTATUS[0]}"

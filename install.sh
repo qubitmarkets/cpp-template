@@ -3,6 +3,7 @@
 set -u
 
 force=0
+skip_diff=0
 quiet=0
 copy=0
 diff_flag="-q"
@@ -10,6 +11,8 @@ for arg in $@; do
     if [[ ${arg:0:1} == '-' ]]; then
         if [[ $arg == "-f" ]]; then
             force=1
+        elif [[ $arg == "-s" ]]; then
+            skip_diff=1
         elif [[ $arg == "-c" ]]; then
             copy=1
         elif [[ $arg == "-v" ]]; then
@@ -33,7 +36,8 @@ src=$(readlink -f $src)
 cd $src
 
 count=0
-for f in $(cat ./filelist); do
+if [[ $skip_diff == 0 ]]; then
+  for f in $(cat ./filelist); do
     if [[ -e $dest/$f ]]; then
         diff -r $diff_flag $src/$f $dest/$f
         if [[ $? != 0 ]]; then
@@ -41,14 +45,21 @@ for f in $(cat ./filelist); do
             count=$((count + 1))
         fi
     fi
-done
-if [[ $force == 0 && $count -gt 0 ]]; then
-    echo "Files in $dest differ to cpp-template.  Fix this or use -f to force"
+  done
+fi
+if [[ $skip_diff == 0 && $force == 0 && $count -gt 0 ]]; then
+    echo "Files in $dest differ to cpp-template.  Fix this or use -f to force or -s to skip those files"
     exit 1
 fi
 
 # links to dirs
 for f in 3rdparty qbuild etc; do
+    if [[ -e $dest/f && $skip_diff == 1 ]]; then
+      if ! diff -q -r $src/$f $dest/$f; then
+        continue;
+      fi
+    fi
+    # Copy or symlink the destination
     if [[ $copy == 0 ]]; then
       echo "ln -nfs $src/$f $dest/$f"
       ln -nfs $src/$f $dest/$f
@@ -59,6 +70,12 @@ done
 
 # copy files
 for f in $(cat $src/filelist); do
+    if [[ -e $dest/f && $skip_diff == 1 ]]; then
+      if ! diff -q -r $src/$f $dest/$f; then
+        continue;
+      fi
+    fi
+
     echo cp -r $src/$f $dest/$f
     cp -r $src/$f $dest/$f
 done
