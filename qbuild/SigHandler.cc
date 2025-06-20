@@ -66,7 +66,17 @@ const char* get_signame(int sig) {
 
 extern "C" void sig_handler(int sig, siginfo_t* siginfo, void* context) {
     bool urgent_signal = !(sig == SIGINT || sig == SIGUSR1 || sig == SIGHUP);
-    g_sig_handler_callbacks.on_start_sighandler(sig);
+    bool is_handled = false;
+    for (auto& cb : g_sig_handler_callbacks.on_start_sighandler) {
+        is_handled |= cb(sig);
+    }
+    if (is_handled) {
+        // If any callback handled the signal, we can return early
+        for (auto& cb : g_sig_handler_callbacks.on_exit_sighandler) {
+            cb(sig);
+        }
+        return;
+    }
     if (sig != SIGUSR1 && sig != SIGINT) {
         eprintf("\nCaught signal: %d %s\n", sig, get_signame(sig));
     }
@@ -90,7 +100,9 @@ extern "C" void sig_handler(int sig, siginfo_t* siginfo, void* context) {
         action.sa_handler = SIG_DFL;
         ::sigaction(sig, &action, nullptr);
     }
-    g_sig_handler_callbacks.on_exit_sighandler(sig);
+    for (auto& cb : g_sig_handler_callbacks.on_exit_sighandler) {
+        cb(sig);
+    }
 }
 
 void unhandled_exception_handler() {
@@ -133,4 +145,14 @@ void SigHandler::install() {
             eprintf("Unable to set signal handler");
         }
     }
+}
+
+void SigHandler::register_sighandler(Callback<bool(int sig)> cb) {
+    g_sig_handler_callbacks.on_start_sighandler.push_back(cb);
+}
+void SigHandler::register_sighandler_exit(Callback<void(int sig)> cb) {
+    g_sig_handler_callbacks.on_exit_sighandler.push_back(cb);
+}
+void SigHandler::register_on_exit_process(Callback<void(int sig)> cb) {
+    g_sig_handler_callbacks.on_exit_process.push_back(cb);
 }

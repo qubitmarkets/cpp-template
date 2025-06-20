@@ -15,10 +15,11 @@ struct SigHandlerCallbacks {
     std::vector<Callback<void(int)>> on_exit_process;
 
     // Called when a signal is received
+    // Returns true if the signal should be ignored, false to print the stack trace and exit
     // e.g. logger_flush();
-    void (*on_start_sighandler)(int sig) = [](int) {};
+    std::vector<Callback<bool(int)>> on_start_sighandler;
     // Called when the signal handler is exited
-    void (*on_exit_sighandler)(int sig) = [](int) {};
+    std::vector<Callback<void(int)>> on_exit_sighandler;
 
     // Exits the process with code 128+sig
     static void default_exit_process(int sig);
@@ -26,5 +27,11 @@ struct SigHandlerCallbacks {
 
 struct SigHandler {
     static void install();
+    // Called when a signal is received
+    // Returns true if the signal should be ignored, false to print the stack trace and exit
+    static void register_sighandler(Callback<bool(int sig)> cb);
+    // Called when the signal handler is exited
+    static void register_sighandler_exit(Callback<void(int sig)> cb);
+    static void register_on_exit_process(Callback<void(int sig)> cb);
     static SigHandlerCallbacks& get_callbacks();
 };
