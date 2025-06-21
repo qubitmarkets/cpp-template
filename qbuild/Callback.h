@@ -8,6 +8,22 @@
 /// - Callback has a lifetime L1
 /// - The item it's calling to has a lifetime L2
 /// - If L2 < L1, then calling the CB will segfault.
+///
+/// NOTE: Member functions will be devirtualized at the time of assignment to the Callback.
+///
+/// How does it work?
+/// - C++ member function calls are, in Linux, implemented in the same way as a C function call with the this pointer as the first argument.
+/// - In this case, the Callback stores the "this" pointer in the data field, and a function pointer in the func field
+/// - When the member function is non-virtual, the function pointer is the address of the member function.
+/// - When the member function is virtual, the function pointer is devirtualized.
+///
+/// - For Lambda functions, it creates a helper class with a static function that calls the lambda with the captured data.
+/// - The Callback's func member points to this static function
+/// - The Callback's data member is used to store the captured data, which is copied into the Callback at the time of assignment.
+///
+/// - For C functions, the Callback's func member points to a stub C function, which removes the first parameter (there is no "this"). The
+/// data member is the C function pointer itself.
+///
 
 #include "qbuild/compiler.h"
 #include "qbuild/ctypes.h"
@@ -68,16 +84,17 @@ struct Callback<Result(Args...)> : CallbackStorage {
     Callback(__Tag_Noop) noexcept : CallbackStorage() { set_noop(); }
 
     // ---------------------
-    // C-Functions
+    // C Functions
     //
     template <typename... _Args>
-    Result stub_func(void*, _Args... args) {
-        return (*reinterpret_cast<Result (*)(_Args...)>(func))(args...);
+    static Result stub_func(void* fptr, _Args... args) {
+        return (*reinterpret_cast<Result (*)(_Args...)>(fptr))(args...);
     }
 
     template <typename _Result, typename... _Args>
     Callback(_Result (*f)(_Args...)) {
-        func = (void*)f;
+        func = (void*)&stub_func<_Args...>;
+        data = (void*)f;
     }
 
     // --------------------
@@ -150,8 +167,15 @@ Callback<MemFn> makeCallback(_TClass* t, MemFn TClass::* memfn) {
     return Callback<MemFn>(t, memfn);
 }
 
+// Makes a callback to a lambda
 template <typename Lambda, typename Result, typename... Args>
     requires(std::is_invocable_v<Lambda, Args...> && std::is_same_v<decltype(std::declval<Lambda>()(std::declval<Args>()...)), Result>)
 Callback<Result(Args...)> makeCallback(Lambda&& f) {
     return Callback<Result(Args...)>(std::forward<Lambda>(f));
+}
+
+// Makes a callback to a C function
+template <typename Result, typename... Args>
+Callback<Result(Args...)> makeCallback(Result (*cfunc)(Args...)) {
+    return Callback<Result(Args...)>(cfunc);
 }

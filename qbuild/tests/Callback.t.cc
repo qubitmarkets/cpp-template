@@ -264,13 +264,19 @@ CATCH_TEST_CASE("Callback raw") {
 
     // C function pointer
     {
-        auto set_cb = &set_test_value;
+        Callback<void(int)> set_cb = &set_test_value;
         g_test_value = 0;
         CATCH_CHECK(g_test_value == 0);
         set_test_value(1);
         CATCH_CHECK(g_test_value == 1);
         set_cb(2);
         CATCH_CHECK(g_test_value == 2);
+    }
+    {
+        Callback<void(int)> set_cb = makeCallback(&set_test_value);
+        g_test_value = 0;
+        set_cb(3);
+        CATCH_CHECK(g_test_value == 3);
     }
 }
 
