@@ -83,12 +83,12 @@ struct NoFarReturn {};
 #endif
 
 // Build Profile (can only be one)
+#define BUILD_PROFILE_DEBUG 1
+#define BUILD_PROFILE_RELEASE 2
 #if defined(NDEBUG)
-    #define BUILD_PROFILE_DEBUG 0
-    #define BUILD_PROFILE_RELEASE 1
+    #define CURRENT_BUILD_PROFILE BUILD_PROFILE_RELEASE
 #else
-    #define BUILD_PROFILE_DEBUG 1
-    #define BUILD_PROFILE_RELEASE 0
+    #define CURRENT_BUILD_PROFILE BUILD_PROFILE_DEBUG
 #endif
 
 // Build configuration.  Any or none.
