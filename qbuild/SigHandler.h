@@ -11,6 +11,8 @@
 ///
 
 struct SigHandlerCallbacks {
+    ~SigHandlerCallbacks();
+
     // Called just before the process terminates
     std::vector<Callback<void(int)>> on_exit_process;
 

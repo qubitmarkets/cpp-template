@@ -5,8 +5,9 @@
 #include "ansi_colors.h"
 #include <memory.h>
 #include <signal.h>
+#include <stdio.h>  // stderr
 #include <csignal>
-#include <stdexcept>  // std::set_terminate
+#include <exception>  // std::set_terminate
 
 #define eprintf(...) fprintf(stderr, __VA_ARGS__)
 
@@ -91,6 +92,8 @@ extern "C" void sig_handler(int sig, siginfo_t* siginfo, void* context) {
         for (auto& cb : g_sig_handler_callbacks.on_exit_process) {
             cb(sig);
         }
+        // Only call the on_exit_process callbacks once in the application lifetime
+        g_sig_handler_callbacks.on_exit_process.clear();
         ::exit(128 + sig);
     }
     if (sig != SIGUSR1) {
@@ -155,4 +158,13 @@ void SigHandler::register_sighandler_exit(Callback<void(int sig)> cb) {
 }
 void SigHandler::register_on_exit_process(Callback<void(int sig)> cb) {
     g_sig_handler_callbacks.on_exit_process.push_back(cb);
+}
+
+// Always call on_exit_process callbacks
+SigHandlerCallbacks::~SigHandlerCallbacks() {
+    for (auto& cb : on_exit_process) {
+        cb(0);  // Call with 0 to indicate normal exit
+    }
+    // Only call the on_exit_process callbacks once in the application lifetime
+    g_sig_handler_callbacks.on_exit_process.clear();
 }

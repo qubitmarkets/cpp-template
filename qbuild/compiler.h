@@ -48,6 +48,21 @@
         code COLD_LAMBDA_END() \
     }
 
+// FAR
+struct NoFarReturn {};
+
+// Put this code in a far-away memory page
+// Ref : https://sourceware.org/binutils/docs/as/Section.html
+// Note : Need the "mutable" keyword to avoid compiler making half of them const .sections
+// TODO: gcc still has a problem. https://stackoverflow.com/questions/35091862/inline-static-data-causes-a-section-type-conflict
+#define FAR(code)                                                                                          \
+    {                                                                                                      \
+        [&]() __attribute__((noinline)) __attribute__((section(".text_far,\"ax\",@progbits#execinstr"))) { \
+            code;                                                                                          \
+            return ::bb::NoFarReturn{};                                                                    \
+        }();                                                                                               \
+    }
+
 // Same as kernel definition
 #define likely(x) (__builtin_expect(!!(x), 1))
 #define unlikely(x) (__builtin_expect(!!(x), 0))
