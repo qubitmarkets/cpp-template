@@ -14,22 +14,30 @@ using i32 = int32_t;
 using i64 = int64_t;
 
 struct alignas(16) u128 {
-    u128(unsigned char v[32]) {
+    constexpr u128() noexcept = default;
+    constexpr u128(unsigned char v[32]) noexcept {
         u64* v64 = (u64*)v;
         _v[0] = v64[0];
         _v[1] = v64[1];
     }
 
+    constexpr bool operator==(const u128& other) const noexcept { return _v[0] == other._v[0] && _v[1] == other._v[1]; }
+
     u64 _v[2];
 };
 
 struct alignas(32) u256 {
-    u256(unsigned char v[32]) {
+    constexpr u256() noexcept = default;
+    constexpr u256(unsigned char v[32]) noexcept {
         u64* v64 = (u64*)v;
         _v[0] = v64[0];
         _v[1] = v64[1];
         _v[2] = v64[2];
         _v[3] = v64[3];
+    }
+
+    constexpr bool operator==(const u256& other) const noexcept {
+        return _v[0] == other._v[0] && _v[1] == other._v[1] && _v[2] == other._v[2] && _v[3] == other._v[3];
     }
 
     u64 _v[4];
