@@ -1,13 +1,56 @@
 // Copyright (c) 2025 Qubit Markets Pte. Ltd.
 #pragma once
 
+// Current Build Profile (can only be one)
+#define BUILD_PROFILE_DEBUG 1
+#define BUILD_PROFILE_RELEASE 2
+#if defined(NDEBUG)
+    #define CURRENT_BUILD_PROFILE BUILD_PROFILE_RELEASE
+#else
+    #define CURRENT_BUILD_PROFILE BUILD_PROFILE_DEBUG
+#endif
+
+// Build configuration.  Any or none.
+#ifndef BUILD_CFG_TESTING
+    #define BUILD_CFG_TESTING 0
+#endif
+
+// Compiler detection
+#if defined(__clang__)
+    #define __QBUILD_COMPILER_GCC__ 0
+    #define __QBUILD_COMPILER_CLANG__ 1
+    #define __QBUILD_COMPILER_VERSION__ __clang_major__
+#elif defined(__GNUC__)
+    #define __QBUILD_COMPILER_GCC__ 1
+    #define __QBUILD_COMPILER_CLANG__ 0
+    #define __QBUILD_COMPILER_VERSION__ __GNUC__
+#else
+    #error "Unsupported compiler"
+#endif
+
+// Compiler defines
 #define NOINLINE __attribute__((noinline))
-#define INLINE __attribute__((inline))
+
+// INLINE, ALWAYS_INLINE
+// If optimizations are disabled, forcing inlining can lead to significant
+// code bloat and high compile times. Don't use simdjson_really_inline for
+#if CURRENT_BUILD_PROFILE == BUILD_PROFILE_DEBUG
+    #if __QBUILD_COMPILER_CLANG__
+        #define INLINE __attribute__((weak))
+        #define ALWAYS_INLINE __attribute__((weak))
+    #else
+        #define INLINE inline
+        #define ALWAYS_INLINE inline
+    #endif
+#else
+    #define INLINE __attribute__((inline))
+    #define ALWAYS_INLINE __attribute__((always_inline)) inline
+#endif
+
 // A function attribute.  Indicates that a return pointer can assumed bo be non-null
 // Put this at the start of the function declaration
 // Or, use NOT_NULL(1,2) to indicate tat the first and second arguments are non-null
 #define NOT_NULL __attribute__((nonnull))
-#define ALWAYS_INLINE __attribute__((always_inline)) inline
 #define WEAK __attribute__((weak))
 
 // Macro support
@@ -67,31 +110,5 @@ struct NoFarReturn {};
 #define likely(x) (__builtin_expect(!!(x), 1))
 #define unlikely(x) (__builtin_expect(!!(x), 0))
 
-// For catch2 tests
-#define CATCH_CONFIG_PREFIX_ALL
-
-#if defined(__clang__)
-    #define __QBUILD_COMPILER_GCC__ 0
-    #define __QBUILD_COMPILER_CLANG__ 1
-    #define __QBUILD_COMPILER_VERSION__ __clang_major__
-#elif defined(__GNUC__)
-    #define __QBUILD_COMPILER_GCC__ 1
-    #define __QBUILD_COMPILER_CLANG__ 0
-    #define __QBUILD_COMPILER_VERSION__ __GNUC__
-#else
-    #error "Unsupported compiler"
-#endif
-
-// Build Profile (can only be one)
-#define BUILD_PROFILE_DEBUG 1
-#define BUILD_PROFILE_RELEASE 2
-#if defined(NDEBUG)
-    #define CURRENT_BUILD_PROFILE BUILD_PROFILE_RELEASE
-#else
-    #define CURRENT_BUILD_PROFILE BUILD_PROFILE_DEBUG
-#endif
-
-// Build configuration.  Any or none.
-#ifndef BUILD_CFG_TESTING
-    #define BUILD_CFG_TESTING 0
-#endif
+// simdjson
+#define SIMDJSON_EXCEPTIONS 1
