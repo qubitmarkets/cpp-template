@@ -25,26 +25,56 @@ struct PrintBacktrace {
     int skip_frames = 1;
     int frame_idx = 0;
     bool has_first_line = false;
-    static int on_bt_frame(void* self_, uintptr_t x, const char* filepath, int lineno, const char* function) {
+    static bool can_skip(const char* function) {
+        const char* to_skip[]{
+            "__GI___dl_iterate_phdr",  // Internal function used by libbacktrace
+            "__GI___mmap64",
+            "__GI___clock_gettime",
+            "__pthread_kill_implementation",
+            "__GI_raise",
+            "__GI_abort",
+            "___interceptor_clock_gettime",
+            "CaptureBacktrace::print() const",
+            "sig_handler",
+            nullptr,  // Sentinel
+        };
+        for (const char** skip = to_skip; *skip != nullptr; ++skip) {
+            if (strcmp(function, *skip) == 0) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    static int on_bt_frame(void* self_, uintptr_t x, const char* filepath, int lineno, const char* c_funcname) {
         PrintBacktrace* self = (PrintBacktrace*)self_;
         if (self->frame_idx < self->skip_frames) {
             self->frame_idx += 1;
             return 0;
         }
+        if (c_funcname && can_skip(c_funcname)) {
+            if (self->frame_idx > 1) {
+                self->frame_idx += 1;
+            }
+            return 0;
+        }
 
         /// demangle function name
-        const char* func_name = function;
+        const char* func_name = c_funcname;
         int status;
-        char* demangled = abi::__cxa_demangle(function, nullptr, nullptr, &status);
+        char* demangled = abi::__cxa_demangle(c_funcname, nullptr, nullptr, &status);
         if (status == 0) {
             func_name = demangled;
         }
 
-        if (!filepath || !func_name) {
+        if (!filepath || !func_name || can_skip(func_name)) {
             // When compiling with debug compiler, we have an additional undefined stack frame at the beginning.  Skip it, so we have
             // consistent results in debug and release.
             if (self->frame_idx > 1) {
                 self->frame_idx += 1;
+            }
+            if (demangled) {
+                ::free((void*)demangled);
             }
             return 0;
         }
@@ -123,10 +153,10 @@ void CaptureBacktrace::print() const {
     }
     PrintBacktrace p;
     for (int i = 0; i < stack_len; ++i) {
-        backtrace_pcinfo(__bt_state, stack[i], &PrintBacktrace::on_bt_frame, &PrintBacktrace::on_bt_error, &p);
+        int rv = backtrace_pcinfo(__bt_state, stack[i], &PrintBacktrace::on_bt_frame, &PrintBacktrace::on_bt_error, &p);
     }
     eprintf("\n");
-    if (p.frame_idx == 1) {
+    if (p.frame_idx <= 1) {
         eprintf("CaptureBacktrace: no stack trace available\n");
     }
 }

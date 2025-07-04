@@ -78,7 +78,7 @@ extern "C" void sig_handler(int sig, siginfo_t* siginfo, void* context) {
         }
         return;
     }
-    if (sig != SIGUSR1 && sig != SIGINT) {
+    if (!(sig == SIGUSR1 || sig == SIGINT)) {
         eprintf("\nCaught signal: %d %s\n", sig, get_signame(sig));
     }
     {
@@ -96,7 +96,7 @@ extern "C" void sig_handler(int sig, siginfo_t* siginfo, void* context) {
         g_sig_handler_callbacks.on_exit_process.clear();
         ::exit(128 + sig);
     }
-    if (sig != SIGUSR1) {
+    if (!(sig == SIGUSR1 || sig == SIGUSR2)) {
         // Remove handler, let the system crash
         struct sigaction action;
         ::memset(&action, 0, sizeof(action));
@@ -138,7 +138,7 @@ void SigHandler::install() {
     }
     std::set_terminate(unhandled_exception_handler);
 
-    int signals[] = {SIGUSR1, SIGINT, SIGHUP, SIGSEGV, SIGABRT};
+    int signals[] = {SIGUSR1, SIGINT, SIGHUP, SIGSEGV, SIGABRT, SIGUSR2};
     for (auto sig : signals) {
         struct sigaction oldact;
         struct sigaction action;
