@@ -70,7 +70,9 @@ struct Callback<Result(Args...)> : CallbackStorage {
 
     template <typename Functor>
     struct LambdaHelper {
-        static_assert(std::is_invocable_v<Functor, Args...>);
+        static_assert(std::is_invocable_v<Functor, Args...>, "Lambda must be invocable with Args");
+        static_assert(std::is_convertible_v<decltype(std::declval<Functor>()(std::declval<Args>()...)), Result>,
+                      "Lambda must return Result type");
 
         static Result call(void* data, Args... args) { return (*reinterpret_cast<Functor*>(&data))(static_cast<Args&&>(args)...); }
     };
@@ -82,6 +84,12 @@ struct Callback<Result(Args...)> : CallbackStorage {
 
     // initialize with noop
     Callback(__Tag_Noop) noexcept : CallbackStorage() { set_noop(); }
+
+    // Delete all other constructors that would allow copying or moving from a different signature
+    template <typename TResult, typename... TArgs>
+    Callback(const Callback<TResult(TArgs...)>&) = delete;
+    template <typename TResult, typename... TArgs>
+    Callback(Callback<TResult(TArgs...)>&&) = delete;
 
     // ---------------------
     // C Functions
@@ -101,7 +109,9 @@ struct Callback<Result(Args...)> : CallbackStorage {
     // Lambda Capture
     //
     template <typename Functor>
-        requires(!IsCallback<Functor, FuncSig> && std::is_invocable_v<Functor, Args...> && std::is_trivially_destructible_v<Functor>)
+        requires(
+            !IsCallback<Functor, FuncSig> && std::is_invocable_v<Functor, Args...> && std::is_trivially_destructible_v<Functor> &&
+            std::is_convertible_v<decltype(std::declval<Functor>()(std::declval<Args>()...)), Result>)  // Lambda must return Result type
     Callback(Functor&& f) {
         static_assert(sizeof(f) <= 8, "Lambda capture too large");
         func = (void*)&LambdaHelper<std::decay_t<Functor>>::call;
