@@ -112,3 +112,6 @@ struct NoFarReturn {};
 
 // simdjson
 #define SIMDJSON_EXCEPTIONS 1
+
+// Catch2 disable signal handler
+#define CATCH_CONFIG_NO_POSIX_SIGNALS

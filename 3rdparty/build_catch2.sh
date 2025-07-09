@@ -14,6 +14,7 @@ if [[ ! -e catch2 ]]; then
     run git clone --depth 10 https://github.com/catchorg/Catch2.git catch2
 fi
 run cd catch2
+patch -p1 -N ../catch_no_sighandler.patch || true
 ln -nfs ../CMakePresets.json CMakePresets.json
 run cmake -S . -B $build_dir \
     -DCMAKE_CXX_STANDARD=23 \
