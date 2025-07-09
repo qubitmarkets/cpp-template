@@ -136,7 +136,7 @@ struct Callback<Result(Args...)> : CallbackStorage {
             // Non-virtual member function
             func = (void*)p1;
         }
-        data = t;
+        data = (void*)t;
     }
 
     // Call

@@ -33,6 +33,8 @@ struct PrintBacktrace {
             "__pthread_kill_implementation",
             "__GI_raise",
             "__GI_abort",
+            "__internal_syscall_cancel",
+            "__syscall_cancel",
             "___interceptor_clock_gettime",
             "CaptureBacktrace::print() const",
             "sig_handler",
