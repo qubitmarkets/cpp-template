@@ -110,7 +110,18 @@ extern "C" void sig_handler(int sig, siginfo_t* siginfo, void* context) {
 
 void unhandled_exception_handler() {
     eprintf(COLOR_RED "The application crashed" COLOR_NONE "\n");
-    auto msg = "unhandled exception thrown";
+    const char* msg = "unhandled exception thrown";
+    char buf[4096];
+    auto ex = std::current_exception();
+    try {
+        if (ex) {
+            std::rethrow_exception(ex);
+        }
+    } catch (const std::exception& e) {
+        snprintf(buf, sizeof(buf), "unhandled exception thrown : %s", e.what());
+        msg = buf;
+    } catch (...) {
+    }
     eprintf("Message:  " COLOR_CYAN "%s" COLOR_NONE "\n", msg);
 
     CaptureBacktrace cap;

@@ -1,4 +1,5 @@
 // Copyright (c) 2025 Qubit Markets Pte. Ltd.
+
 #include "qbuild/CaptureBacktrace.h"
 #include "qbuild/ansi_colors.h"
 #include "qbuild/compiler.h"
