@@ -8,6 +8,16 @@
 #include <stdint.h>
 #include <string.h>  // strerror
 
-namespace std {}
+//
+// Forward declarations
+//
+namespace std {
+template <typename _CharT>
+struct char_traits;
+
+template <typename _CharT, typename _Traits>
+class basic_ostream;
+typedef basic_ostream<char, char_traits<char>> ostream;
+}  // namespace std
 
 using namespace std;

@@ -107,9 +107,11 @@ struct AAA {
     int x = 0;
     void set(int v) { x = v; }
     virtual void setv(int v) { x = v; }
+    virtual void setv2(int v) { x = v * 2; }
 };
 // This is the mangled C function name for the AAA::setv function
 extern "C" void _ZN3AAA4setvEi(int v);
+extern "C" void _ZN3AAA5setv2Ei(int v);
 
 struct B : AAA {
     int b = 10;
@@ -205,6 +207,12 @@ CATCH_TEST_CASE("Callback raw") {
         CATCH_CHECK(a.x == 2);
         CATCH_CHECK(set_cb3.func == (void*)&_ZN3AAA4setvEi);
         CATCH_CHECK(set_cb3.data == set_cb2.data);
+    }
+
+    {
+        auto vfn = makeCallback(&a, &AAA::setv2);
+        vfn(30);
+        CATCH_REQUIRE(a.x == 60);
     }
 
     {

@@ -130,7 +130,7 @@ struct Callback<Result(Args...)> : CallbackStorage {
         if (p1 < 4096) {
             // Virtual member function. Devirtualize.
             auto vtable = *(u64**)t;
-            auto fptr = vtable[p1 - 1];
+            auto fptr = vtable[(p1 - 1) / 8];
             func = (void*)fptr;
         } else {
             // Non-virtual member function
