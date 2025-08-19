@@ -20,6 +20,12 @@ include_directories(".")
 #set(CMAKE_CXX_CLANG_TIDY "clang-tidy;-checks=bugprone-*,clang-analyzer-*,performance-*")
 #set(CMAKE_CXX_CLANG_TIDY "clang-tidy")
 
+# CMake options
+option(CLANG_TIME_TRACE "Enable clang profiling." OFF)
+if(CLANG_TIME_TRACE)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ftime-trace")
+endif()
+
 # qbuild
 set(qbuild_src
     qbuild/CaptureBacktrace.cc

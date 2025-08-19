@@ -200,15 +200,10 @@ bool backtrace_init(const char* filename) {
 }
 
 NOINLINE
-void backtrace_print(int skip_frames) {
-    if (!__bt_state) {  /// make sure init_back_trace() is called
-        printf(
-            "Make sure init_back_trace() is called before calling "
-            "print_stack_trace()\n");
-        abort();
-    }
-    backtrace_full((backtrace_state*)__bt_state, skip_frames + 1, &PrintBacktrace::on_bt_frame, &PrintBacktrace::on_bt_error, nullptr);
-    eprintf("\n");
+void backtrace_print() {
+    CaptureBacktrace bt{};
+    bt.capture(1);
+    bt.print();
 }
 
 // ---------------------------

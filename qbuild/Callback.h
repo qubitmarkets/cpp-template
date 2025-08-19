@@ -77,7 +77,11 @@ struct Callback<Result(Args...)> : CallbackStorage {
         static Result call(void* data, Args... args) { return (*reinterpret_cast<Functor*>(&data))(static_cast<Args&&>(args)...); }
     };
 
-    Callback() noexcept {}
+    Callback() noexcept {
+        static_assert(
+            std::is_trivially_destructible_v<Callback> && std::is_trivially_copyable_v<Callback> && std::is_standard_layout_v<Callback>,
+            "FD should be trivial to pass by value");
+    }
     Callback(const Callback&) noexcept = default;
     Callback(Callback&&) noexcept = default;
     Callback& operator=(const Callback&) noexcept = default;

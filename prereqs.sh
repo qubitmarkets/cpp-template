@@ -10,7 +10,7 @@ cp etc/git-hooks/pre-commit .git/hooks/
 
 echo "Installing dev packages"
 if [[ -e /usr/bin/dnf ]]; then
-    run sudo dnf install -y ninja-build openssl-devel libtool
+    run sudo dnf install -y ninja-build openssl-devel libtool shfmt
 elif [[ -e /usr/bin/apt ]]; then
     run sudo apt install -y ninja-build libssl-dev
 fi

@@ -21,14 +21,23 @@ target=${target-}
 
 do_configure=0
 flags=""
+cfg_flags=""
 test_flags=""
 nargs=$(($# - 1))
-for i in $(seq 0 $nargs); do
+i=0
+while [[ $i -le $nargs ]]; do
     arg="${args[$i]}"
     if [[ $arg == "-r" ]]; then
         profile=release
     elif [[ $arg == "-v" ]]; then
         flags="$flags $arg"
+    elif [[ ${arg:0:2} == "-D" ]]; then
+        if [[ $arg == "-D" ]]; then
+            i=$(($i + 1))
+            cfg_flags="$cfg_flags -D ${args[$i]}"
+        else
+            cfg_flags="$cfg_flags $cfg_flags"
+        fi
     elif [[ ${arg:0:11} == "--compiler=" ]]; then
         compiler=("${arg:11}")
     elif [[ ${arg:0:11} == "--gcc" ]]; then
@@ -68,6 +77,7 @@ for i in $(seq 0 $nargs); do
             echo "Unknown arg $arg"
         fi
     fi
+    i=$(($i + 1))
 done
 
 # Create build dir
@@ -84,8 +94,8 @@ ln -nfs $cmake_build_dir build
 rv=0
 # Configure
 if [[ ! -e $cmake_build_dir || $do_configure == 1 || ! -e $cmake_build_dir/build.ninja ]]; then
-    echo "+ cmake --preset $profile.$compiler"
-    cmake --preset $profile.$compiler --no-warn-unused-cli
+    echo "+ cmake --preset $profile.$compiler --no-warn-unused-cli $cfg_flags"
+    cmake --preset $profile.$compiler --no-warn-unused-cli $cfg_flags
     rv=$(($rv || $?))
 fi
 
@@ -148,7 +158,7 @@ if [[ $mode == "test" ]]; then
         test_flags="-R ${test_flags}"
         echo "Running with test flags ${test_flags}"
     fi
-    bash -c "(cd $cmake_build_dir; ctest ${test_flags} --output-on-failure) $PIPE_COLORPATH; exit \${PIPESTATUS[0]}"
+    bash -c "ctest ${test_flags} --output-on-failure --test-dir ${cmake_build_dir} $PIPE_COLORPATH; exit \${PIPESTATUS[0]}"
     rv=$(($rv || $?))
 fi
 

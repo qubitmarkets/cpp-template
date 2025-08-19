@@ -16,9 +16,9 @@ for compiler in gcc15 clang20; do
 done
 
 ./build-run test
-if [[ -e ./build/utils.t ]]; then
+if [[ -e ./build/io.t ]]; then
     echo "Run external tests"
-    ./build/utils.t '[ext]'
+    ./build/io.t '[ext]'
 fi
 if [[ -e ./build/callback.t && "$profile" == "release" ]]; then
     echo "Run perf tests"

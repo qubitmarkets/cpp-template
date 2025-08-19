@@ -24,3 +24,4 @@ struct CaptureBacktrace {
 };
 
 char const* get_demangled_name(char const* const symbol) noexcept;
+NOINLINE void backtrace_print();

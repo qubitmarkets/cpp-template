@@ -113,5 +113,9 @@ struct NoFarReturn {};
 // simdjson
 #define SIMDJSON_EXCEPTIONS 1
 
-// Catch2 disable signal handler
+// Catch2 disable signal handler, wider INFO
 #define CATCH_CONFIG_NO_POSIX_SIGNALS
+#define CATCH_CONFIG_CONSOLE_WIDTH 180
+
+// Backtrace
+extern void backtrace_print();

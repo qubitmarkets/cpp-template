@@ -8,7 +8,6 @@
 #include <ctime>
 #include <functional>
 
-#define CATCH_CONFIG_PREFIX_ALL
 #include <catch2/catch_test_macros.hpp>
 
 #include "qbuild/Callback.h"
@@ -27,78 +26,78 @@ void invoke_callback_ref(const Callback<void()>& cb) {
     cb();
 }
 
-CATCH_TEST_CASE("Callback") {
+TEST_CASE("Callback") {
     Callback<void()> cbVoid;
     static_assert(sizeof(cbVoid) == 16);
-    CATCH_CHECK(cbVoid.is_empty());
+    CHECK(cbVoid.is_empty());
 
     // Static function
     g_count = 0;
     cbVoid = &testfn;
     cbVoid();
-    CATCH_CHECK(g_count == 1);
+    CHECK(g_count == 1);
 
     // no-capture lambda
     cbVoid = []() { g_count = 2; };
     cbVoid();
-    CATCH_CHECK(g_count == 2);
+    CHECK(g_count == 2);
 
     // ref-capture lambda
     int x = 1;
-    CATCH_CHECK(x == 1);
+    CHECK(x == 1);
     cbVoid = [&]() { x = 2; };
-    CATCH_CHECK(!cbVoid.is_empty());
+    CHECK(!cbVoid.is_empty());
 
     // Run once
     cbVoid();
-    CATCH_CHECK(x == 2);
-    CATCH_CHECK(!cbVoid.is_empty());
+    CHECK(x == 2);
+    CHECK(!cbVoid.is_empty());
 
     // Run again
     x = 3;
     cbVoid();
-    CATCH_CHECK(x == 2);
-    CATCH_CHECK(!cbVoid.is_empty());
+    CHECK(x == 2);
+    CHECK(!cbVoid.is_empty());
 
     // Pass as a parameter and run
     x = 1;
     invoke_callback(cbVoid);
-    CATCH_CHECK(x == 2);
+    CHECK(x == 2);
 
     // Pass as a ref parameter and run
     x = 1;
     invoke_callback_ref(cbVoid);
-    CATCH_CHECK(x == 2);
+    CHECK(x == 2);
 }
 
-CATCH_TEST_CASE("Callback return int") {
+TEST_CASE("Callback return int") {
     Callback<int(int)> cb = [](int) { return 2; };
-    CATCH_CHECK(!cb.is_empty());
-    CATCH_CHECK(cb(1) == 2);
+    CHECK(!cb.is_empty());
+    CHECK(cb(1) == 2);
 }
 
-CATCH_TEST_CASE("Callback init") {
+TEST_CASE("Callback init") {
     Callback<int(int)> cb;
-    CATCH_CHECK(cb.is_empty());
-    CATCH_CHECK(!cb);
-    CATCH_CHECK((bool)cb == false);
+    CHECK(cb.is_empty());
+    CHECK(!cb);
+    CHECK((bool)cb == false);
 }
 
-CATCH_TEST_CASE("Callback noop") {
+TEST_CASE("Callback noop") {
     {
         Callback<int(int)> cb;
         cb.set_noop();
-        CATCH_CHECK(!cb.is_empty());
-        CATCH_CHECK(!!cb);
-        CATCH_CHECK((bool)cb);
-        CATCH_CHECK(cb(1) == 0);
+        CHECK(!cb.is_empty());
+        CHECK(!!cb);
+        CHECK((bool)cb);
+        CHECK(cb(1) == 0);
     }
     {
         Callback<int(int)> cb{Noop};
-        CATCH_CHECK(!cb.is_empty());
-        CATCH_CHECK(!!cb);
-        CATCH_CHECK((bool)cb);
-        CATCH_CHECK(cb(1) == 0);
+        CHECK(!cb.is_empty());
+        CHECK(!!cb);
+        CHECK((bool)cb);
+        CHECK(cb(1) == 0);
     }
 }
 
@@ -129,14 +128,14 @@ template <typename T, typename MemFn>
 set_cb_t get_fptr(T MemFn::* memfn) {
     auto raw = (u64*)&memfn;
     auto p1 = raw[0];
-    CATCH_REQUIRE(raw[1] == 0);
+    REQUIRE(raw[1] == 0);
     if (p1 < 4096) {
-        CATCH_REQUIRE(p1 == 1);  // First virtual function table entry
+        REQUIRE(p1 == 1);  // First virtual function table entry
         // virtual member function
         auto cb = [](AAA* a, int v) {
             auto vtable = *(u64**)a;
             auto fptr = (set_cb_t)vtable[0];
-            CATCH_REQUIRE((u64)_ZN3AAA4setvEi == (u64)fptr);
+            REQUIRE((u64)_ZN3AAA4setvEi == (u64)fptr);
             fptr(a, v);
         };
         return (set_cb_t)cb;
@@ -162,7 +161,7 @@ inline const char* stringf(const char* fmt, ...) {
     return buf[i];
 }
 
-CATCH_TEST_CASE("Callback raw") {
+TEST_CASE("Callback raw") {
     static u64 base = 0;
     AAA a;
     B b;
@@ -178,113 +177,113 @@ CATCH_TEST_CASE("Callback raw") {
     static_assert(sizeof(MemFnPointer) == 16);
 
     {
-        CATCH_INFO("Base == &a");
+        INFO("Base == &a");
         base = (u64)&a;
         auto* memfn_raw = reinterpret_cast<MemFnPointer*>(&memfn);
         void** vtable = *(void***)(&a);
         auto* vtable_raw = (MemFnPointer*)vtable;
-        CATCH_INFO(stringf("cbraw_a: %016lx %016lx\n", memfn_raw->s1, memfn_raw->s2));
-        CATCH_INFO(stringf("vtable[0]: %016lx [1]:%016lx\n", (u64)vtable[0], (u64)vtable[1]));
-        CATCH_INFO(stringf("vtable_raw: %016lx %016lx\n", vtable_raw->s1, vtable_raw->s2));
+        INFO(stringf("cbraw_a: %016lx %016lx\n", memfn_raw->s1, memfn_raw->s2));
+        INFO(stringf("vtable[0]: %016lx [1]:%016lx\n", (u64)vtable[0], (u64)vtable[1]));
+        INFO(stringf("vtable_raw: %016lx %016lx\n", vtable_raw->s1, vtable_raw->s2));
         static_assert(__is_member_function_pointer(decltype(&AAA::set)) == true);
         auto set_cb = get_fptr(&AAA::set);
-        CATCH_CHECK(a.x == 0);
+        CHECK(a.x == 0);
         set_cb(&a, 1);
-        CATCH_CHECK(a.x == 1);
+        CHECK(a.x == 1);
         set_cb = get_fptr(&AAA::setv);
         set_cb(&a, 2);
-        CATCH_CHECK(a.x == 2);
+        CHECK(a.x == 2);
 
         auto set_cb2 = makeCallback(&a, &AAA::set);
         a.x = 0;
         set_cb2(1);
-        CATCH_CHECK(a.x == 1);
+        CHECK(a.x == 1);
         // Check == operator
-        CATCH_CHECK(set_cb2 == set_cb2);
+        CHECK(set_cb2 == set_cb2);
 
         auto set_cb3 = Callback<void(int)>(&a, &AAA::setv);
         set_cb3(2);
-        CATCH_CHECK(a.x == 2);
-        CATCH_CHECK(set_cb3.func == (void*)&_ZN3AAA4setvEi);
-        CATCH_CHECK(set_cb3.data == set_cb2.data);
+        CHECK(a.x == 2);
+        CHECK(set_cb3.func == (void*)&_ZN3AAA4setvEi);
+        CHECK(set_cb3.data == set_cb2.data);
     }
 
     {
         auto vfn = makeCallback(&a, &AAA::setv2);
         vfn(30);
-        CATCH_REQUIRE(a.x == 60);
+        REQUIRE(a.x == 60);
     }
 
     {
-        CATCH_INFO("Base == &b");
+        INFO("Base == &b");
         base = (u64)&b;
         auto memfn_b = &B::set;
         auto* memfn_raw = reinterpret_cast<MemFnPointer*>(&memfn_b);
-        CATCH_INFO(stringf("cbraw b: %016lx %016lx\n", memfn_raw->s1, memfn_raw->s2));
+        INFO(stringf("cbraw b: %016lx %016lx\n", memfn_raw->s1, memfn_raw->s2));
         auto set_cb = get_fptr(&B::set);
-        CATCH_CHECK(b.x == 0);
+        CHECK(b.x == 0);
         b.set(1);
-        CATCH_CHECK(b.x == 1);
+        CHECK(b.x == 1);
         set_cb(&b, 2);
-        CATCH_CHECK(b.x == 2);
+        CHECK(b.x == 2);
         set_cb = get_fptr(&B::setv);
         set_cb(&b, 3);
-        CATCH_CHECK(b.x == 3);
+        CHECK(b.x == 3);
 
         auto set_cb2 = makeCallback(&b, &B::set);
         b.x = 0;
         set_cb2(1);
-        CATCH_CHECK(b.x == 1);
+        CHECK(b.x == 1);
         set_cb2 = Callback<void(int)>(&b, &B::setv);
         set_cb2(2);
-        CATCH_CHECK(b.x == 2);
+        CHECK(b.x == 2);
     }
 
     // C has multiple inheritance, AAA is offset from this
     {
-        CATCH_INFO("Base == &c");
+        INFO("Base == &c");
         base = (u64)&c;
         auto memfn_c = &C::set;
         auto* memfn_raw = reinterpret_cast<MemFnPointer*>(&memfn_c);
-        CATCH_INFO(stringf("cbraw c: %016lx %016lx\n", memfn_raw->s1, memfn_raw->s2));
+        INFO(stringf("cbraw c: %016lx %016lx\n", memfn_raw->s1, memfn_raw->s2));
         auto set_cb = get_fptr(&C::set);
-        CATCH_CHECK(c.x == 0);
+        CHECK(c.x == 0);
         // When we call c.set, the compiler first offsets the pointer to AAA
         c.set(1);
-        CATCH_CHECK(c.x == 1);
+        CHECK(c.x == 1);
         // When we take the address of &AAA from &C, the compiler adds the offset
         set_cb(&c, 2);
-        CATCH_CHECK(c.x == 2);
+        CHECK(c.x == 2);
         set_cb = get_fptr(&C::setv);
         set_cb(&c, 3);
-        CATCH_CHECK(c.x == 3);
+        CHECK(c.x == 3);
 
         // auto set_cb2 = Callback<AAA, void(int)>(c, &C::set);
         auto set_cb2 = makeCallback(&c, &C::set);
         c.x = 0;
         set_cb2(1);
-        CATCH_CHECK(c.x == 1);
+        CHECK(c.x == 1);
         set_cb2 = Callback<void(int)>(&c, &C::setv);
         set_cb2(2);
-        CATCH_CHECK(c.x == 2);
-        CATCH_CHECK(set_cb2.func == (void*)&_ZN3AAA4setvEi);
+        CHECK(c.x == 2);
+        CHECK(set_cb2.func == (void*)&_ZN3AAA4setvEi);
     }
 
     // C function pointer
     {
         Callback<void(int)> set_cb = &set_test_value;
         g_test_value = 0;
-        CATCH_CHECK(g_test_value == 0);
+        CHECK(g_test_value == 0);
         set_test_value(1);
-        CATCH_CHECK(g_test_value == 1);
+        CHECK(g_test_value == 1);
         set_cb(2);
-        CATCH_CHECK(g_test_value == 2);
+        CHECK(g_test_value == 2);
     }
     {
         Callback<void(int)> set_cb = makeCallback(&set_test_value);
         g_test_value = 0;
         set_cb(3);
-        CATCH_CHECK(g_test_value == 3);
+        CHECK(g_test_value == 3);
     }
 }
 
@@ -301,13 +300,13 @@ ALWAYS_INLINE i64 get_now() {
 }
 
 // This test needs to be run on a single core, on a bare-metal server
-CATCH_TEST_CASE("Callback perf test", "[.][perf]") {
+TEST_CASE("Callback perf test", "[.][perf]") {
     // Set CPU affinity to core 1
     cpu_set_t cpuset;
     CPU_ZERO(&cpuset);
     CPU_SET(1, &cpuset);
     int rv = sched_setaffinity(0, sizeof(cpu_set_t), &cpuset);
-    CATCH_REQUIRE(rv == 0);
+    REQUIRE(rv == 0);
 
     auto warmup_iters = 1'000'000;
     // On my laptop, Callback completes in 34ms, std::function in 122ms
@@ -335,13 +334,13 @@ CATCH_TEST_CASE("Callback perf test", "[.][perf]") {
     auto start = get_now();
     run_stdfunc(iters);
     auto std_function_dur = get_now() - start;
-    CATCH_CHECK(x == 3903231744);
+    CHECK(x == 3903231744);
     double std_function_ns = (double)std_function_dur / iters;
-    CATCH_CHECK(std_function_ns > 1);
+    CHECK(std_function_ns > 1);
 #if defined(NDEBUG)
-    CATCH_CHECK(std_function_ns <= 15);
+    CHECK(std_function_ns <= 15);
 #else
-    CATCH_CHECK(std_function_ns <= 25);
+    CHECK(std_function_ns <= 25);
 #endif
 
     // ----------------------------------------
@@ -362,11 +361,11 @@ CATCH_TEST_CASE("Callback perf test", "[.][perf]") {
     start = get_now();
     run_cblambda(iters);
     auto cb_lambda_dur = get_now() - start;
-    CATCH_CHECK(x == 3903231744);
-    CATCH_CHECK(cb_lambda_dur <= 200'000'000);  // 200ms
+    CHECK(x == 3903231744);
+    CHECK(cb_lambda_dur <= 200'000'000);  // 200ms
     double cb_lambda_ns = (double)cb_lambda_dur / iters;
     // Callback is much faster than std::function
-    CATCH_CHECK(std_function_ns - cb_lambda_ns >= .3);
+    CHECK(std_function_ns - cb_lambda_ns >= .3);
 
     // ----------------------------------------
     // Member function
@@ -400,15 +399,15 @@ CATCH_TEST_CASE("Callback perf test", "[.][perf]") {
     run_memfn(iters);
     auto memfn_dur = get_now() - start;
 
-    CATCH_CHECK(my_struct.x == 3903231744);
-    CATCH_CHECK(memfn_dur <= 200'000'000);  // 200ms
-    CATCH_CHECK(memfn_dur >= 20'000'000);   // 20ms
+    CHECK(my_struct.x == 3903231744);
+    CHECK(memfn_dur <= 200'000'000);  // 200ms
+    CHECK(memfn_dur >= 20'000'000);   // 20ms
     double memfn_ns = (double)memfn_dur / iters;
 // Calling via a member function pointer is slower than the Callback to a lambda
 #if __QBUILD_COMPILER_CLANG__ && __QBUILD_COMPILER_VERSION__ >= 20
 // Skip
 #else
-    CATCH_CHECK(memfn_ns - cb_lambda_ns >= 0);
+    CHECK(memfn_ns - cb_lambda_ns >= 0);
 #endif
 
     // ----------------------------------------
@@ -426,19 +425,19 @@ CATCH_TEST_CASE("Callback perf test", "[.][perf]") {
     start = get_now();
     run_memfn_cb(iters);
     auto memfn_cb_dur = get_now() - start;
-    CATCH_CHECK(x == 3903231744);
-    CATCH_CHECK(memfn_cb_dur >= 10'000'000);   // 10ms
-    CATCH_CHECK(memfn_cb_dur <= 200'000'000);  // 200ms
+    CHECK(x == 3903231744);
+    CHECK(memfn_cb_dur >= 10'000'000);   // 10ms
+    CHECK(memfn_cb_dur <= 200'000'000);  // 200ms
     double memfn_cb_ns = (double)memfn_cb_dur / iters;
 // Callback to member function is much faster than std::function, on clang
 #if __QBUILD_COMPILER_GCC__
-    CATCH_CHECK(std_function_ns - memfn_cb_ns >= -0.2);
+    CHECK(std_function_ns - memfn_cb_ns >= -0.2);
 #else
-    CATCH_CHECK(std_function_ns - memfn_cb_ns >= 0.1);
+    CHECK(std_function_ns - memfn_cb_ns >= 0.1);
 #endif
     // Callback to member function is faster than the direct virtual call
     // Sometimes it is slower, but not by much
-    CATCH_CHECK(memfn_ns - memfn_cb_ns >= -0.25);
+    CHECK(memfn_ns - memfn_cb_ns >= -0.25);
 
     fprintf(stderr, "std::function took       %.3fns\n", std_function_ns);
     fprintf(stderr, "Member func pointer took  %.3fns\n", memfn_ns);
