@@ -7,6 +7,7 @@ skip_diff=0
 quiet=0
 copy=0
 diff_flag="-q"
+reverse=0
 for arg in $@; do
     if [[ ${arg:0:1} == '-' ]]; then
         if [[ $arg == "-f" ]]; then
@@ -16,7 +17,9 @@ for arg in $@; do
         elif [[ $arg == "-c" ]]; then
             copy=1
         elif [[ $arg == "-v" ]]; then
-            diff_flag=""
+            diff_flag="--color"
+        elif [[ $arg == "-r" ]]; then
+            reverse=1
         fi
     else
         dest=${arg}
@@ -33,25 +36,36 @@ dest=$(readlink -f $dest)
 
 src=$(dirname $BASH_SOURCE)
 src=$(readlink -f $src)
+
+if [[ $reverse == 1 ]]; then
+  tmp="$src"
+  src="$dest"
+  dest="$tmp"
+fi
+
 cd $src
 
 count=0
 if [[ $skip_diff == 0 ]]; then
   for f in $(cat ./filelist); do
     if [[ -e $dest/$f ]]; then
-        diff -r $diff_flag $src/$f $dest/$f
+        diff -r $diff_flag $dest/$f $src/$f
         if [[ $? != 0 ]]; then
-            echo "  diff -r $src/$f $dest/$f"
+            echo "  diff -r $dest/$f $src/$f"
             count=$((count + 1))
         fi
     fi
   done
 fi
 if [[ $skip_diff == 0 && $force == 0 && $count -gt 0 ]]; then
-    echo "Files in $dest differ to cpp-template.  Fix this or use -f to force or -s to skip those files"
+    echo "Files in $dest differ to cpp-template.  Fix this or use -f to force or -s to skip those files, or -v to show diffs. Use -r to reverse install"
     exit 1
 fi
 
+# copy git hooks
+cp $src/etc/git-hooks/pre-commit $dest/.git/hooks/
+
+if [[ $reverse == 0 ]]; then
 # links to dirs
 for f in 3rdparty qbuild etc; do
     if [[ -e $dest/f && $skip_diff == 1 ]]; then
@@ -67,6 +81,7 @@ for f in 3rdparty qbuild etc; do
       rsync -a $src/$f/ $dest/$f/
     fi
 done
+fi  # reverse
 
 # copy files
 for f in $(cat $src/filelist); do

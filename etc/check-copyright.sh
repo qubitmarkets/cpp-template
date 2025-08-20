@@ -16,11 +16,13 @@ for arg in $@; do
     git_staged_only=1
   fi
 done
+dirs=""
+for f in qbuild qcore; do if [[ -e $f ]]; then dirs="$dirs $f/"; fi; done
 
 if [[ $git_staged_only == 1 ]]; then
   files=($(git status --porcelain | /bin/grep '^[AM]' | cut -c4- | grep '\.h$|\.cc$'))
 else
-  files=($(find qbuild/ qcore/ -name '*.h' -o -name '*.cc'))
+  files=($(find $dirs -name '*.h' -o -name '*.cc'))
 fi
 
 if [[ "${#files[@]}" == 0 ]]; then

@@ -1,2 +1,19 @@
 #!/bin/bash
-etc/check-copyright.sh
+if [[ ${GIT_PRECOMMIT_HACK-0} == 1 ]]; then
+  echo "GIT_PRECOMMIT_HACK=$GIT_PRECOMMIT_HACK : Skipping build test"
+  exit 0
+fi
+
+etc/check-copyright.sh || exit 1
+
+cd $(git rev-parse --show-toplevel)
+
+echo -n "Running build test..."
+./build-run build --git-cached > build/build_output.log 2>&1
+if [[ $? != 0 ]]; then
+  echo
+  cat build/build_output.log
+  exit 1
+fi
+echo "...OK"
+
