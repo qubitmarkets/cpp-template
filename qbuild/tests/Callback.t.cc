@@ -194,7 +194,9 @@ TEST_CASE("Callback raw") {
         set_cb(&a, 2);
         CHECK(a.x == 2);
 
-        auto set_cb2 = makeCallback(&a, &AAA::set);
+        // set_cb2 verifies the devirtualization works when you have multiple virtual functions
+        // Pair constructor
+        Callback<void(int)> set_cb2 = {&a, &AAA::set};
         a.x = 0;
         set_cb2(1);
         CHECK(a.x == 1);

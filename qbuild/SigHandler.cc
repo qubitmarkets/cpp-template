@@ -68,6 +68,7 @@ const char* get_signame(int sig) {
 extern "C" void sig_handler(int sig, siginfo_t* siginfo, void* context) {
     bool urgent_signal = !(sig == SIGINT || sig == SIGUSR1 || sig == SIGHUP);
     bool is_handled = false;
+    // Run custom on_start_sighandler callbacks, early exit if we handle these
     for (auto& cb : g_sig_handler_callbacks.on_start_sighandler) {
         is_handled |= cb(sig);
     }
@@ -76,7 +77,7 @@ extern "C" void sig_handler(int sig, siginfo_t* siginfo, void* context) {
         for (auto& cb : g_sig_handler_callbacks.on_exit_sighandler) {
             cb(sig);
         }
-        return;
+        return;  // Early Exit the sighandler, continue execution
     }
     if (!(sig == SIGUSR1 || sig == SIGINT)) {
         eprintf("\nCaught signal: %d %s\n", sig, get_signame(sig));
@@ -135,10 +136,6 @@ void unhandled_exception_handler() {
 
 void SigHandlerCallbacks::default_exit_process(int sig) {
     ::exit(128 + sig);
-}
-
-SigHandlerCallbacks& SigHandler::get_callbacks() {
-    return g_sig_handler_callbacks;
 }
 
 void SigHandler::install() {

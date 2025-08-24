@@ -35,5 +35,4 @@ struct SigHandler {
     // Called when the signal handler is exited
     static void register_sighandler_exit(Callback<void(int sig)> cb);
     static void register_on_exit_process(Callback<void(int sig)> cb);
-    static SigHandlerCallbacks& get_callbacks();
 };

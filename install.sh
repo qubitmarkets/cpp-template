@@ -36,6 +36,7 @@ dest=$(readlink -f $dest)
 
 src=$(dirname $BASH_SOURCE)
 src=$(readlink -f $src)
+filelist=$src/filelist
 
 if [[ $reverse == 1 ]]; then
   tmp="$src"
@@ -47,7 +48,7 @@ cd $src
 
 count=0
 if [[ $skip_diff == 0 ]]; then
-  for f in $(cat ./filelist); do
+  for f in $(cat $filelist); do
     if [[ -e $dest/$f ]]; then
         diff -r $diff_flag $dest/$f $src/$f
         if [[ $? != 0 ]]; then
@@ -84,7 +85,7 @@ done
 fi  # reverse
 
 # copy files
-for f in $(cat $src/filelist); do
+for f in $(cat $filelist); do
     if [[ -e $dest/f && $skip_diff == 1 ]]; then
       if ! diff -q -r $src/$f $dest/$f; then
         continue;

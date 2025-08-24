@@ -5,14 +5,24 @@ if [[ ${GIT_PRECOMMIT_HACK-0} == 1 ]]; then
 fi
 
 etc/check-copyright.sh || exit 1
+etc/check-includes.sh || exit 1
 
 cd $(git rev-parse --show-toplevel)
 
-echo -n "Running build test..."
+echo -n "Running build..."
 ./build-run build --git-cached > build/build_output.log 2>&1
 if [[ $? != 0 ]]; then
   echo
   cat build/build_output.log
+  exit 1
+fi
+echo "...OK"
+
+echo -n "Running test..."
+./build-run test --git-cached > build/test_output.log 2>&1
+if [[ $? != 0 ]]; then
+  echo
+  cat build/test_output.log
   exit 1
 fi
 echo "...OK"

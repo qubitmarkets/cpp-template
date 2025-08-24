@@ -37,7 +37,7 @@ while [[ $i -le $nargs ]]; do
             i=$(($i + 1))
             cfg_flags="$cfg_flags -D ${args[$i]}"
         else
-            cfg_flags="$cfg_flags $cfg_flags"
+            cfg_flags="$cfg_flags $arg"
         fi
     elif [[ ${arg:0:11} == "--compiler=" ]]; then
         compiler=("${arg:11}")
@@ -96,20 +96,20 @@ ln -nfs $cmake_build_dir build
 
 # Check for git_cached_only mode, stash unstaged changes
 if [[ $git_cached_only == 1 ]]; then
-  export GIT_DIR=$(git rev-parse --git-dir)
-  if [[ -s ${GIT_DIR}/unstaged.diff ]]; then
-    echo "Error: pre-existing non-zero unstaged.diff file, aborting"
-    exit 1
-  fi
-  git diff --color=never > ${GIT_DIR}/unstaged.diff
-  # Add untracked files
-  (for file in $( git ls-files --others --exclude-standard ); do
-    git diff --color=never --no-index /dev/null $file || true
-  done ) >> ${GIT_DIR}/unstaged.diff
-  if [[ -s ${GIT_DIR}/unstaged.diff ]]; then
-    git apply -R ${GIT_DIR}/unstaged.diff
-    trap "git apply ${GIT_DIR}/unstaged.diff && rm ${GIT_DIR}/unstaged.diff || true" 0
-  fi
+    export GIT_DIR=$(git rev-parse --git-dir)
+    if [[ -s ${GIT_DIR}/unstaged.diff ]]; then
+        echo "Error: pre-existing non-zero unstaged.diff file, aborting"
+        exit 1
+    fi
+    git diff --color=never >${GIT_DIR}/unstaged.diff
+    # Add untracked files
+    (for file in $(git ls-files --others --exclude-standard); do
+        git diff --color=never --no-index /dev/null $file || true
+    done) >>${GIT_DIR}/unstaged.diff
+    if [[ -s ${GIT_DIR}/unstaged.diff ]]; then
+        git apply -R ${GIT_DIR}/unstaged.diff
+        trap "git apply ${GIT_DIR}/unstaged.diff && rm ${GIT_DIR}/unstaged.diff || true" 0
+    fi
 fi
 
 rv=0

@@ -51,21 +51,24 @@ set_target_properties(qbuild
 # ----------------------
 # Tests
 #
-add_executable(backtrace.t qbuild/tests/backtrace.t.cc)
-target_compile_options(backtrace.t PRIVATE -Wno-error=attribute-warning -Wno-unknown-attributes -Wno-attributes)
-target_link_libraries(backtrace.t PRIVATE qbuild)
+option(QBUILD_TESTS "Enable qbuild tests" OFF)
+if(QBUILD_TESTS)
+    add_executable(backtrace.t qbuild/tests/backtrace.t.cc)
+    target_compile_options(backtrace.t PRIVATE -Wno-error=attribute-warning -Wno-unknown-attributes -Wno-attributes)
+    target_link_libraries(backtrace.t PRIVATE qbuild)
 
-enable_testing()
-add_test(NAME backtrace.t  COMMAND 
-    ${CMAKE_CURRENT_SOURCE_DIR}/qbuild/tests/backtrace.sh 
-    $<TARGET_FILE:backtrace.t>)
+    enable_testing()
+    add_test(NAME backtrace.t  COMMAND 
+        ${CMAKE_CURRENT_SOURCE_DIR}/qbuild/tests/backtrace.sh 
+        $<TARGET_FILE:backtrace.t>)
 
 
-add_executable(callback.t 
-    qbuild/tests/_run_catch_tests.t.cc
-    qbuild/tests/Callback.t.cc
-)
-target_link_libraries(callback.t PRIVATE qbuild)
-target_link_libraries(callback.t PRIVATE Catch2::Catch2)
-catch_discover_tests(callback.t)
-
+    add_executable(callback.t 
+        qbuild/tests/_run_catch_tests.t.cc
+        qbuild/tests/Callback.t.cc
+    )
+    target_link_libraries(callback.t PRIVATE qbuild)
+    target_link_libraries(callback.t PRIVATE Catch2::Catch2)
+    catch_discover_tests(callback.t)
+endif()
+unset(QBUILD_TESTS CACHE)

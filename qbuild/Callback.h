@@ -80,7 +80,7 @@ struct Callback<Result(Args...)> : CallbackStorage {
     Callback() noexcept {
         static_assert(
             std::is_trivially_destructible_v<Callback> && std::is_trivially_copyable_v<Callback> && std::is_standard_layout_v<Callback>,
-            "FD should be trivial to pass by value");
+            "Callback should be trivial to pass by value");
     }
     Callback(const Callback&) noexcept = default;
     Callback(Callback&&) noexcept = default;
@@ -142,11 +142,14 @@ struct Callback<Result(Args...)> : CallbackStorage {
         }
         data = (void*)t;
     }
+    template <typename _T, typename T, typename MemFn>
+        requires(std::is_member_function_pointer_v<MemFn T::*> && std::is_base_of_v<T, _T>)
+    Callback(pair<_T*, MemFn T::*> p) : Callback<MemFn>(p.first, p.second) {}
 
     // Call
     template <typename... _Args>
         requires(... && std::is_convertible_v<_Args, Args>)
-    ALWAYS_INLINE Result call(Args&&... args) const {  //
+    ALWAYS_INLINE Result call(_Args&&... args) const {  //
         return (*reinterpret_cast<InvokeSig*>(func))(data, static_cast<Args>(args)...);
     }
     template <typename... _Args>
