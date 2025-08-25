@@ -27,6 +27,7 @@
 
 #include "qbuild/compiler.h"
 #include "qbuild/ctypes.h"
+#include <cxxabi.h>
 #include <stdlib.h>  // ::abort
 #include <concepts>
 #include <type_traits>
@@ -35,6 +36,7 @@
 // Placeholder Tag struct for initializing Callback to be callable with no side-effects
 struct __Tag_Noop {};
 static const constexpr __Tag_Noop Noop;
+void __cxxabiv1::__cxa_pure_virtual();
 
 struct CallbackStorage {
     CallbackStorage() = default;
@@ -136,6 +138,12 @@ struct Callback<Result(Args...)> : CallbackStorage {
             auto vtable = *(u64**)t;
             auto fptr = vtable[(p1 - 1) / 8];
             func = (void*)fptr;
+#if !NDEBUG
+            if (func == &__cxxabiv1::__cxa_pure_virtual) {
+                // Attempting to devirtualize a pure method, can't use makeCallback in a ctor
+                abort();
+            }
+#endif
         } else {
             // Non-virtual member function
             func = (void*)p1;
