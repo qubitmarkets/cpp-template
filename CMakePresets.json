@@ -10,6 +10,7 @@
             "cacheVariables": {
                 "CMAKE_INSTALL_PREFIX": "${sourceDir}/builds/debug.gcc",
                 "THIRD_PARTY_DIR": "${sourceDir}/3rdparty/install/release.gcc15",
+                "CMAKE_CXX_COMPILER_LAUNCHER": "ccache",
                 "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
                 "CMAKE_C_COMPILER": "/usr/bin/gcc",
                 "CMAKE_CXX_COMPILER": "/usr/bin/g++",
@@ -26,6 +27,7 @@
             "cacheVariables": {
                 "CMAKE_INSTALL_PREFIX": "${sourceDir}/builds/release.gcc",
                 "THIRD_PARTY_DIR": "${sourceDir}/3rdparty/install/release.gcc15",
+                "CMAKE_CXX_COMPILER_LAUNCHER": "ccache",
                 "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
                 "CMAKE_C_COMPILER": "/usr/bin/gcc",
                 "CMAKE_CXX_COMPILER": "/usr/bin/g++",
@@ -47,6 +49,7 @@
             "cacheVariables": {
                 "THIRD_PARTY_DIR": "${sourceDir}/3rdparty/install/release.clang20",
                 "CMAKE_INSTALL_PREFIX": "${sourceDir}/builds/${presetName}",
+                "CMAKE_CXX_COMPILER_LAUNCHER": "ccache",
                 "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
                 "CMAKE_C_COMPILER": "/usr/bin/clang-20",
                 "CMAKE_CXX_COMPILER": "/usr/bin/clang++-20",
@@ -72,6 +75,7 @@
             "cacheVariables": {
                 "THIRD_PARTY_DIR": "${sourceDir}/3rdparty/install/release.clang19",
                 "CMAKE_INSTALL_PREFIX": "${sourceDir}/builds/${presetName}",
+                "CMAKE_CXX_COMPILER_LAUNCHER": "ccache",
                 "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
                 "CMAKE_C_COMPILER": "/usr/bin/clang-19",
                 "CMAKE_CXX_COMPILER": "/usr/bin/clang++-19",
@@ -97,6 +101,7 @@
             "cacheVariables": {
                 "THIRD_PARTY_DIR": "${sourceDir}/3rdparty/install/release.gcc14",
                 "CMAKE_INSTALL_PREFIX": "${sourceDir}/builds/${presetName}",
+                "CMAKE_CXX_COMPILER_LAUNCHER": "ccache",
                 "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
                 "CMAKE_C_COMPILER": "/opt/infra.1/bin/gcc-14",
                 "CMAKE_CXX_COMPILER": "/opt/infra.1/bin/g++-14",
@@ -123,6 +128,7 @@
             "cacheVariables": {
                 "THIRD_PARTY_DIR": "${sourceDir}/3rdparty/install/release.gcc15",
                 "CMAKE_INSTALL_PREFIX": "${sourceDir}/builds/${presetName}",
+                "CMAKE_CXX_COMPILER_LAUNCHER": "ccache",
                 "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
                 "CMAKE_C_COMPILER": "/opt/infra.1/bin/gcc-15",
                 "CMAKE_CXX_COMPILER": "/opt/infra.1/bin/g++-15",
