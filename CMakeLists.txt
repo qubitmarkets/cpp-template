@@ -3,9 +3,10 @@ project(qbuild
     VERSION 1.0
     DESCRIPTION "QBuild"
     LANGUAGES CXX)
-include(qbuild.cmake)
 
 set(QBUILD_TESTS ON)
+include(qbuild.cmake)
+
 message("CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS}")
 message("CMAKE_CXX_FLAGS_DEBUG ${CMAKE_CXX_FLAGS_DEBUG}")
 message("CMAKE_CXX_FLAGS_RELWITHDEBINFO ${CMAKE_CXX_FLAGS_RELWITHDEBINFO}")

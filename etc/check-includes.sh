@@ -4,7 +4,7 @@
 
 set -euo pipefail
 
-include_hierarchy=(qbuild mem shm io nexus app feed)
+include_hierarchy=(qbuild mem shm protocol io app feed)
 src=qcore
 
 n=${#include_hierarchy[@]}

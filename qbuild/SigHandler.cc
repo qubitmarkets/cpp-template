@@ -168,6 +168,10 @@ void SigHandler::register_on_exit_process(Callback<void(int sig)> cb) {
     g_sig_handler_callbacks.on_exit_process.push_back(cb);
 }
 
+void SigHandler::uninstall() {
+    g_sig_handler_callbacks = {};
+}
+
 // Always call on_exit_process callbacks
 SigHandlerCallbacks::~SigHandlerCallbacks() {
     for (auto& cb : on_exit_process) {

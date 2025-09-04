@@ -26,6 +26,7 @@ struct PrintBacktrace {
     int skip_frames = 1;
     int frame_idx = 0;
     bool has_first_line = false;
+
     static bool can_skip(const char* function) {
         const char* to_skip[]{
             "__GI___dl_iterate_phdr",  // Internal function used by libbacktrace
@@ -103,11 +104,20 @@ struct PrintBacktrace {
             self->skip_frames = INT_MAX;
         } else {
             // Print the frame
+            char hyperlink_start[512];
+            const char* hyperlink_end = "";
+            hyperlink_start[0] = 0;
+            if (get_hyperlink_url_root()) {
+                const char* file_prefix = filepath[0] == '/' ? "" : "./";
+                snprintf(hyperlink_start, sizeof(hyperlink_start), "\x1b]8;;%s%s%s:%d:5\a", get_hyperlink_url_root(), file_prefix, filepath,
+                         lineno);
+                hyperlink_end = "\x1b]8;;\a";
+            }
             auto func_color = first_line ? COLOR_PINK : COLOR_GREEN;
             eprintf("% 4d: %s%s" COLOR_NONE
                     "\n"
-                    "      at " COLOR_BLUE "%s/" COLOR_RED "%s" COLOR_NONE ":%d" COLOR_NONE "\n",
-                    self->frame_idx, func_color, func_name, dir, filename, lineno);
+                    "      at %s" COLOR_BBLUE "%s/" COLOR_BCYAN "%s" COLOR_NONE ":%d%s" COLOR_NONE "\n",
+                    self->frame_idx, func_color, func_name, hyperlink_start, dir, filename, lineno, hyperlink_end);
             self->frame_idx += 1;
         }
         ::free(filename_);
@@ -120,6 +130,12 @@ struct PrintBacktrace {
 
     static void on_bt_error(void*, const char* msg, int errnum) {
         eprintf("Error %d occurred when getting the stacktrace: %s", errnum, msg);
+    }
+
+    static const char* get_hyperlink_url_root() {
+        // e.g. "vscode://vscode-remote/ssh-remote+newton"
+        static const char* hyperlink_url_root = ::getenv("HYPERLINK_URL");
+        return hyperlink_url_root;
     }
 };
 

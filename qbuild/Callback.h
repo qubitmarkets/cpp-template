@@ -85,8 +85,9 @@ struct Callback<Result(Args...)> : CallbackStorage {
             "Callback should be trivial to pass by value");
     }
     Callback(const Callback&) noexcept = default;
-    Callback(Callback&&) noexcept = default;
     Callback& operator=(const Callback&) noexcept = default;
+    Callback(Callback&&) noexcept = default;
+    Callback& operator=(Callback&&) noexcept = default;
 
     // initialize with noop
     Callback(__Tag_Noop) noexcept : CallbackStorage() { set_noop(); }
@@ -129,7 +130,7 @@ struct Callback<Result(Args...)> : CallbackStorage {
     // Member Function
     //
     template <typename _T, typename T, typename MemFn>
-        requires(std::is_member_function_pointer_v<MemFn T::*> && std::is_base_of_v<T, _T>)
+        requires(std::is_member_function_pointer_v<MemFn T::*> && std::is_base_of_v<T, _T> && std::is_invocable_v<MemFn T::*, _T, Args...>)
     Callback(_T* t, MemFn T::* memfn) noexcept {
         auto raw = (u64*)&memfn;
         auto p1 = raw[0];
@@ -152,7 +153,7 @@ struct Callback<Result(Args...)> : CallbackStorage {
     }
     template <typename _T, typename T, typename MemFn>
         requires(std::is_member_function_pointer_v<MemFn T::*> && std::is_base_of_v<T, _T>)
-    Callback(pair<_T*, MemFn T::*> p) : Callback<MemFn>(p.first, p.second) {}
+    Callback(pair<_T*, MemFn T::*> p) : Callback(p.first, p.second) {}
 
     // Call
     template <typename... _Args>

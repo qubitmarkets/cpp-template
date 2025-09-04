@@ -74,16 +74,16 @@
 // COLD is used to mark functions that are not expected to be called frequently
 // It moves the function code to a separate section, and the compiler will not inline it
 #define COLD __attribute__((cold))
-#define COLD_START() \
-    {                \
-        [[unlikely]][&]() __attribute__((cold)) __attribute__((noinline)) {
+#define COLD_START() [[unlikely]][&]() __attribute__((cold)) __attribute__((noinline)) {
 #define COLD_END() \
     }              \
-    ();            \
+    ();
+
+#define COLD_LAMBDA(code)  \
+    {                      \
+        COLD_START() code; \
+        COLD_END()         \
     }
-#define COLD_LAMBDA(code) \
-    COLD_START() code;    \
-    COLD_END()
 
 #define IF_COLD(cond, code)    \
     if unlikely (cond) {       \
@@ -102,7 +102,7 @@ struct NoFarReturn {};
     {                                                                                                      \
         [&]() __attribute__((noinline)) __attribute__((section(".text_far,\"ax\",@progbits#execinstr"))) { \
             code;                                                                                          \
-            return ::bb::NoFarReturn{};                                                                    \
+            return ::NoFarReturn{};                                                                        \
         }();                                                                                               \
     }
 

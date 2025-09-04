@@ -29,6 +29,7 @@ struct SigHandlerCallbacks {
 
 struct SigHandler {
     static void install();
+    static void uninstall();
     // Called when a signal is received
     // Returns true if the signal should be ignored, false to print the stack trace and exit
     static void register_sighandler(Callback<bool(int sig)> cb);
