@@ -1,6 +1,7 @@
 // Copyright (c) 2025 Qubit Markets Pte. Ltd.
 
 #include "qbuild/CaptureBacktrace.h"
+#include "qbuild/Callback.h"
 #include "qbuild/ansi_colors.h"
 #include "qbuild/compiler.h"
 #include <backtrace.h>  // libbacktrace
@@ -10,6 +11,7 @@
 #include <stdlib.h>     // malloc, free
 #include <string.h>     // strdup
 #include <unistd.h>
+#include <cstdarg>
 
 #define eprintf(...) fprintf(stderr, __VA_ARGS__)
 
@@ -18,14 +20,33 @@
 //
 backtrace_state* __bt_state = nullptr;
 bool backtrace_init(const char* filename);
+PrintToStderrCB CaptureBacktrace::print_to_stderr_cb{};
 
 // ------------------------
 // PrintBacktrace
 //
 struct PrintBacktrace {
+    PrintBacktrace(PrintToStderrCB print_to_stderr_cb_) : print_to_stderr_cb(print_to_stderr_cb_) {}
+
+    PrintToStderrCB print_to_stderr_cb;
     int skip_frames = 1;
     int frame_idx = 0;
     bool has_first_line = false;
+
+    void do_printf(const char* fmt, ...) {
+        char buf[4096];
+        va_list args;
+        va_start(args, fmt);
+        int n = vsnprintf(buf, sizeof(buf), fmt, args);
+        va_end(args);
+        if (n > 0) {
+            if (print_to_stderr_cb) {
+                print_to_stderr_cb(buf, n);
+            } else {
+                eprintf("%s", buf);
+            }
+        }
+    }
 
     static bool can_skip(const char* function) {
         const char* to_skip[]{
@@ -50,15 +71,18 @@ struct PrintBacktrace {
         return false;
     }
 
-    static int on_bt_frame(void* self_, uintptr_t x, const char* filepath, int lineno, const char* c_funcname) {
-        PrintBacktrace* self = (PrintBacktrace*)self_;
-        if (self->frame_idx < self->skip_frames) {
-            self->frame_idx += 1;
+    static int on_bt_frame_static(void* self_, uintptr_t x, const char* filepath, int lineno, const char* c_funcname) {
+        return ((PrintBacktrace*)self_)->on_bt_frame(x, filepath, lineno, c_funcname);
+    }
+
+    int on_bt_frame(uintptr_t x, const char* filepath, int lineno, const char* c_funcname) {
+        if (frame_idx < skip_frames) {
+            frame_idx += 1;
             return 0;
         }
         if (c_funcname && can_skip(c_funcname)) {
-            if (self->frame_idx > 1) {
-                self->frame_idx += 1;
+            if (frame_idx > 1) {
+                frame_idx += 1;
             }
             return 0;
         }
@@ -74,8 +98,8 @@ struct PrintBacktrace {
         if (!filepath || !func_name || can_skip(func_name)) {
             // When compiling with debug compiler, we have an additional undefined stack frame at the beginning.  Skip it, so we have
             // consistent results in debug and release.
-            if (self->frame_idx > 1) {
-                self->frame_idx += 1;
+            if (frame_idx > 1) {
+                frame_idx += 1;
             }
             if (demangled) {
                 ::free((void*)demangled);
@@ -89,19 +113,19 @@ struct PrintBacktrace {
 
         // Print the first line
         bool first_line = false;
-        if (!self->has_first_line) {
+        if (!has_first_line) {
             first_line = true;
-            self->has_first_line = true;
+            has_first_line = true;
         }
         if (first_line) {
-            eprintf("Location: " COLOR_PURPLE "%s" COLOR_NONE ":" COLOR_PURPLE "%d" COLOR_NONE "\n", filename, lineno);
-            eprintf("\n  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ BACKTRACE ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
-            eprintf("                               " COLOR_CYAN " ⋮ %d frames hidden ⋮" COLOR_NONE "\n", self->skip_frames);
+            do_printf("Location: " COLOR_PURPLE "%s" COLOR_NONE ":" COLOR_PURPLE "%d" COLOR_NONE "\n", filename, lineno);
+            do_printf("\n  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ BACKTRACE ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
+            do_printf("                               " COLOR_CYAN " ⋮ %d frames hidden ⋮" COLOR_NONE "\n", skip_frames);
         }
 
         // Skip the boring tail
         if (func_name && strcmp(func_name, "__libc_start_call_main") == 0) {
-            self->skip_frames = INT_MAX;
+            skip_frames = INT_MAX;
         } else {
             // Print the frame
             char hyperlink_start[512];
@@ -114,11 +138,11 @@ struct PrintBacktrace {
                 hyperlink_end = "\x1b]8;;\a";
             }
             auto func_color = first_line ? COLOR_PINK : COLOR_GREEN;
-            eprintf("% 4d: %s%s" COLOR_NONE
-                    "\n"
-                    "      at %s" COLOR_BBLUE "%s/" COLOR_BCYAN "%s" COLOR_NONE ":%d%s" COLOR_NONE "\n",
-                    self->frame_idx, func_color, func_name, hyperlink_start, dir, filename, lineno, hyperlink_end);
-            self->frame_idx += 1;
+            do_printf("% 4d: %s%s" COLOR_NONE
+                      "\n"
+                      "      at %s" COLOR_BBLUE "%s/" COLOR_BCYAN "%s" COLOR_NONE ":%d%s" COLOR_NONE "\n",
+                      frame_idx, func_color, func_name, hyperlink_start, dir, filename, lineno, hyperlink_end);
+            frame_idx += 1;
         }
         ::free(filename_);
         ::free(dir_);
@@ -128,13 +152,14 @@ struct PrintBacktrace {
         return 0;
     }
 
-    static void on_bt_error(void*, const char* msg, int errnum) {
-        eprintf("Error %d occurred when getting the stacktrace: %s", errnum, msg);
+    static void on_bt_error_static(void* self_, const char* msg, int errnum) {
+        PrintBacktrace* self = (PrintBacktrace*)self_;
+        self->do_printf("Error %d occurred when getting the stacktrace: %s", errnum, msg);
     }
 
     static const char* get_hyperlink_url_root() {
         // e.g. "vscode://vscode-remote/ssh-remote+newton"
-        static const char* hyperlink_url_root = ::getenv("HYPERLINK_URL");
+        static const char* hyperlink_url_root = ::getenv("QBM_VSCODE_HYPERLINK_URL");
         return hyperlink_url_root;
     }
 };
@@ -143,8 +168,19 @@ struct PrintBacktrace {
 // PrintBacktrace
 //
 
+// static
 void CaptureBacktrace::init(const char* exec_filename) {
     backtrace_init(exec_filename);
+    set_print_to_stderr_cb({});
+}
+
+// static
+void CaptureBacktrace::set_print_to_stderr_cb(PrintToStderrCB print_to_stderr_cb_) {
+    if (print_to_stderr_cb_) {
+        print_to_stderr_cb = print_to_stderr_cb_;
+    } else {
+        print_to_stderr_cb_ = [](const char* msg, u32 len) { eprintf("%s", msg); };
+    }
 }
 
 CaptureBacktrace::CaptureBacktrace(int stack_max_) : stack_max(stack_max_) {
@@ -170,13 +206,13 @@ void CaptureBacktrace::print() const {
     if (stack_len == 0) {
         capture(1);
     }
-    PrintBacktrace p;
+    PrintBacktrace p(print_to_stderr_cb);
     for (int i = 0; i < stack_len; ++i) {
-        int rv = backtrace_pcinfo(__bt_state, stack[i], &PrintBacktrace::on_bt_frame, &PrintBacktrace::on_bt_error, &p);
+        int rv = backtrace_pcinfo(__bt_state, stack[i], &PrintBacktrace::on_bt_frame_static, &PrintBacktrace::on_bt_error_static, &p);
     }
-    eprintf("\n");
+    p.do_printf("\n");
     if (p.frame_idx <= 1) {
-        eprintf("CaptureBacktrace: no stack trace available\n");
+        p.do_printf("CaptureBacktrace: no stack trace available\n");
     }
 }
 
@@ -204,7 +240,7 @@ void CaptureBacktrace::capture(int skip_frames) const {
 // Adapted from https://tjysdsg.github.io/libbacktrace/
 
 void bt_error_callback_create(void* data, const char* msg, int errnum) {
-    printf("Error %d occurred when initializing the stacktrace: %s", errnum, msg);
+    eprintf("Error %d occurred when initializing the stacktrace: %s", errnum, msg);
     bool* status = (bool*)data;
     *status = false;
 }

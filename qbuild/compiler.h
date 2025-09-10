@@ -37,7 +37,7 @@
 #if CURRENT_BUILD_PROFILE == BUILD_PROFILE_DEBUG
     #if __QBUILD_COMPILER_CLANG__
         #define INLINE __attribute__((weak))
-        #define ALWAYS_INLINE __attribute__((weak))
+        #define ALWAYS_INLINE __attribute__((weak)) inline
     #else
         #define INLINE inline
         #define ALWAYS_INLINE inline
@@ -98,13 +98,25 @@ struct NoFarReturn {};
 // Ref : https://sourceware.org/binutils/docs/as/Section.html
 // Note : Need the "mutable" keyword to avoid compiler making half of them const .sections
 // TODO: gcc still has a problem. https://stackoverflow.com/questions/35091862/inline-static-data-causes-a-section-type-conflict
-#define FAR(code)                                                                                          \
-    {                                                                                                      \
-        [&]() __attribute__((noinline)) __attribute__((section(".text_far,\"ax\",@progbits#execinstr"))) { \
-            code;                                                                                          \
-            return ::NoFarReturn{};                                                                        \
-        }();                                                                                               \
-    }
+#if __QBUILD_COMPILER_CLANG__
+    #define FAR(code)                                                                                          \
+        {                                                                                                      \
+            [&]() __attribute__((noinline)) __attribute__((section(".text_far,\"ax\",@progbits#execinstr"))) { \
+                code;                                                                                          \
+                return ::NoFarReturn{};                                                                        \
+            }();                                                                                               \
+        }
+#elif __QBUILD_COMPILER_GCC__
+    #define FAR(code)                                                                                            \
+        {                                                                                                        \
+            [&] [[gnu::noclone]] () __attribute__((noinline)) __attribute__((section(".text_far."##__LINE__))) { \
+                code;                                                                                            \
+                return ::NoFarReturn{};                                                                          \
+            }();                                                                                                 \
+        }
+#else
+    #define FAR(code) COLD_LAMBDA(code)
+#endif
 
 // Same as kernel definition
 #define likely(x) (__builtin_expect(!!(x), 1))

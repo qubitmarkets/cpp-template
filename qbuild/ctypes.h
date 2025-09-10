@@ -8,24 +8,12 @@ using u8 = uint8_t;
 using u16 = uint16_t;
 using u32 = uint32_t;
 using u64 = uint64_t;
+using u128 = __uint128_t;
 using i8 = int8_t;
 using i16 = int16_t;
 using i32 = int32_t;
 using i64 = int64_t;
-
-struct alignas(16) u128 {
-    constexpr u128() noexcept = default;
-    constexpr u128(u64 v0, u64 v1) noexcept : _v{v0, v1} {}
-    u128(unsigned char v[32]) noexcept {
-        u64* v64 = (u64*)v;
-        _v[0] = v64[0];
-        _v[1] = v64[1];
-    }
-
-    constexpr bool operator==(const u128& other) const noexcept { return _v[0] == other._v[0] && _v[1] == other._v[1]; }
-
-    u64 _v[2]{};
-};
+using i128 = __int128_t;
 
 struct alignas(32) u256 {
     constexpr u256() noexcept = default;

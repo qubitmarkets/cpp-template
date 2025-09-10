@@ -39,8 +39,8 @@ static const constexpr __Tag_Noop Noop;
 void __cxxabiv1::__cxa_pure_virtual();
 
 struct CallbackStorage {
-    CallbackStorage() = default;
-    CallbackStorage(void* func_) : func(func_) {}
+    ALWAYS_INLINE CallbackStorage() noexcept : func(nullptr), data(nullptr) {}
+    ALWAYS_INLINE CallbackStorage(void* func_) : func(func_), data(nullptr) {}
 
     bool operator==(const CallbackStorage& other) const { return func == other.func && data == other.data; }
 
@@ -53,8 +53,8 @@ struct CallbackStorage {
         data = nullptr;
     }
 
-    void* func{nullptr};
-    void* data{};
+    void* func;
+    void* data;
 };
 
 // 8 bytes for function pointer, 8 bytes for storage/this pointer.
