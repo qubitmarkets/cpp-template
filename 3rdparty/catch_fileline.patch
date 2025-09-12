@@ -1,0 +1,329 @@
+diff --git a/extras/catch_amalgamated.cpp b/extras/catch_amalgamated.cpp
+index 79ec8d1..3a3cb66 100644
+--- a/extras/catch_amalgamated.cpp
++++ b/extras/catch_amalgamated.cpp
+@@ -12,7 +12,7 @@
+ //  This file is an amalgamation of multiple different files.
+ //  You probably shouldn't edit it directly.
+ //  ----------------------------------------------------------
+-
++// clang-format off
+ #include "catch_amalgamated.hpp"
+ 
+ 
+@@ -1510,9 +1510,9 @@ namespace Catch {
+ 
+ 
+ 
++#include <algorithm>
+ #include <cassert>
+ #include <cctype>
+-#include <algorithm>
+ 
+ namespace Catch {
+ 
+@@ -1763,9 +1763,9 @@ namespace Catch {
+ 
+ 
+ #include <algorithm>
++#include <ostream>
+ #include <string>
+ #include <vector>
+-#include <ostream>
+ 
+ namespace Catch {
+ 
+@@ -3491,6 +3491,8 @@ namespace {
+                 case Colour::BrightGreen:   return setTextAttribute( FOREGROUND_INTENSITY | FOREGROUND_GREEN );
+                 case Colour::BrightWhite:   return setTextAttribute( FOREGROUND_INTENSITY | FOREGROUND_GREEN | FOREGROUND_RED | FOREGROUND_BLUE );
+                 case Colour::BrightYellow:  return setTextAttribute( FOREGROUND_INTENSITY | FOREGROUND_RED | FOREGROUND_GREEN );
++                case Colour::BrightCyan:  return setTextAttribute( FOREGROUND_INTENSITY | FOREGROUND_BLUE | FOREGROUND_GREEN );
++                case Colour::BrightBlue:  return setTextAttribute( FOREGROUND_INTENSITY | FOREGROUND_BLUE );
+ 
+                 case Colour::Bright: CATCH_INTERNAL_ERROR( "not a colour" );
+ 
+@@ -3571,6 +3573,8 @@ namespace {
+                 case Colour::BrightGreen:   return setColour( "[1;32m" );
+                 case Colour::BrightWhite:   return setColour( "[1;37m" );
+                 case Colour::BrightYellow:  return setColour( "[1;33m" );
++                case Colour::BrightCyan:  return setColour( "[1;36m" );
++                case Colour::BrightBlue:  return setColour( "[1;34m" );
+ 
+                 case Colour::Bright: CATCH_INTERNAL_ERROR( "not a colour" );
+                 default: CATCH_INTERNAL_ERROR( "Unknown colour requested" );
+@@ -3700,10 +3704,10 @@ namespace Catch {
+ #if defined(CATCH_PLATFORM_MAC) || defined(CATCH_PLATFORM_IPHONE)
+ 
+ #  include <cassert>
+-#  include <sys/types.h>
+-#  include <unistd.h>
+ #  include <cstddef>
+ #  include <ostream>
++#  include <sys/types.h>
++#  include <unistd.h>
+ 
+ #ifdef __apple_build_version__
+     // These headers will only compile with AppleClang (XCode)
+@@ -5600,8 +5604,8 @@ namespace Catch {
+ 
+ 
+ 
+-#include <cassert>
+ #include <algorithm>
++#include <cassert>
+ 
+ namespace Catch {
+ 
+@@ -6564,9 +6568,9 @@ namespace Catch {
+ 
+ 
+ 
+-#include <ostream>
+-#include <cstring>
+ #include <cctype>
++#include <cstring>
++#include <ostream>
+ #include <vector>
+ 
+ namespace Catch {
+@@ -6673,8 +6677,8 @@ namespace Catch {
+ 
+ 
+ #include <algorithm>
+-#include <ostream>
+ #include <cstring>
++#include <ostream>
+ 
+ namespace Catch {
+     StringRef::StringRef( char const* rawChars ) noexcept
+@@ -8321,11 +8325,11 @@ ExceptionMessageMatcher Message(std::string const& message) {
+ 
+ #include <algorithm>
+ #include <cmath>
+-#include <cstdlib>
+ #include <cstdint>
+-#include <sstream>
++#include <cstdlib>
+ #include <iomanip>
+ #include <limits>
++#include <sstream>
+ 
+ 
+ namespace Catch {
+@@ -9187,8 +9191,25 @@ private:
+         }
+     }
+     void printSourceInfo() const {
++        const auto& loc = result.getSourceInfo();
++        auto filepath = loc.file;
++        int lineno = loc.line;
++        const char * source_root = ::getenv("QBM_SOURCE_ROOT");
++        string_view filename = filepath;
++        if (source_root && filename.starts_with(source_root)) {
++            filename = filename.substr(std::strlen(source_root));
++        }
++        const char * hyperlink_url = ::getenv("QBM_VSCODE_HYPERLINK_URL");
++        if (hyperlink_url) {
++            const char* file_prefix = filepath[0] == '/' ? "" : "./";
++            stream << "\x1b]8;;" << hyperlink_url<< file_prefix<< filepath << ":" <<lineno << ":5\a";
++        }
+         stream << colourImpl->guardColour( Colour::FileName )
+-               << result.getSourceInfo() << ": ";
++               << filename << ":" << lineno << ": ";
++        if (hyperlink_url) {
++            auto hyperlink_end = "\x1b]8;;\a";
++            stream << hyperlink_end;
++        }
+     }
+ 
+     std::ostream& stream;
+@@ -9871,8 +9892,8 @@ namespace Catch {
+ #include <cfloat>
+ #include <cmath>
+ #include <cstdio>
+-#include <ostream>
+ #include <iomanip>
++#include <ostream>
+ 
+ namespace Catch {
+ 
+@@ -10577,9 +10598,9 @@ namespace Catch {
+ 
+ 
+ 
++#include <algorithm>
+ #include <cassert>
+ #include <ctime>
+-#include <algorithm>
+ #include <iomanip>
+ 
+ namespace Catch {
+diff --git a/extras/catch_amalgamated.hpp b/extras/catch_amalgamated.hpp
+index 7e331cc..136e321 100644
+--- a/extras/catch_amalgamated.hpp
++++ b/extras/catch_amalgamated.hpp
+@@ -5,7 +5,7 @@
+ //        https://www.boost.org/LICENSE_1_0.txt)
+ 
+ // SPDX-License-Identifier: BSL-1.0
+-
++// clang-format off
+ //  Catch v3.9.1
+ //  Generated: 2025-08-09 00:29:20.303175
+ //  ----------------------------------------------------------
+@@ -9316,6 +9316,8 @@ namespace Catch {
+             LightGrey = Bright | Grey,
+             BrightWhite = Bright | White,
+             BrightYellow = Bright | Yellow,
++            BrightCyan = Bright | Cyan,
++            BrightCyan = Bright | Cyan,
+ 
+             // By intention
+             FileName = LightGrey,
+diff --git a/src/catch2/internal/catch_console_colour.cpp b/src/catch2/internal/catch_console_colour.cpp
+index 514fc6b..11f2e37 100644
+--- a/src/catch2/internal/catch_console_colour.cpp
++++ b/src/catch2/internal/catch_console_colour.cpp
+@@ -3,7 +3,7 @@
+ // Distributed under the Boost Software License, Version 1.0.
+ //   (See accompanying file LICENSE.txt or copy at
+ //        https://www.boost.org/LICENSE_1_0.txt)
+-
++// clang-format off
+ // SPDX-License-Identifier: BSL-1.0
+ #if defined(__clang__)
+ #    pragma clang diagnostic push
+@@ -138,6 +138,8 @@ namespace {
+                 case Colour::BrightGreen:   return setTextAttribute( FOREGROUND_INTENSITY | FOREGROUND_GREEN );
+                 case Colour::BrightWhite:   return setTextAttribute( FOREGROUND_INTENSITY | FOREGROUND_GREEN | FOREGROUND_RED | FOREGROUND_BLUE );
+                 case Colour::BrightYellow:  return setTextAttribute( FOREGROUND_INTENSITY | FOREGROUND_RED | FOREGROUND_GREEN );
++                case Colour::BrightCyan:  return setTextAttribute( FOREGROUND_INTENSITY | FOREGROUND_BLUE | FOREGROUND_GREEN );
++                case Colour::BrightBlue:  return setTextAttribute( FOREGROUND_INTENSITY | FOREGROUND_BLUE );
+ 
+                 case Colour::Bright: CATCH_INTERNAL_ERROR( "not a colour" );
+ 
+@@ -218,6 +220,8 @@ namespace {
+                 case Colour::BrightGreen:   return setColour( "[1;32m" );
+                 case Colour::BrightWhite:   return setColour( "[1;37m" );
+                 case Colour::BrightYellow:  return setColour( "[1;33m" );
++                case Colour::BrightCyan:  return setColour( "[1;36m" );
++                case Colour::BrightBlue:  return setColour( "[1;34m" );
+ 
+                 case Colour::Bright: CATCH_INTERNAL_ERROR( "not a colour" );
+                 default: CATCH_INTERNAL_ERROR( "Unknown colour requested" );
+diff --git a/src/catch2/internal/catch_console_colour.hpp b/src/catch2/internal/catch_console_colour.hpp
+index d914431..851afb1 100644
+--- a/src/catch2/internal/catch_console_colour.hpp
++++ b/src/catch2/internal/catch_console_colour.hpp
+@@ -10,8 +10,8 @@
+ 
+ #include <catch2/internal/catch_unique_ptr.hpp>
+ 
+-#include <iosfwd>
+ #include <cstdint>
++#include <iosfwd>
+ 
+ namespace Catch {
+ 
+@@ -37,6 +37,8 @@ namespace Catch {
+             LightGrey = Bright | Grey,
+             BrightWhite = Bright | White,
+             BrightYellow = Bright | Yellow,
++            BrightCyan = Bright | Cyan,
++            BrightBlue = Bright | Blue,
+ 
+             // By intention
+             FileName = LightGrey,
+@@ -61,6 +63,7 @@ namespace Catch {
+     protected:
+         //! The associated stream of this ColourImpl instance
+         IStream* m_stream;
++
+     public:
+         ColourImpl( IStream* stream ): m_stream( stream ) {}
+ 
+@@ -73,8 +76,7 @@ namespace Catch {
+ 
+         public:
+             //! Does **not** engage the guard/start the colour
+-            ColourGuard( Colour::Code code,
+-                         ColourImpl const* colour );
++            ColourGuard( Colour::Code code, ColourImpl const* colour );
+ 
+             ColourGuard( ColourGuard const& rhs ) = delete;
+             ColourGuard& operator=( ColourGuard const& rhs ) = delete;
+@@ -107,13 +109,12 @@ namespace Catch {
+             }
+             //! Engages the guard and starts using colour
+             friend std::ostream& operator<<( std::ostream& lhs,
+-                                            ColourGuard&& guard) {
++                                             ColourGuard&& guard ) {
+                 guard.engageImpl( lhs );
+                 return lhs;
+             }
+ 
+             void engageImpl( std::ostream& stream );
+-
+         };
+ 
+         virtual ~ColourImpl(); // = default
+@@ -129,7 +130,8 @@ namespace Catch {
+         virtual void use( Colour::Code colourCode ) const = 0;
+     };
+ 
+-    //! Provides ColourImpl based on global config and target compilation platform
++    //! Provides ColourImpl based on global config and target compilation
++    //! platform
+     Detail::unique_ptr<ColourImpl> makeColourImpl( ColourMode colourSelection,
+                                                    IStream* stream );
+ 
+diff --git a/src/catch2/reporters/catch_reporter_console.cpp b/src/catch2/reporters/catch_reporter_console.cpp
+index acb4ae8..2524160 100644
+--- a/src/catch2/reporters/catch_reporter_console.cpp
++++ b/src/catch2/reporters/catch_reporter_console.cpp
+@@ -3,7 +3,7 @@
+ // Distributed under the Boost Software License, Version 1.0.
+ //   (See accompanying file LICENSE.txt or copy at
+ //        https://www.boost.org/LICENSE_1_0.txt)
+-
++// clang-format off
+ // SPDX-License-Identifier: BSL-1.0
+ #include <catch2/reporters/catch_reporter_console.hpp>
+ 
+@@ -177,8 +177,34 @@ private:
+         }
+     }
+     void printSourceInfo() const {
+-        stream << colourImpl->guardColour( Colour::FileName )
+-               << result.getSourceInfo() << ": ";
++        const auto& loc = result.getSourceInfo();
++        auto filepath = loc.file;
++        int lineno = loc.line;
++        const char * source_root = ::getenv("QBM_SOURCE_ROOT");
++        std::string_view filename = filepath;
++        std::string_view dir;
++        if (source_root && filename.starts_with(source_root)) {
++            filename = filename.substr(std::strlen(source_root));
++            auto last_slash = filename.find_last_of('/');
++            if (last_slash >= 0) {
++                dir = filename.substr(0, last_slash);
++                filename = filename.substr(last_slash );
++            }
++        }
++        const char * hyperlink_url = ::getenv("QBM_VSCODE_HYPERLINK_URL");
++        if (hyperlink_url) {
++            const char* file_prefix = filepath[0] == '/' ? "" : "./";
++            stream << "[\x1b]8;;" << hyperlink_url<< file_prefix << filepath << ":" <<lineno << ":5\a";
++        }
++        stream << colourImpl->guardColour( (Colour::Code)(Colour::Bright | Colour::Blue) ) << dir
++               << colourImpl->guardColour( (Colour::Code)(Colour::Bright | Colour::Cyan) )
++               << filename << ":" << lineno;
++        if (hyperlink_url) {
++            auto hyperlink_end = "\x1b]8;;\a] ";
++            stream << hyperlink_end;
++        } else {
++            stream << ": ";
++        }
+     }
+ 
+     std::ostream& stream;
