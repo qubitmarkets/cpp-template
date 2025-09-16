@@ -61,6 +61,12 @@ for compiler in gcc${GCC_MAJOR_VER} clang${CLANG_MAJOR_VER}; do
         echo "---------------------------"
         #read -p "press enter"
 
+        if [[ ! -e $install_dir/lib64/libssl.a || $target == "openssl" ]]; then
+            ./build_openssl.sh
+        fi
+        if [[ ! -e $install_dir/lib/libnuma.a || $target == "numactl" ]]; then
+            ./build_numactl.sh
+        fi
         if [[ ! -e $install_dir/lib/libbacktrace.a || $target == "libbacktrace" ]]; then
             ./build_libbacktrace.sh
         fi

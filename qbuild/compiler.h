@@ -107,12 +107,12 @@ struct NoFarReturn {};
             }();                                                                                               \
         }
 #elif __QBUILD_COMPILER_GCC__
-    #define FAR(code)                                                                                            \
-        {                                                                                                        \
-            [&] [[gnu::noclone]] () __attribute__((noinline)) __attribute__((section(".text_far."##__LINE__))) { \
-                code;                                                                                            \
-                return ::NoFarReturn{};                                                                          \
-            }();                                                                                                 \
+    #define FAR(code)                                                                                                      \
+        {                                                                                                                  \
+            [&] [[gnu::noclone]] () __attribute__((noinline)) __attribute__((section(".text_far." STRINGIFY(__LINE__)))) { \
+                code;                                                                                                      \
+                return ::NoFarReturn{};                                                                                    \
+            }();                                                                                                           \
         }
 #else
     #define FAR(code) COLD_LAMBDA(code)

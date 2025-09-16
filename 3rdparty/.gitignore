@@ -14,3 +14,7 @@ wslay/
 llvm-project/
 simdjson
 CMakePresets.json
+numactl-2.0.19/
+ninjatracing/
+openssl-3.5.2/
+install/
