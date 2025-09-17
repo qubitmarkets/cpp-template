@@ -18,7 +18,7 @@ fi
 
 if [[ ${compiler:0:3} == gcc ]]; then
     GCC_MAJOR_VER=${compiler:3:2}
-    if [[ $GCC_MAJOR_VER == "" ]]; then
+    if [[ $GCC_MAJOR_VER == "" || ! -e $INFRA_ROOT/bin/gcc-$GCC_MAJOR_VER ]]; then
         export CC=gcc
         export CXX=g++
         unset AR
