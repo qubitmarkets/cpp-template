@@ -6,7 +6,7 @@ cd $(dirname ${BASH_SOURCE})
 export INFRA_ROOT=/opt/infra.1/
 export PATH=$PATH:$INFRA_ROOT/bin
 
-export CLANG_MAJOR_VER=20
+export CLANG_MAJOR_VER=21
 export GCC_MAJOR_VER=15
 
 # Save these as we reset them in toolchain.sh
