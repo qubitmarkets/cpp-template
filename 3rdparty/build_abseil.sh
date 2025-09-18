@@ -27,5 +27,5 @@ run cmake -S . -B $build_dir \
     -G Ninja --preset $profile.$compiler -DCMAKE_INSTALL_PREFIX=$install_dir -DCMAKE_INSTALL_LIBDIR=lib \
     -DABSL_BUILD_TESTING=ON -DABSL_USE_GOOGLETEST_HEAD=ON -DCMAKE_CXX_STANDARD=23
 
-ninja -v -C $build_dir
+ninja -v -C $build_dir -j12
 ninja -v -C $build_dir install

@@ -41,6 +41,32 @@
                 "COMPILERS",
                 "------------------------------------"
             ],
+            "name": "clang21",
+            "hidden": true,
+            "description": "Using compilers: C = /usr/bin/clang-21, CXX = /usr/bin/clang++-21",
+            "binaryDir": "${sourceDir}/builds/${presetName}",
+            "generator": "Ninja",
+            "cacheVariables": {
+                "THIRD_PARTY_DIR": "${sourceDir}/3rdparty/install/release.clang21",
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/builds/${presetName}",
+                "CMAKE_CXX_COMPILER_LAUNCHER": "ccache",
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+                "CMAKE_C_COMPILER": "/usr/bin/clang-21",
+                "CMAKE_CXX_COMPILER": "/usr/bin/clang++-21",
+                "CMAKE_CXX_FLAGS": "-include ${sourceDir}/qbuild/qbuild.h"
+            }
+        },
+        {
+            "name": "sanitize.clang21",
+            "hidden": true,
+            "inherits": "clang21",
+            "cacheVariables": {
+                "THIRD_PARTY_DIR": "${sourceDir}/3rdparty/install/release.sanitize.clang21",
+                "CMAKE_CXX_FLAGS": "-include ${sourceDir}/qbuild/qbuild.h -fsanitize=address -DBUILD_SANITIZE",
+                "CMAKE_EXE_LINKER_FLAGS": "-fsanitize=address"
+            }
+        },
+        {
             "name": "clang20",
             "hidden": true,
             "description": "Using compilers: C = /usr/bin/clang-20, CXX = /usr/bin/clang++-20",
@@ -182,14 +208,14 @@
                 "------------------------------------"
             ],
             "name": "clang-tidy",
-            "inherits": "clang20",
-            "displayName": "Clang Tidy 20",
-            "description": "Using clang-tidy-20",
+            "inherits": "clang21",
+            "displayName": "Clang Tidy 21",
+            "description": "Using clang-tidy-21",
             "binaryDir": "${sourceDir}/builds/${presetName}",
             "generator": "Ninja",
             "cacheVariables": {
-                "THIRD_PARTY_DIR": "${sourceDir}/3rdparty/install/release.clang20",
-                "CMAKE_INSTALL_PREFIX": "${sourceDir}/builds/debug.clang20",
+                "THIRD_PARTY_DIR": "${sourceDir}/3rdparty/install/release.clang21",
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/builds/debug.clang21",
                 "CMAKE_BUILD_TYPE": "Debug",
                 "CMAKE_CXX_CLANG_TIDY": "/usr/bin/clang-tidy;-style=file;"
             }
@@ -209,6 +235,47 @@
                 "CMAKE_CXX_FLAGS": "-include ${sourceDir}/qbuild/qbuild.h",
                 "CMAKE_BUILD_TYPE": "Debug",
                 "CMAKE_CXX_CLANG_TIDY": "/usr/bin/clang-tidy;-style=file;"
+            }
+        },
+        {
+            "$comment": [
+                "------------------------------------",
+                "PROFILES",
+                "------------------------------------",
+                "",
+                "----------------------------------------",
+                "clang21 profiles",
+                "----------------------------------------"
+            ],
+            "name": "debug.clang21",
+            "inherits": "clang21",
+            "displayName": "Clang 21 Debug",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        },
+        {
+            "name": "release.clang21",
+            "inherits": "clang21",
+            "displayName": "Clang 21 Release",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+            }
+        },
+        {
+            "name": "debug.sanitize.clang21",
+            "inherits": "sanitize.clang21",
+            "displayName": "Clang 21 Debug Sanitize",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        },
+        {
+            "name": "release.sanitize.clang21",
+            "inherits": "sanitize.clang21",
+            "displayName": "Clang 21 Release Sanitize",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "RelWithDebInfo"
             }
         },
         {

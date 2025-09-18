@@ -52,7 +52,6 @@ set_target_properties(qbuild
 # Tests
 #
 option(QBUILD_TESTS "Enable qbuild tests" OFF)
-message("QBUILD_TESTS ${QBUILD_TESTS}")
 if(QBUILD_TESTS)
     add_executable(backtrace.t qbuild/tests/backtrace.t.cc)
     target_compile_options(backtrace.t PRIVATE -Wno-error=attribute-warning -Wno-unknown-attributes -Wno-attributes)

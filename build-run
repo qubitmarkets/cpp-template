@@ -11,17 +11,18 @@ set -eu
 script_name=$(basename $0)
 mode=help
 profile=${profile-debug}
-compiler=${compiler-clang20}
+compiler=${compiler-clang21}
 run_args=()
 args=("$@")
 PIPE_COLORPATH=""
 if [[ -e /usr/bin/colorpath ]]; then PIPE_COLORPATH="| /usr/bin/colorpath"; fi
 
 target=${target-}
+INSTALL_DIR=${INSTALL_DIR-./install}
 
 do_configure=0
 flags=""
-cfg_flags=""
+cfg_flags="-DCMAKE_INSTALL_PREFIX=${INSTALL_DIR}"
 test_flags=""
 git_cached_only=0
 nargs=$(($# - 1))
@@ -52,6 +53,8 @@ while [[ $i -le $nargs ]]; do
         mode=build
     elif [[ $arg == "r" || $arg == "run" ]]; then
         mode=run
+    elif [[ $arg == "install" ]]; then
+        mode=install
     elif [[ $arg == "c" || $arg == "check" ]]; then
         mode=check
     elif [[ $arg == "t" || $arg == "test" ]]; then
@@ -157,6 +160,12 @@ if [[ $mode == "build" ]]; then
     else
         echo "  Built ${cmake_build_dir}/$target"
     fi
+    rv=$(($rv || $?))
+fi
+
+if [[ $mode == "install" ]]; then
+    ninja -C build install
+    echo " Installed to ./install/bin"
     rv=$(($rv || $?))
 fi
 

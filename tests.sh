@@ -16,6 +16,10 @@ for compiler in gcc15 clang20; do
 done
 
 ./build-run test
+if [[ -e ./build/dev.t ]]; then
+    echo "Run hidden tests"
+    ./build/dev.t '[.]'
+fi
 if [[ -e ./build/io.t ]]; then
     echo "Run external tests"
     ./build/io.t '[ext]'

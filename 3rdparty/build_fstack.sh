@@ -27,10 +27,12 @@ source $PYENV_ROOT/versions/venv/bin/activate
 if [[ -e /usr/bin/apt ]]; then
     sudo apt-get install -y linux-headers-generic build-essential pkg-config libnuma-dev libssl-dev openssl meson ninja-build libpcap-dev python3-pip
 else
-    sudo yum install -y kernel-devel-$(uname -r) kernel-headers meson ninja-build numactl-devel openssl-devel libpcap-devel python libfdt-devel
+    sudo dnf install -y kernel-devel-$(uname -r) kernel-headers meson ninja-build numactl-devel openssl-devel libpcap-devel python libfdt-devel
 fi
 
+pip install --upgrade pip
 pip3 install pyelftools --upgrade
+pip3 install setuptools --upgrade
 
 cd dpdk
 export DESTDIR=/usr/local

@@ -39,7 +39,7 @@ else
         -DCMAKE_BUILD_TYPE=Release \
         -DCMAKE_INSTALL_PREFIX=$INFRA_ROOT
 
-    ninja
+    ninja -j8
     sudo ninja install
     sudo ln -nsf clang-${CLANG_MAJOR_VER} $INFRA_ROOT/bin/clang++-${CLANG_MAJOR_VER}
     if [[ ! -e /usr/bin/clang-$CLANG_MAJOR_VER ]]; then

@@ -62,7 +62,8 @@ for compiler in gcc${GCC_MAJOR_VER} clang${CLANG_MAJOR_VER}; do
         #read -p "press enter"
 
         if [[ ! -e $install_dir/lib64/libssl.a || $target == "openssl" ]]; then
-            ./build_openssl.sh
+            #./build_openssl.sh
+true
         fi
         if [[ ! -e $install_dir/lib/libnuma.a || $target == "numactl" ]]; then
             ./build_numactl.sh
