@@ -15,6 +15,13 @@ using i32 = int32_t;
 using i64 = int64_t;
 using i128 = __int128_t;
 
+ALWAYS_INLINE constexpr u64 u128_lower(u128 v) {
+    return (u64)v;
+}
+ALWAYS_INLINE constexpr u64 u128_upper(u128 v) {
+    return (u64)(v >> 64L);
+}
+
 struct alignas(32) u256 {
     constexpr u256() noexcept = default;
     constexpr u256(u64 v0, u64 v1, u64 v2, u64 v3) noexcept : _v{v0, v1, v2, v3} {}

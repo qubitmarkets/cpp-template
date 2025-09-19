@@ -1,7 +1,7 @@
 // Copyright (c) 2025 Qubit Markets Pte. Ltd.
 #pragma once
 
-#include "qbuild/Callback.h"
+#include "Callback.h"
 #include <stdint.h>
 
 using PrintToStderrCB = Callback<void(const char* line, u32 len)>;

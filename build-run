@@ -42,6 +42,8 @@ while [[ $i -le $nargs ]]; do
         fi
     elif [[ ${arg:0:11} == "--compiler=" ]]; then
         compiler=("${arg:11}")
+    elif [[ ${arg:0:10} == "--profile=" ]]; then
+        profile=("${arg:10}")
     elif [[ ${arg:0:11} == "--gcc" ]]; then
         compiler=("gcc")
     elif [[ $arg == "--cfg" || $arg == "--configure" ]]; then
@@ -118,7 +120,7 @@ fi
 rv=0
 # Configure
 if [[ ! -e $cmake_build_dir || $do_configure == 1 || ! -e $cmake_build_dir/build.ninja ]]; then
-    echo "+ cmake --preset $profile.$compiler --no-warn-unused-cli $cfg_flags"
+    echo "+ $PWD$ cmake --preset $profile.$compiler --no-warn-unused-cli $cfg_flags"
     cmake --preset $profile.$compiler --no-warn-unused-cli $cfg_flags
     rv=$(($rv || $?))
 fi

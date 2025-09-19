@@ -61,6 +61,9 @@ struct PrintBacktrace {
             "___interceptor_clock_gettime",
             "CaptureBacktrace::print() const",
             "sig_handler",
+            "__sanitizer::RoundDownTo",
+            "QuickCheckForUnpoisonedRegion",
+            "backtrace_full",
             nullptr,  // Sentinel
         };
         for (const char** skip = to_skip; *skip != nullptr; ++skip) {
