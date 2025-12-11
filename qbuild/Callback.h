@@ -39,8 +39,8 @@ static const constexpr __Tag_Noop Noop;
 void __cxxabiv1::__cxa_pure_virtual();
 
 struct CallbackStorage {
-    ALWAYS_INLINE CallbackStorage() noexcept : func(nullptr), data(nullptr) {}
-    ALWAYS_INLINE CallbackStorage(void* func_) : func(func_), data(nullptr) {}
+    ALWAYS_INLINE constexpr CallbackStorage() noexcept : func(nullptr), data(nullptr) {}
+    ALWAYS_INLINE constexpr CallbackStorage(void* func_) : func(func_), data(nullptr) {}
 
     bool operator==(const CallbackStorage& other) const { return func == other.func && data == other.data; }
 
@@ -79,7 +79,7 @@ struct Callback<Result(Args...)> : CallbackStorage {
         static Result call(void* data, Args... args) { return (*reinterpret_cast<Functor*>(&data))(static_cast<Args&&>(args)...); }
     };
 
-    Callback() noexcept {
+    constexpr Callback() noexcept {
         static_assert(
             std::is_trivially_destructible_v<Callback> && std::is_trivially_copyable_v<Callback> && std::is_standard_layout_v<Callback>,
             "Callback should be trivial to pass by value");
@@ -98,9 +98,7 @@ struct Callback<Result(Args...)> : CallbackStorage {
     template <typename TResult, typename... TArgs>
     Callback(Callback<TResult(TArgs...)>&&) = delete;
 
-    // ---------------------
-    // C Functions
-    //
+    // ---- C Functions ----
     template <typename... _Args>
     static Result stub_func(void* fptr, _Args... args) {
         return (*reinterpret_cast<Result (*)(_Args...)>(fptr))(args...);
@@ -112,9 +110,7 @@ struct Callback<Result(Args...)> : CallbackStorage {
         data = (void*)f;
     }
 
-    // --------------------
-    // Lambda Capture
-    //
+    // ---- Lambda Capture ----
     template <typename Functor>
         requires(
             !IsCallback<Functor, FuncSig> && std::is_invocable_v<Functor, Args...> && std::is_trivially_destructible_v<Functor> &&
@@ -126,12 +122,12 @@ struct Callback<Result(Args...)> : CallbackStorage {
         memcpy(&data, &f, sizeof(Functor));
     }
 
-    // --------------------
-    // Member Function
-    //
+    // ---- Member Function ----
     template <typename _T, typename T, typename MemFn>
         requires(std::is_member_function_pointer_v<MemFn T::*> && std::is_base_of_v<T, _T> && std::is_invocable_v<MemFn T::*, _T, Args...>)
     Callback(_T* t, MemFn T::* memfn) noexcept {
+        static_assert(std::is_convertible_v<decltype((std::declval<T*>()->*memfn)(std::declval<Args>()...)), Result>,
+                      "Member function must return Result type");
         auto raw = (u64*)&memfn;
         auto p1 = raw[0];
         if (p1 < 4096) {
@@ -153,7 +149,7 @@ struct Callback<Result(Args...)> : CallbackStorage {
     }
     template <typename _T, typename T, typename MemFn>
         requires(std::is_member_function_pointer_v<MemFn T::*> && std::is_base_of_v<T, _T>)
-    Callback(pair<_T*, MemFn T::*> p) : Callback(p.first, p.second) {}
+    Callback(pair<_T*, MemFn T::*> p) noexcept : Callback(p.first, p.second) {}
 
     // Call
     template <typename... _Args>

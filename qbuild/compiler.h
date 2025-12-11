@@ -52,6 +52,7 @@
 // Or, use NOT_NULL(1,2) to indicate tat the first and second arguments are non-null
 #define NOT_NULL __attribute__((nonnull))
 #define WEAK __attribute__((weak))
+#define UNUSED __attribute__((unused))
 
 // Macro support
 #define _STRINGIFY(x) #x
@@ -91,23 +92,23 @@
         code COLD_LAMBDA_END() \
     }
 
-// FAR
+// FAR_CODE
 struct NoFarReturn {};
 
 // Put this code in a far-away memory page
 // Ref : https://sourceware.org/binutils/docs/as/Section.html
 // Note : Need the "mutable" keyword to avoid compiler making half of them const .sections
 // TODO: gcc still has a problem. https://stackoverflow.com/questions/35091862/inline-static-data-causes-a-section-type-conflict
-#if __QBUILD_COMPILER_CLANG__
-    #define FAR(code)                                                                                          \
+#if NDEBUG && __QBUILD_COMPILER_CLANG__
+    #define FAR_CODE(code)                                                                                     \
         {                                                                                                      \
             [&]() __attribute__((noinline)) __attribute__((section(".text_far,\"ax\",@progbits#execinstr"))) { \
                 code;                                                                                          \
                 return ::NoFarReturn{};                                                                        \
             }();                                                                                               \
         }
-#elif __QBUILD_COMPILER_GCC__
-    #define FAR(code)                                                                                                      \
+#elif NDEBUG && __QBUILD_COMPILER_GCC__
+    #define FAR_CODE(code)                                                                                                 \
         {                                                                                                                  \
             [&] [[gnu::noclone]] () __attribute__((noinline)) __attribute__((section(".text_far." STRINGIFY(__LINE__)))) { \
                 code;                                                                                                      \
@@ -115,7 +116,7 @@ struct NoFarReturn {};
             }();                                                                                                           \
         }
 #else
-    #define FAR(code) COLD_LAMBDA(code)
+    #define FAR_CODE(code) COLD_LAMBDA(code)
 #endif
 
 // Same as kernel definition

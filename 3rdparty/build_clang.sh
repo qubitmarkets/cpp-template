@@ -28,8 +28,10 @@ else
         git clone https://github.com/llvm/llvm-project.git
     fi
     cd llvm-project
-    git checkout release/${CLANG_MAJOR_VER}.x || git fetch origin release/${CLANG_MAJOR_VER}.x
-    git checkout release/${CLANG_MAJOR_VER}.x
+    if [[ "$(git branch --show-current)" != "release/${CLANG_MAJOR_VER}.x" ]]; then
+      git checkout release/${CLANG_MAJOR_VER}.x || git fetch origin release/${CLANG_MAJOR_VER}.x
+      git checkout release/${CLANG_MAJOR_VER}.x
+    fi
 
     BUILD_DIR=build-${CLANG_MAJOR_VER}
     mkdir -p $BUILD_DIR && cd $BUILD_DIR

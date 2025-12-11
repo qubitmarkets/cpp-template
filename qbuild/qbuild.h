@@ -8,6 +8,9 @@
 #include <stdint.h>
 #include <string.h>  // strerror
 
+#include <type_traits>
+#include <vector>
+
 //
 // Forward declarations
 //

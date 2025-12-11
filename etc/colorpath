@@ -1,13 +1,10 @@
 #!/bin/bash
 
-if [[ ${COLORPATH-} != "2" && ! -t 1 || "${COLORPATH-}" == "0" ]]; then
-    # Not a tty
-    exec cat
+if [[ $# -ge 1 ]]; then
+  filter="$1"
+  sed -r "s,(${filter}),\x1b[1;31m\1\x1b[m,g"
+else
+  #sed -r "s,(\.?\.?/[^ ]*/)([a-zA-Z0-9_]+[^ :/]*)(:[0-9]+)?,\x1b[1;34m\1\x1b[1;36m\2\x1b[0;36m\3\x1b[m,g"
+  sed -E $'s,(^|[[:space:]]|\x07)(\\.?\\.?/[^[:space:]]*/)([A-Za-z0-9_][^ :/]*)(:[0-9:]+)?,\\1\033[1;34m\\2\033[1;36m\\3\033[0;37m\\4\033[m,g'
 fi
 
-if [[ $# -ge 1 ]]; then
-    filter="$1"
-    sed -r "s,(${filter}),\x1b[1;31m\1\x1b[m,g"
-else
-    sed -r "s,(\.?\.?/[^ ]*/)([a-zA-Z0-9_]+[^ /]*),\x1b[1;34m\1\x1b[1;31m\2\x1b[m,g"
-fi

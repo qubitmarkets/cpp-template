@@ -66,7 +66,8 @@ const char* get_signame(int sig) {
 }
 
 extern "C" void sig_handler(int sig, siginfo_t* siginfo, void* context) {
-    bool urgent_signal = !(sig == SIGINT || sig == SIGUSR1 || sig == SIGHUP);
+    // bool urgent_signal = (sig != SIGINT && sig != SIGUSR1 && sig != SIGUSR2 && sig != SIGHUP);
+    bool consume_signal = (sig == SIGUSR1 || sig == SIGUSR2);
     bool is_handled = false;
     // Run custom on_start_sighandler callbacks, early exit if we handle these
     for (auto& cb : g_sig_handler_callbacks.on_start_sighandler) {
@@ -79,7 +80,7 @@ extern "C" void sig_handler(int sig, siginfo_t* siginfo, void* context) {
         }
         return;  // Early Exit the sighandler, continue execution
     }
-    if (!(sig == SIGUSR1 || sig == SIGINT)) {
+    if (!(consume_signal || sig == SIGINT)) {
         eprintf("\nCaught signal: %d %s\n", sig, get_signame(sig));
     }
     {
@@ -97,7 +98,7 @@ extern "C" void sig_handler(int sig, siginfo_t* siginfo, void* context) {
         g_sig_handler_callbacks.on_exit_process.clear();
         ::exit(128 + sig);
     }
-    if (!(sig == SIGUSR1 || sig == SIGUSR2)) {
+    if (!consume_signal) {
         // Remove handler, let the system crash
         struct sigaction action;
         ::memset(&action, 0, sizeof(action));
@@ -110,8 +111,9 @@ extern "C" void sig_handler(int sig, siginfo_t* siginfo, void* context) {
 }
 
 void unhandled_exception_handler() {
-    eprintf(COLOR_RED "The application crashed" COLOR_NONE "\n");
-    const char* msg = "unhandled exception thrown";
+    auto logfn = [&](const char* msg) { CaptureBacktrace::get_print_to_stderr_cb()(msg, strlen(msg)); };
+    logfn(COLOR_RED "The application crashed" COLOR_NONE "\n");
+    const char* msg = "unknown";
     char buf[4096];
     auto ex = std::current_exception();
     try {
@@ -119,15 +121,18 @@ void unhandled_exception_handler() {
             std::rethrow_exception(ex);
         }
     } catch (const std::exception& e) {
-        snprintf(buf, sizeof(buf), "unhandled exception thrown : %s", e.what());
+        snprintf(buf, sizeof(buf), "%s", e.what());
         msg = buf;
     } catch (...) {
     }
-    eprintf("Message:  " COLOR_CYAN "%s" COLOR_NONE "\n", msg);
 
     CaptureBacktrace cap;
     cap.capture(1);
     cap.print();
+
+    logfn("exception: " COLOR_CYAN);
+    logfn(msg);
+    logfn(COLOR_NONE "\n");
 
     exit(1);
 }

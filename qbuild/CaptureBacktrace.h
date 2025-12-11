@@ -14,6 +14,7 @@ struct CaptureBacktrace {
 
     static void init(const char* exec_filename);
     static void set_print_to_stderr_cb(PrintToStderrCB print_to_stderr_cb);
+    static PrintToStderrCB get_print_to_stderr_cb() { return print_to_stderr_cb; }
 
     void capture(int skip_frames = 0) const;
     void print() const;
@@ -28,5 +29,4 @@ struct CaptureBacktrace {
     static PrintToStderrCB print_to_stderr_cb;
 };
 
-char const* get_demangled_name(char const* const symbol) noexcept;
 NOINLINE void backtrace_print();

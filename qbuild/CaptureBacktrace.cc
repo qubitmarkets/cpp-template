@@ -49,7 +49,7 @@ struct PrintBacktrace {
     }
 
     static bool can_skip(const char* function) {
-        const char* to_skip[]{
+        static const char* to_skip[]{
             "__GI___dl_iterate_phdr",  // Internal function used by libbacktrace
             "__GI___mmap64",
             "__GI___clock_gettime",
@@ -66,6 +66,9 @@ struct PrintBacktrace {
             "backtrace_full",
             nullptr,  // Sentinel
         };
+        if (!function) {
+            return false;
+        }
         for (const char** skip = to_skip; *skip != nullptr; ++skip) {
             if (strcmp(function, *skip) == 0) {
                 return true;
@@ -98,7 +101,7 @@ struct PrintBacktrace {
             func_name = demangled;
         }
 
-        if (!filepath || !func_name || can_skip(func_name)) {
+        if ((!filepath && !func_name) || can_skip(func_name)) {
             // When compiling with debug compiler, we have an additional undefined stack frame at the beginning.  Skip it, so we have
             // consistent results in debug and release.
             if (frame_idx > 1) {

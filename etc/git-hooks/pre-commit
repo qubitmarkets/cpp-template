@@ -1,11 +1,12 @@
 #!/bin/bash
-if [[ ${GIT_PRECOMMIT_HACK-0} == 1 ]]; then
-  echo "GIT_PRECOMMIT_HACK=$GIT_PRECOMMIT_HACK : Skipping build test"
+if [[ ${HACK-0} == 1 ]]; then
+  echo "HACK=$HACK : Skipping build test"
   exit 0
 fi
 
 etc/check-copyright.sh || exit 1
 etc/check-includes.sh || exit 1
+etc/check-nocommit.sh || exit 1
 
 cd $(git rev-parse --show-toplevel)
 

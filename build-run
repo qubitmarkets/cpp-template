@@ -20,6 +20,7 @@ if [[ -e /usr/bin/colorpath ]]; then PIPE_COLORPATH="| /usr/bin/colorpath"; fi
 target=${target-}
 INSTALL_DIR=${INSTALL_DIR-./install}
 
+start_time=$(date +%s)
 do_configure=0
 flags=""
 cfg_flags="-DCMAKE_INSTALL_PREFIX=${INSTALL_DIR}"
@@ -120,7 +121,7 @@ fi
 rv=0
 # Configure
 if [[ ! -e $cmake_build_dir || $do_configure == 1 || ! -e $cmake_build_dir/build.ninja ]]; then
-    echo "+ $PWD$ cmake --preset $profile.$compiler --no-warn-unused-cli $cfg_flags"
+    echo "+ cmake --preset $profile.$compiler --no-warn-unused-cli $cfg_flags"
     cmake --preset $profile.$compiler --no-warn-unused-cli $cfg_flags
     rv=$(($rv || $?))
 fi
@@ -151,7 +152,7 @@ fi
 
 # build
 if [[ $mode == "build" || $mode == "run" || $mode == "test" ]]; then
-    bash -c "cmake --build ${cmake_build_dir} ${flags} $PIPE_COLORPATH; exit \${PIPESTATUS[0]}"
+    bash -c "cmake --build ${cmake_build_dir} ${flags} $MAKEFLAGS $PIPE_COLORPATH; exit \${PIPESTATUS[0]}"
     rv=$(($rv || $?))
 fi
 
@@ -192,6 +193,13 @@ if [[ $mode == "test" ]]; then
     fi
     bash -c "ctest ${test_flags} --output-on-failure --test-dir ${cmake_build_dir} $PIPE_COLORPATH; exit \${PIPESTATUS[0]}"
     rv=$(($rv || $?))
+fi
+
+# Timing
+end_time=$(date +%s)
+dur=$(($end_time-$start_time))
+if [[ $dur -gt 0 ]]; then
+  echo >&2 "Time : $dur seconds"
 fi
 
 exit $rv
