@@ -1,0 +1,38 @@
+#!/bin/bash
+
+set -eux
+
+# Installs gcc to /opt/infra.1/bin
+
+# Creates g++-15
+GCC_VER=13.4.0
+GCC_MAJOR_VER=13
+DESTDIR=${DESTDIR-/opt/infra.1}
+
+cd $(dirname ${BASH_SOURCE})
+
+if [[ -e /usr/bin/apt ]]; then
+    sudo apt install -y build-essential gcc flex m4 bison tcl texinfo autoconf automake
+elif [[ -e /usr/bin/dnf ]]; then
+    sudo dnf install -y gcc flex m4 bison tcl texinfo autoconf automake
+fi
+
+if [[ ! -d gcc{GCC_MAJOR_VER} ]]; then
+    #git clone --depth=1 git://gcc.gnu.org/git/gcc.git
+    git clone --depth=1 -b releases/gcc-${GCC_VER} git@github.com:gcc-mirror/gcc.git gcc${GCC_MAJOR_VER}
+fi
+cd gcc${GCC_MAJOR_VER}
+#git fetch origin --tags
+git checkout releases/gcc-$GCC_VER ||
+    (git fetch origin releases/gcc-$GCC_VER --tags && git checkout releases/gcc-$GCC_VER)
+
+./contrib/download_prerequisites
+mkdir -p build
+cd build
+../configure --prefix=$DESTDIR \
+    --enable-languages=c,c++ \
+    --disable-multilib \
+    --program-suffix "-$GCC_MAJOR_VER"
+make
+read -p "Press key to install"
+sudo make install

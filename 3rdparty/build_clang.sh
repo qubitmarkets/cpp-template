@@ -54,4 +54,7 @@ else
     touch /tmp/empty.c
     $INFRA_ROOT/bin/clang-$CLANG_MAJOR_VER /tmp/empty.c -fsyntax-only
 
+    sudo ln -nfs $INFRA_ROOT/bin/clang++-${CLANG_VER} /usr/bin/clang++-${CLANG_VER}
+    sudo ln -nfs $INFRA_ROOT/bin/clang-${CLANG_VER} /usr/bin/clang-${CLANG_VER}
+
 fi

@@ -6,6 +6,7 @@ share/
 libbacktrace/
 catch2/
 gcc/
+gcc13/
 cmake-*/
 *.gz
 *.bz2
