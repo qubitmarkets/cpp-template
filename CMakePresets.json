@@ -43,7 +43,7 @@
             ],
             "name": "clang21",
             "hidden": true,
-            "description": "Using compilers: C = /usr/bin/clang-21, CXX = /usr/bin/clang++-21",
+            "description": "Using compilers: C = /opt/infra.1/bin/clang-21, CXX = /opt/infra.1/bin/clang++-21",
             "binaryDir": "${sourceDir}/builds/${presetName}",
             "generator": "Ninja",
             "cacheVariables": {
@@ -51,9 +51,10 @@
                 "CMAKE_INSTALL_PREFIX": "${sourceDir}/builds/${presetName}",
                 "CMAKE_CXX_COMPILER_LAUNCHER": "ccache",
                 "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
-                "CMAKE_C_COMPILER": "/usr/bin/clang-21",
-                "CMAKE_CXX_COMPILER": "/usr/bin/clang++-21",
-                "CMAKE_CXX_FLAGS": "-include ${sourceDir}/qbuild/qbuild.h"
+                "CMAKE_C_COMPILER": "/opt/infra.1/bin/clang-21",
+                "CMAKE_CXX_COMPILER": "/opt/infra.1/bin/clang++-21",
+                "CMAKE_CXX_FLAGS": "-include ${sourceDir}/qbuild/qbuild.h -pipe",
+                "CMAKE_EXE_LINKER_FLAGS": "-ffunction-sections -fdata-sections -Wl,--gc-sections"
             }
         },
         {

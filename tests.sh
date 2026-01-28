@@ -4,7 +4,7 @@ cd $(dirname ${BASH_SOURCE})
 
 set -eu
 
-for compiler in gcc15 clang21; do
+for compiler in gcc15 clang20; do
   for profile_base in debug release; do
     for dot_extra in "" ".sanitize"; do
       export compiler

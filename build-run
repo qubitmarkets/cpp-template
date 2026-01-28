@@ -30,21 +30,32 @@ nargs=$(($# - 1))
 i=0
 while [[ $i -le $nargs ]]; do
     arg="${args[$i]}"
+    next_i=$((i + 1))
+    next_arg=""
+    if [[ $next_i -le $nargs ]]; then
+        next_arg="${args[$next_i]}"
+    fi
     if [[ $arg == "-r" ]]; then
         profile=release
     elif [[ $arg == "-v" ]]; then
         flags="$flags $arg"
     elif [[ ${arg:0:2} == "-D" ]]; then
         if [[ $arg == "-D" ]]; then
-            i=$(($i + 1))
+            i=$next_i
             cfg_flags="$cfg_flags -D ${args[$i]}"
         else
             cfg_flags="$cfg_flags $arg"
         fi
     elif [[ ${arg:0:11} == "--compiler=" ]]; then
         compiler=("${arg:11}")
+    elif [[ ${arg} == "--compiler" ]]; then
+        compiler=("${next_arg}")
+        i=$next_i
     elif [[ ${arg:0:10} == "--profile=" ]]; then
         profile=("${arg:10}")
+    elif [[ ${arg} == "--profile" ]]; then
+        profile=("${next_arg}")
+        i=$next_i
     elif [[ ${arg:0:11} == "--gcc" ]]; then
         compiler=("gcc")
     elif [[ $arg == "--cfg" || $arg == "--configure" ]]; then
@@ -71,6 +82,9 @@ while [[ $i -le $nargs ]]; do
         shift 1
         run_args=($@)
         break
+    elif [[ ${arg:0:2} == "--" ]]; then
+        # Unknown long arg
+        echo "Unknown option $arg"
     else
         # Unknown arg
         if [[ "$mode" == "test" ]]; then
@@ -152,7 +166,7 @@ fi
 
 # build
 if [[ $mode == "build" || $mode == "run" || $mode == "test" ]]; then
-    bash -c "cmake --build ${cmake_build_dir} ${flags} $MAKEFLAGS $PIPE_COLORPATH; exit \${PIPESTATUS[0]}"
+    bash -c "cmake --build ${cmake_build_dir} ${flags} ${MAKEFLAGS-} $PIPE_COLORPATH; exit \${PIPESTATUS[0]}"
     rv=$(($rv || $?))
 fi
 
@@ -197,9 +211,9 @@ fi
 
 # Timing
 end_time=$(date +%s)
-dur=$(($end_time-$start_time))
+dur=$(($end_time - $start_time))
 if [[ $dur -gt 0 ]]; then
-  echo >&2 "Time : $dur seconds"
+    echo >&2 "Time : $dur seconds"
 fi
 
 exit $rv
