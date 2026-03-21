@@ -10,10 +10,12 @@ cp etc/git-hooks/pre-commit .git/hooks/
 
 echo "Installing dev packages"
 if [[ -e /usr/bin/dnf ]]; then
-    run sudo dnf install -y ninja-build openssl-devel libtool sudo zlib lz4 snappy brotli zstd
+    run sudo dnf install -y ninja-build openssl-devel libtool sudo zlib lz4 snappy brotli zstd ccache
     run sudo dnf install -y zlib-devel lz4-devel snappy-devel libzstd-devel brotli-devel
 elif [[ -e /usr/bin/apt ]]; then
-    run sudo apt install -y ninja-build libssl-dev
+sudo apt-get update && sudo apt-get install -y \
+  ninja-build  libssl-dev  libtool  sudo  zlib1g  liblz4-1  libsnappy1v5  libbrotli1 libzstd1 ccache wget \
+  zlib1g-dev liblz4-dev  libsnappy-dev   libzstd-dev   libbrotli-dev
 fi
 
 echo "Install useful dev scripts"

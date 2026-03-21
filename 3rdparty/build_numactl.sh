@@ -14,7 +14,18 @@ echo "-------------------------"
 
 root=$PWD
 tarfile=$pkg-${version}.tar.gz
-sudo dnf install -y make gcc perl-core pcre-devel wget zlib-devel zlib-static
+if [[ -e /usr/bin/dnf ]]; then
+  sudo dnf install -y make gcc perl-core pcre-devel wget zlib-devel zlib-static
+else
+sudo apt-get update && sudo apt-get install -y \
+  make \
+  gcc \
+  perl \
+  libpcre3-dev \
+  wget \
+  zlib1g-dev \
+  zlib1g
+fi
 if [[ ! -e $tarfile ]]; then
   wget https://github.com/numactl/numactl/archive/refs/tags/v$version.tar.gz -O $tarfile
 fi

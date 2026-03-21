@@ -30,6 +30,12 @@ if [[ $GCC_VER -lt ${GCC_MAJOR_VER} || $target == "gcc" ]]; then
         ./build_gcc.sh
     fi
 fi
+if [[ ! -e $INFRA_ROOT/bin/g++-15 ]]; then
+  sudo ln -nfs /usr/bin/gcc $INFRA_ROOT/bin/gcc-15
+  sudo ln -nfs /usr/bin/g++ $INFRA_ROOT/bin/g++-15
+  sudo ln -nfs /usr/bin/gcc-ar $INFRA_ROOT/bin/gcc-ar-15
+  sudo ln -nfs /usr/bin/gcc-nm $INFRA_ROOT/bin/gcc-nm-15
+fi
 # Build cmake (requires g++-15)
 if [[ ! -e $INFRA_ROOT/bin/cmake || $target == "cmake" ]]; then
     ./build_cmake.sh
@@ -76,9 +82,6 @@ true
         fi
         if [[ ! -e $install_dir/lib/libabsl_base.a || $target == "abseil" ]]; then
             ./build_abseil.sh
-        fi
-        if [[ ! -e $install_dir/lib/libwslay.a || $target == "wslay" ]]; then
-            ./build_wslay.sh
         fi
         if [[ ! -e $install_dir/lib/libsimdjson_static.a || $target == "simdjson" ]]; then
             ./build_simdjson.sh

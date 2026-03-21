@@ -20,7 +20,10 @@ fi
 
 if [[ -e /usr/bin/apt ]]; then
     sudo apt-get install -y libstdc++-12-dev
-    wget -q0- https://apt.llvm.org/llvm.sh | sudo bash -s $CLANG_VER
+    curl -q https://apt.llvm.org/llvm.sh | sudo bash -s $CLANG_VER
+
+    sudo ln -nfs /usr/bin/clang++-${CLANG_VER} $INFRA_ROOT/bin/clang++-${CLANG_VER}
+    sudo ln -nfs /usr/bin/clang-${CLANG_VER} $INFRA_ROOT/bin/clang-${CLANG_VER}
 else
     # Build from source
 
@@ -56,5 +59,5 @@ else
 
     sudo ln -nfs $INFRA_ROOT/bin/clang++-${CLANG_VER} /usr/bin/clang++-${CLANG_VER}
     sudo ln -nfs $INFRA_ROOT/bin/clang-${CLANG_VER} /usr/bin/clang-${CLANG_VER}
-
 fi
+

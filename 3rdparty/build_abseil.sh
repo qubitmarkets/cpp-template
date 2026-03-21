@@ -10,7 +10,7 @@ echo "-------------------------"
 echo "Building abseil"
 echo "-------------------------"
 
-ver=lts_2025_05_12
+ver=lts_2026_01_07
 
 run rm -rf catch2
 if [[ -d abseil-cpp ]]; then
