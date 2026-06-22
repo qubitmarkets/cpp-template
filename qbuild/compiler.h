@@ -31,19 +31,19 @@
 // Compiler defines
 #define NOINLINE __attribute__((noinline))
 
-// INLINE, ALWAYS_INLINE
+// QBM_INLINE, ALWAYS_INLINE
 // If optimizations are disabled, forcing inlining can lead to significant
 // code bloat and high compile times. Don't use simdjson_really_inline for
 #if CURRENT_BUILD_PROFILE == BUILD_PROFILE_DEBUG
     #if __QBUILD_COMPILER_CLANG__
-        #define INLINE __attribute__((weak))
+        #define QBM_INLINE __attribute__((weak))
         #define ALWAYS_INLINE __attribute__((weak)) inline
     #else
-        #define INLINE inline
+        #define QBM_INLINE inline
         #define ALWAYS_INLINE inline
     #endif
 #else
-    #define INLINE __attribute__((inline))
+    #define QBM_INLINE __attribute__((inline))
     #define ALWAYS_INLINE __attribute__((always_inline)) inline
 #endif
 

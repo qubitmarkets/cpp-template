@@ -12,6 +12,12 @@ cd f-stack
 export FF_PATH=$PWD
 export DPDK_BUILD_DIR=$FF_PATH/dpdk/build
 
+if [[ -e /usr/bin/apt ]]; then
+    sudo apt-get install -y linux-headers-generic build-essential pkg-config libnuma-dev libssl-dev openssl meson ninja-build libpcap-dev python3-pip python3.13-venv
+else
+    sudo dnf install -y kernel-devel-$(uname -r) kernel-headers meson ninja-build numactl-devel openssl-devel libpcap-devel python libfdt-devel
+fi
+
 if ! which pyenv >/dev/null; then
     curl https://pyenv.run | bash
     export PYENV_ROOT="$HOME/.pyenv"
@@ -23,12 +29,6 @@ if [[ ! -e $PYENV_ROOT/versions/venv/bin/activate ]]; then
     pyenv virtualenv venv
 fi
 source $PYENV_ROOT/versions/venv/bin/activate
-
-if [[ -e /usr/bin/apt ]]; then
-    sudo apt-get install -y linux-headers-generic build-essential pkg-config libnuma-dev libssl-dev openssl meson ninja-build libpcap-dev python3-pip
-else
-    sudo dnf install -y kernel-devel-$(uname -r) kernel-headers meson ninja-build numactl-devel openssl-devel libpcap-devel python libfdt-devel
-fi
 
 pip install --upgrade pip
 pip3 install pyelftools --upgrade
