@@ -1,5 +1,6 @@
 // Copyright (c) 2025 Qubit Markets Pte. Ltd.
-#pragma once
+#ifndef QBUILD_COMPILER_H
+#define QBUILD_COMPILER_H
 
 // Current Build Profile (can only be one)
 #define BUILD_PROFILE_DEBUG 1
@@ -132,3 +133,5 @@ struct NoFarReturn {};
 
 // Backtrace
 extern void backtrace_print();
+
+#endif  // QBUILD_COMPILER_H

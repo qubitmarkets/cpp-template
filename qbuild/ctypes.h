@@ -1,5 +1,6 @@
 // Copyright (c) 2025 Qubit Markets Pte. Ltd.
-#pragma once
+#ifndef QBUILD_CTYPE_H
+#define QBUILD_CTYPE_H
 
 #include <stdint.h>
 #include <unistd.h>
@@ -39,3 +40,5 @@ struct alignas(32) u256 {
 
     u64 _v[4]{};
 };
+
+#endif  // QBUILD_CTYPE_H

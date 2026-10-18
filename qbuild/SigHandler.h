@@ -37,3 +37,4 @@ struct SigHandler {
     static void register_sighandler_exit(Callback<void(int sig)> cb);
     static void register_on_exit_process(Callback<void(int sig)> cb);
 };
+    
