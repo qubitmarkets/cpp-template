@@ -8,3 +8,4 @@ LICENSE
 prereqs.sh
 tests.sh
 tidy.sh
+scripts/git-hooks/pre-commit

@@ -65,6 +65,7 @@ fi
 
 # copy git hooks
 cp $src/etc/git-hooks/pre-commit $dest/.git/hooks/
+mkdir -p $dest/scripts/git-hooks/
 
 if [[ $reverse == 0 ]]; then
 # links to dirs
