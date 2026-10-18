@@ -70,7 +70,7 @@
         {
             "name": "clang20",
             "hidden": true,
-            "description": "Using compilers: C = /usr/bin/clang-20, CXX = /usr/bin/clang++-20",
+            "description": "Using compilers: C = /opt/infra.1/bin/clang-20, CXX = /opt/infra.1/bin/clang++-20",
             "binaryDir": "${sourceDir}/builds/${presetName}",
             "generator": "Ninja",
             "cacheVariables": {
@@ -78,8 +78,8 @@
                 "CMAKE_INSTALL_PREFIX": "${sourceDir}/builds/${presetName}",
                 "CMAKE_CXX_COMPILER_LAUNCHER": "ccache",
                 "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
-                "CMAKE_C_COMPILER": "/usr/bin/clang-20",
-                "CMAKE_CXX_COMPILER": "/usr/bin/clang++-20",
+                "CMAKE_C_COMPILER": "/opt/infra.1/bin/clang-20",
+                "CMAKE_CXX_COMPILER": "/opt/infra.1/bin/clang++-20",
                 "CMAKE_CXX_FLAGS": "-include ${sourceDir}/qbuild/qbuild.h"
             }
         },
@@ -96,7 +96,7 @@
         {
             "name": "clang19",
             "hidden": true,
-            "description": "Using compilers: C = /usr/bin/clang-19, CXX = /usr/bin/clang++-19",
+            "description": "Using compilers: C = /opt/infra.1/bin/clang-19, CXX = /opt/infra.1/bin/clang++-19",
             "binaryDir": "${sourceDir}/builds/${presetName}",
             "generator": "Ninja",
             "cacheVariables": {
@@ -104,8 +104,8 @@
                 "CMAKE_INSTALL_PREFIX": "${sourceDir}/builds/${presetName}",
                 "CMAKE_CXX_COMPILER_LAUNCHER": "ccache",
                 "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
-                "CMAKE_C_COMPILER": "/usr/bin/clang-19",
-                "CMAKE_CXX_COMPILER": "/usr/bin/clang++-19",
+                "CMAKE_C_COMPILER": "/opt/infra.1/bin/clang-19",
+                "CMAKE_CXX_COMPILER": "/opt/infra.1/bin/clang++-19",
                 "CMAKE_CXX_FLAGS": "-include ${sourceDir}/qbuild/qbuild.h"
             }
         },
@@ -218,7 +218,7 @@
                 "THIRD_PARTY_DIR": "${sourceDir}/3rdparty/install/release.clang21",
                 "CMAKE_INSTALL_PREFIX": "${sourceDir}/builds/debug.clang21",
                 "CMAKE_BUILD_TYPE": "Debug",
-                "CMAKE_CXX_CLANG_TIDY": "/usr/bin/clang-tidy;-style=file;"
+                "CMAKE_CXX_CLANG_TIDY": "/opt/infra.1/bin/clang-tidy;-style=file;"
             }
         },
         {
@@ -231,11 +231,11 @@
                 "THIRD_PARTY_DIR": "${sourceDir}/3rdparty/install/release.clang19",
                 "CMAKE_INSTALL_PREFIX": "${sourceDir}/builds/debug.clang19",
                 "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
-                "CMAKE_C_COMPILER": "/usr/bin/clang-19",
-                "CMAKE_CXX_COMPILER": "/usr/bin/clang++-19",
+                "CMAKE_C_COMPILER": "/opt/infra.1/bin/clang-19",
+                "CMAKE_CXX_COMPILER": "/opt/infra.1/bin/clang++-19",
                 "CMAKE_CXX_FLAGS": "-include ${sourceDir}/qbuild/qbuild.h",
                 "CMAKE_BUILD_TYPE": "Debug",
-                "CMAKE_CXX_CLANG_TIDY": "/usr/bin/clang-tidy;-style=file;"
+                "CMAKE_CXX_CLANG_TIDY": "/opt/infra.1/bin/clang-tidy;-style=file;"
             }
         },
         {
