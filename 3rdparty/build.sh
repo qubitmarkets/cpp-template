@@ -77,9 +77,6 @@ true
         if [[ ! -e $install_dir/lib/libabsl_base.a || $target == "abseil" ]]; then
             ./build_abseil.sh
         fi
-        if [[ ! -e $install_dir/lib/libwslay.a || $target == "wslay" ]]; then
-            ./build_wslay.sh
-        fi
         if [[ ! -e $install_dir/lib/libsimdjson_static.a || $target == "simdjson" ]]; then
             ./build_simdjson.sh
         fi
