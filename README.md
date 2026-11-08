@@ -1,6 +1,6 @@
 # cpp-template
 
-This repo creates a framework for building C++ projects.  It uses compilers, cmake and 3rdparty libraries from `/opt/infra.1`, built by [genie](../genie) (`~/qbm/genie`).  It installs useful development scripts ()`./etc`) to `/usr/bin`
+This repo creates a framework for building C++ projects.  It uses compilers, cmake and 3rdparty libraries from `/opt/infra.1`, built by [genie-packages](../genie-packages) (`~/qbm/genie-packages`).  It installs useful development scripts ()`./etc`) to `/usr/bin`
 
 ## Usage
 
@@ -11,7 +11,7 @@ This will copy the files to the desination dir.  It will not overwite any modifi
 - Change to the destination dir
 - Run the `./prereqs.sh` script to install git hooks and build all the tooling
 - Run the `./etc/install.sh` script to install useful dev scripts to `/usr/bin`
-- To update the compilers and 3rdparty libraries: `~/qbm/genie/build.sh` builds them in a container, then `gpm install --repo /build/$USER/genie/packages --all` installs them to `/opt/infra.1` (`prereqs.sh` does both; set `GENIE_ROOT` if genie is elsewhere)
+- To update the compilers and 3rdparty libraries: `~/qbm/genie-packages/build.sh` builds them in a container, then `gpm install --repo /build/$USER/genie/packages --all` installs them to `/opt/infra.1` (`prereqs.sh` does both; set `GENIE_ROOT` if genie is elsewhere)
 
 The CMake presets come from genie: `CMakePresets.json` only includes `/opt/infra.1/share/genie/CMakePresets.json` (gpm package `genie-presets`), which has `debug|release[.sanitize].<compiler>` for every compiler genie builds, and `clang-tidy`. They set the compilers, `THIRD_PARTY_DIR` (`/opt/infra.1/<profile>.<compiler>`), a gcc's rpath and the sanitize flags; this repo's own flags (`-include qbuild.h`, ...) are in `qbuild.cmake`.
 

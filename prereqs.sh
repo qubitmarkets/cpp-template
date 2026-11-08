@@ -21,7 +21,7 @@ echo "Install useful dev scripts"
 run etc/install.sh
 
 echo "Build compilers, cmake and 3rdparty libs with genie (in a container), and install them to $INFRA_ROOT with gpm"
-GENIE_ROOT=${GENIE_ROOT-$HOME/qbm/genie}
+GENIE_ROOT=${GENIE_ROOT-$HOME/qbm/genie-packages}
 GENIE_OUT=${GENIE_OUT-/build/$USER/genie}
 GPM=${GPM-$HOME/qbm/gpm/target/x86_64-unknown-linux-musl/release/gpm}
 if [[ ! -x $GENIE_ROOT/build.sh ]]; then
