@@ -3,8 +3,9 @@
 cd $(dirname ${BASH_SOURCE})
 
 set -eu
+source ./etc/infra.sh
 
-for compiler in gcc16 clang23; do
+for compiler in $TEST_COMPILERS; do
   for profile_base in debug release; do
     for dot_extra in "" ".sanitize"; do
       export compiler

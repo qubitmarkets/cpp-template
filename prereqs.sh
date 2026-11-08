@@ -2,6 +2,7 @@
 
 set -eu
 source ./etc/utils.sh
+source ./etc/infra.sh
 
 check_sudo
 
@@ -19,7 +20,7 @@ fi
 echo "Install useful dev scripts"
 run etc/install.sh
 
-echo "Build compilers, cmake and 3rdparty libs with genie (in a container), and install them to /opt/infra.1 with gpm"
+echo "Build compilers, cmake and 3rdparty libs with genie (in a container), and install them to $INFRA_ROOT with gpm"
 GENIE_ROOT=${GENIE_ROOT-$HOME/qbm/genie}
 GENIE_OUT=${GENIE_OUT-/build/$USER/genie}
 GPM=${GPM-$HOME/qbm/gpm/target/x86_64-unknown-linux-musl/release/gpm}
@@ -28,8 +29,8 @@ if [[ ! -x $GENIE_ROOT/build.sh ]]; then
     exit 1
 fi
 run $GENIE_ROOT/build.sh
-if [[ ! -w /opt/infra.1 ]]; then
-    echo "ERROR: /opt/infra.1 is not writable. Make it yours: sudo install -d -o $(id -un) -g $(id -gn) /opt/infra.1"
+if [[ ! -w $INFRA_ROOT ]]; then
+    echo "ERROR: $INFRA_ROOT is not writable. Make it yours: sudo install -d -o $(id -un) -g $(id -gn) $INFRA_ROOT"
     exit 1
 fi
-run $GPM install --root /opt/infra.1 --repo $GENIE_OUT/packages --all
+run $GPM install --root $INFRA_ROOT --repo $GENIE_OUT/packages --all

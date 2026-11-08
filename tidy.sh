@@ -2,7 +2,8 @@
 
 echo "Tidying code"
 
-export PATH=$PATH:/opt/infra.1/bin
+source ./etc/infra.sh
+export PATH=$PATH:$INFRA_ROOT/bin
 
 set -eux
 

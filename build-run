@@ -5,13 +5,15 @@
 #
 
 cd $(dirname ${BASH_SOURCE})
+source ./etc/infra.sh
+export PATH=$INFRA_ROOT/bin:$PATH
 
 set -eu
 
 script_name=$(basename $0)
 mode=help
 profile=${profile-debug}
-compiler=${compiler-clang23}
+compiler=${compiler-$DEFAULT_COMPILER}
 run_args=()
 args=("$@")
 PIPE_COLORPATH=""

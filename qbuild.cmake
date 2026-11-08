@@ -5,7 +5,12 @@ project(qbuild
     DESCRIPTION "qbuild"
     LANGUAGES CXX)
 
-# Presets set THIRD_PARTY_DIR to /opt/infra.1/<profile>.<compiler>. Env THIRD_PARTY_ROOT (e.g. ~/infra) moves the root.
+# The presets come from genie (see CMakePresets.json): compilers, THIRD_PARTY_DIR (<root>/<profile>.<compiler>) and
+# sanitize flags. This repo's own flags go here, for every compiler and profile.
+add_compile_options("SHELL:$<$<COMPILE_LANGUAGE:CXX>:-include ${CMAKE_SOURCE_DIR}/qbuild/qbuild.h>" -pipe)
+add_link_options(-Wl,--gc-sections)
+
+# Env THIRD_PARTY_ROOT (e.g. ~/infra) moves THIRD_PARTY_DIR to $THIRD_PARTY_ROOT/<profile>.<compiler>
 if(DEFINED ENV{THIRD_PARTY_ROOT})
     cmake_path(GET THIRD_PARTY_DIR FILENAME THIRD_PARTY_VARIANT)
     set(THIRD_PARTY_DIR "$ENV{THIRD_PARTY_ROOT}/${THIRD_PARTY_VARIANT}")
