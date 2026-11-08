@@ -11,7 +11,7 @@ set -eu
 script_name=$(basename $0)
 mode=help
 profile=${profile-debug}
-compiler=${compiler-clang21}
+compiler=${compiler-clang23}
 run_args=()
 args=("$@")
 PIPE_COLORPATH=""
@@ -56,8 +56,6 @@ while [[ $i -le $nargs ]]; do
     elif [[ ${arg} == "--profile" ]]; then
         profile=("${next_arg}")
         i=$next_i
-    elif [[ ${arg:0:11} == "--gcc" ]]; then
-        compiler=("gcc")
     elif [[ $arg == "--cfg" || $arg == "--configure" ]]; then
         do_configure=1
     elif [[ $arg == "cfg" || $arg == "configure" ]]; then

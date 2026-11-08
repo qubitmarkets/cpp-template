@@ -69,7 +69,7 @@ mkdir -p $dest/scripts/git-hooks/
 
 if [[ $reverse == 0 ]]; then
 # links to dirs
-for f in 3rdparty qbuild etc; do
+for f in qbuild etc; do
     if [[ -e $dest/f && $skip_diff == 1 ]]; then
       if ! diff -q -r $src/$f $dest/$f; then
         continue;

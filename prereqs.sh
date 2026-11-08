@@ -19,5 +19,17 @@ fi
 echo "Install useful dev scripts"
 run etc/install.sh
 
-echo "Install clang & cmake from source, 3rdparty libs"
-run 3rdparty/build.sh
+echo "Build compilers, cmake and 3rdparty libs with genie (in a container), and install them to /opt/infra.1 with gpm"
+GENIE_ROOT=${GENIE_ROOT-$HOME/qbm/genie}
+GENIE_OUT=${GENIE_OUT-/build/$USER/genie}
+GPM=${GPM-$HOME/qbm/gpm/target/x86_64-unknown-linux-musl/release/gpm}
+if [[ ! -x $GENIE_ROOT/build.sh ]]; then
+    echo "ERROR: genie not found at $GENIE_ROOT. Clone it there or set GENIE_ROOT"
+    exit 1
+fi
+run $GENIE_ROOT/build.sh
+if [[ ! -w /opt/infra.1 ]]; then
+    echo "ERROR: /opt/infra.1 is not writable. Make it yours: sudo install -d -o $(id -un) -g $(id -gn) /opt/infra.1"
+    exit 1
+fi
+run $GPM install --root /opt/infra.1 --repo $GENIE_OUT/packages --all

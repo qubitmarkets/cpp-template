@@ -5,8 +5,6 @@ set -euxo pipefail
 cd $(dirname ${BASH_SOURCE})
 ROOT_DIR=$PWD
 
-./3rdparty/build.sh
-
 cmake --preset $profile.$compiler
 
 #CMAKE_DIR=$ROOT_DIR/target/debug.clang

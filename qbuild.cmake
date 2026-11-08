@@ -4,7 +4,21 @@ project(qbuild
     VERSION 1.0
     DESCRIPTION "qbuild"
     LANGUAGES CXX)
-find_package(Catch2 3 REQUIRED PATHS ${THIRD_PARTY_DIR}/lib/cmake)
+
+# Presets set THIRD_PARTY_DIR to /opt/infra.1/<profile>.<compiler>. Env THIRD_PARTY_ROOT (e.g. ~/infra) moves the root.
+if(DEFINED ENV{THIRD_PARTY_ROOT})
+    cmake_path(GET THIRD_PARTY_DIR FILENAME THIRD_PARTY_VARIANT)
+    set(THIRD_PARTY_DIR "$ENV{THIRD_PARTY_ROOT}/${THIRD_PARTY_VARIANT}")
+endif()
+message(STATUS "THIRD_PARTY_DIR ${THIRD_PARTY_DIR}")
+# A cached Catch2_DIR wins over PATHS, so drop it when THIRD_PARTY_DIR has moved
+if(Catch2_DIR)
+    cmake_path(IS_PREFIX THIRD_PARTY_DIR "${Catch2_DIR}" NORMALIZE CATCH2_IN_THIRD_PARTY)
+    if(NOT CATCH2_IN_THIRD_PARTY)
+        unset(Catch2_DIR CACHE)
+    endif()
+endif()
+find_package(Catch2 3 REQUIRED PATHS ${THIRD_PARTY_DIR}/lib/cmake NO_DEFAULT_PATH)
 
 # Setup Build environment
 execute_process(COMMAND "/usr/bin/ln" "-nfs" "${CMAKE_CURRENT_BINARY_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}/build")
