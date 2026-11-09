@@ -1,6 +1,8 @@
 // Copyright (c) 2025 Qubit Markets Pte. Ltd.
 #pragma once
 
+#include "qbuild/qbuild.h"
+
 /// Fast Callback
 /// Callback with 8 bytes of storage
 ///
