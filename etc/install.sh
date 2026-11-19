@@ -44,5 +44,5 @@ fi
 echo "alias b='build-run build'"
 echo "alias r='build-run run'"
 echo "alias t='build-run test'"
-echo "alias n='ninja-build'"
+echo "alias n='ninja-root-build'"
 ) > ~/.build-run.sh
