@@ -2,6 +2,7 @@
 #pragma once
 
 #include "Callback.h"
+#include <stddef.h>
 #include <stdint.h>
 
 using PrintToStderrCB = Callback<void(const char* line, u32 len)>;
@@ -15,6 +16,13 @@ struct CaptureBacktrace {
     static void init(const char* exec_filename);
     static void set_print_to_stderr_cb(PrintToStderrCB print_to_stderr_cb);
     static PrintToStderrCB get_print_to_stderr_cb() { return print_to_stderr_cb; }
+
+    /// The checkout that debug info's /vcache/src/... paths name: $QBM_SOURCE_ROOT, else CMAKE_HOME_DIRECTORY from the
+    /// nearest CMakeCache.txt above the executable. nullptr if neither is found. Resolved once, by init().
+    static const char* source_root();
+    /// filepath with a leading /vcache/src replaced by source_root(), written to buf; filepath itself if it has no
+    /// such prefix, or there is no source root, or buf is too small.
+    static const char* map_source_path(const char* filepath, char* buf, size_t buf_size);
 
     void capture(int skip_frames = 0) const;
     void print() const;

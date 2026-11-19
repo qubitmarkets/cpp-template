@@ -150,6 +150,8 @@ void SigHandler::install() {
         return;
     }
     std::set_terminate(unhandled_exception_handler);
+    // Find the checkout for backtraces now: the lookup reads files, which a signal handler should not
+    CaptureBacktrace::source_root();
 
     int signals[] = {SIGUSR1, SIGINT, SIGHUP, SIGSEGV, SIGABRT, SIGUSR2};
     for (auto sig : signals) {

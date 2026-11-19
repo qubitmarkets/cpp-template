@@ -85,6 +85,7 @@ if(QBUILD_TESTS)
     add_executable(callback.t 
         qbuild/tests/_run_catch_tests.t.cc
         qbuild/tests/Callback.t.cc
+        qbuild/tests/CaptureBacktrace.t.cc
     )
     target_link_libraries(callback.t PRIVATE qbuild)
     target_link_libraries(callback.t PRIVATE Catch2::Catch2)

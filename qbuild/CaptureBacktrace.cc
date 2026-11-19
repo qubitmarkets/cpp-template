@@ -7,8 +7,9 @@
 #include <backtrace.h>  // libbacktrace
 #include <cxxabi.h>     // abi
 #include <libgen.h>     // dirname, basename
-#include <limits.h>     // INT_MAX
-#include <stdlib.h>     // malloc, free
+#include <limits.h>     // INT_MAX, PATH_MAX
+#include <stdio.h>      // fopen, fgets, snprintf
+#include <stdlib.h>     // malloc, free, getenv
 #include <string.h>     // strdup
 #include <unistd.h>
 #include <cstdarg>
@@ -21,6 +22,88 @@
 backtrace_state* __bt_state = nullptr;
 bool backtrace_init(const char* filename);
 PrintToStderrCB CaptureBacktrace::print_to_stderr_cb{};
+
+// ------------------------
+// Source paths
+//
+// The genie presets compile through vcache with --vcache-root=<checkout>=src, so debug info names every source
+// /vcache/src/<path in the checkout>. The name is the same in every checkout, which is what lets checkouts share
+// cache entries. A backtrace maps it back to the checkout: $QBM_SOURCE_ROOT, else CMAKE_HOME_DIRECTORY from the
+// CMakeCache.txt in the nearest directory above the executable. ~/.gdbinit.host does the same for gdb.
+//
+static constexpr char vcache_source_prefix[] = "/vcache/src";
+static char g_source_root[PATH_MAX];
+static bool g_source_root_resolved = false;
+
+// CMAKE_HOME_DIRECTORY from <dir>/CMakeCache.txt into out. False if there is no such file.
+static bool read_cmake_home(const char* dir, char* out, size_t out_size) {
+    char path[PATH_MAX];
+    if (snprintf(path, sizeof(path), "%s/CMakeCache.txt", dir) >= (int)sizeof(path)) {
+        return false;
+    }
+    FILE* f = ::fopen(path, "r");
+    if (!f) {
+        return false;
+    }
+    static constexpr char key[] = "CMAKE_HOME_DIRECTORY:";
+    char line[PATH_MAX + 64];
+    bool at_line_start = true;  // A line longer than the buffer comes back in pieces: match only its first
+    while (::fgets(line, sizeof(line), f)) {
+        size_t len = strlen(line);
+        bool ends_line = len > 0 && line[len - 1] == '\n';
+        if (at_line_start && ends_line && strncmp(line, key, sizeof(key) - 1) == 0) {
+            line[len - 1] = 0;
+            const char* value = strchr(line, '=');
+            if (value && value[1] != 0) {
+                snprintf(out, out_size, "%s", value + 1);
+            }
+            break;
+        }
+        at_line_start = ends_line;
+    }
+    ::fclose(f);
+    return true;
+}
+
+// static
+const char* CaptureBacktrace::source_root() {
+    if (g_source_root_resolved) {
+        return g_source_root[0] ? g_source_root : nullptr;
+    }
+    g_source_root_resolved = true;
+    if (const char* env = ::getenv("QBM_SOURCE_ROOT"); env && *env) {
+        snprintf(g_source_root, sizeof(g_source_root), "%s", env);
+        return g_source_root;
+    }
+    char dir[PATH_MAX];
+    ssize_t n = ::readlink("/proc/self/exe", dir, sizeof(dir) - 1);
+    if (n <= 0) {
+        return nullptr;
+    }
+    dir[n] = 0;
+    // Walk up from the executable's directory; the first CMakeCache.txt decides
+    for (char* slash = strrchr(dir, '/'); slash && slash != dir; slash = strrchr(dir, '/')) {
+        *slash = 0;
+        if (read_cmake_home(dir, g_source_root, sizeof(g_source_root))) {
+            break;
+        }
+    }
+    return g_source_root[0] ? g_source_root : nullptr;
+}
+
+// static
+const char* CaptureBacktrace::map_source_path(const char* filepath, char* buf, size_t buf_size) {
+    constexpr size_t prefix_len = sizeof(vcache_source_prefix) - 1;
+    if (!filepath || strncmp(filepath, vcache_source_prefix, prefix_len) != 0 ||
+        (filepath[prefix_len] != '/' && filepath[prefix_len] != 0)) {
+        return filepath;
+    }
+    const char* root = source_root();
+    if (!root || snprintf(buf, buf_size, "%s%s", root, filepath + prefix_len) >= (int)buf_size) {
+        return filepath;
+    }
+    return buf;
+}
 
 // ------------------------
 // PrintBacktrace
@@ -112,6 +195,8 @@ struct PrintBacktrace {
             }
             return 0;
         }
+        char mapped_path[PATH_MAX];
+        filepath = CaptureBacktrace::map_source_path(filepath, mapped_path, sizeof(mapped_path));
         char* dir_ = strdup(filepath);
         auto dir = ::dirname(dir_);
         char* filename_ = strdup(filepath);
@@ -177,6 +262,8 @@ struct PrintBacktrace {
 // static
 void CaptureBacktrace::init(const char* exec_filename) {
     backtrace_init(exec_filename);
+    // Resolve it now, outside any signal handler: it reads files
+    source_root();
     set_print_to_stderr_cb({});
 }
 
